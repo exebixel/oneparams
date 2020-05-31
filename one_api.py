@@ -16,6 +16,8 @@ class one_api():
         self.__gservisId = []
         self.__gservisNome = []
 
+        self.__services = []
+
     def login(self,
               empresaId,
               filialId,
@@ -78,7 +80,9 @@ class one_api():
         )
 
         if response.status_code == 200:
+            content = json.loads(response.content)
             print("service {0} created successful".format(nome))
+            return content["data"]
         else:
             print("erro creating service {0}".format(nome))
             print(f'Erro code: {response.status_code}')
@@ -121,18 +125,12 @@ class one_api():
             headers = self.__header
         )
 
-        if response.status_code != 200:
-            print("erro researching service groups")
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            exit()
+        if response.status_code == 200:
+            try:
+                content = json.loads(response.content)
+            except json.decoder.JSONDecodeError:
+                print("Erro in convert JSON")
 
-        try:
-            content = json.loads(response.content)
-        except json.decoder.JSONDecodeError:
-            print("Erro in convert JSON")
-
-        if content["success"]:
             print("service group {0} created successful".format(nome))
             self.__gservisId.append(content["data"])
             self.__gservisNome.append(nome)
@@ -159,19 +157,18 @@ class one_api():
             return gservs_id
 
     def all_services(self):
-        print("researching service groups")
+        print("researching services")
         response = requests.get(
             "{0}/OGservsServicos/GservsServicos".format(self.__api_url),
             headers = self.__header
         )
 
-        services = []
         if response.status_code == 200:
             content = json.loads(response.content)
             for content in content["Gservs"]:
                 for servs in content["Servicos"]:
                     if servs["ServicosAtivo"]:
-                        services.append({
+                        self.__services.append({
                             "id": servs["ServicosId"],
                             "nome": servs["ServicosNome"],
                             "comissao": servs["ServicoValorComissao"],
@@ -179,9 +176,40 @@ class one_api():
                             "grupo": content["GservsNome"]
                         })
 
-            return services
         else:
             print("erro researching service groups")
             print(f'Erro code: {response.status_code}')
             print(response.content)
             exit()
+
+    def services(self,
+                 nome,
+                 preco,
+                 comissao,
+                 tempoExecucao,
+                 gservs):
+
+        if self.__services != []:
+            for services in self.__services:
+                if services["nome"] == nome:
+                    print("skipping service {0}".format(nome))
+                    break
+
+            else:
+                service_id = self.create_service(
+                    nome = nome,
+                    preco = preco,
+                    comissao = comissao,
+                    tempoExecucao = tempoExecucao,
+                    gservs = gservs
+                )
+                self.__services.append({
+                    "id": service_id,
+                    "nome": nome,
+                    "comissao": comissao,
+                    "tempo_execucao": tempoExecucao,
+                    "grupo": gservs
+                })
+        else:
+            self.all_services()
+            self.services(nome, preco, comissao, tempoExecucao, gservs)

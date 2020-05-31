@@ -1,6 +1,7 @@
+import xlrd
 import sys
 from one_api import one_api
-from servicos import *
+from servicos import servico
 
 if len(sys.argv) == 2:
     workbook_name = sys.argv[1]
@@ -27,3 +28,10 @@ access_token = one.login(
 book = xlrd.open_workbook("excel.xlsx")
 
 servico(book, access_token)
+# one.services(
+#     nome = "teste",
+#     preco = 20,
+#     comissao = 50,
+#     tempoExecucao = "00:30",
+#     gservs = "Depilação"
+# )

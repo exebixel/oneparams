@@ -34,7 +34,8 @@ def servico(book, access_token):
         except TypeError:
             pass
 
-        one.create_service(
+
+        one.services(
             nome = nome_value,
             preco = preco_value,
             comissao = comissao_value,
