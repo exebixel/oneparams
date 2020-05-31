@@ -2,11 +2,17 @@ import json, requests
 
 class one_api():
 
-    __api_url = "https://oneapinovo.azurewebsites.net/api"
-    __header = ""
-    __access_token = ""
+    def __init__(self, access_token=""):
+        self.__api_url = "https://oneapinovo.azurewebsites.net/api"
 
-    def __init__(self):
+        if access_token != "":
+            self.__header = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {access_token}'
+            }
+        else:
+            self.__header = ""
+
         self.__gservisId = []
         self.__gservisNome = []
 
@@ -35,13 +41,13 @@ class one_api():
             )
 
             content = json.loads(response.content)
-            self.__access_token =  content["data"]["access_token"]
+            access_token =  content["data"]["access_token"]
             self.__header = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {self.__access_token}'
+                'Authorization': f'Bearer {access_token}'
             }
-
             print("successful login")
+            return access_token
 
         except:
             print("login erro!")

@@ -1,10 +1,5 @@
-import xlrd
-import re
 import sys
-from  datetime import time
 from one_api import one_api
-from excel_class import excel
-from utils import *
 from servicos import *
 
 if len(sys.argv) == 2:
@@ -22,7 +17,7 @@ except xlrd.biffh.XLRDError:
     exit()
 
 one = one_api()
-one.login(
+access_token = one.login(
     empresaId="9324",
     filialId="9448",
     email="ezequielnat7@gmail.com",
@@ -31,4 +26,4 @@ one.login(
 
 book = xlrd.open_workbook("excel.xlsx")
 
-servico(book)
+servico(book, access_token)

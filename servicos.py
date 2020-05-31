@@ -3,7 +3,7 @@ from  datetime import time
 from one_api import one_api
 from excel_class import excel
 
-def servico(book):
+def servico(book, access_token):
     sheet_name = "servico"
     sh_index = excel.sheet_index(book, sheet_name)
     if sh_index == -1:
@@ -18,7 +18,7 @@ def servico(book):
     comissao_index = excel.column_index(sh, "comissao")
     execucao_index = excel.column_index(sh, "execucao")
 
-    one = one_api()
+    one = one_api(access_token)
 
     for row in range(1, sh.nrows):
         nome_value = sh.cell_value(rowx=row, colx=nome_index)
