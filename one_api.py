@@ -157,3 +157,31 @@ class one_api():
                 gservs_id = self.create_Gservis(nome)
         finally:
             return gservs_id
+
+    def all_services(self):
+        print("researching service groups")
+        response = requests.get(
+            "{0}/OGservsServicos/GservsServicos".format(self.__api_url),
+            headers = self.__header
+        )
+
+        services = []
+        if response.status_code == 200:
+            content = json.loads(response.content)
+            for content in content["Gservs"]:
+                for servs in content["Servicos"]:
+                    if servs["ServicosAtivo"]:
+                        services.append({
+                            "id": servs["ServicosId"],
+                            "nome": servs["ServicosNome"],
+                            "comissao": servs["ServicoValorComissao"],
+                            "tempo_execucao": servs["ServicoTempoExecucao"],
+                            "grupo": content["GservsNome"]
+                        })
+
+            return services
+        else:
+            print("erro researching service groups")
+            print(f'Erro code: {response.status_code}')
+            print(response.content)
+            exit()
