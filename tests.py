@@ -19,9 +19,9 @@ except xlrd.biffh.XLRDError:
 
 one = one_api()
 access_token = one.login(
-    empresaId="9324",
-    filialId="9448",
-    email="ezequielnat7@gmail.com",
+    empresaId="9467",
+    filialId="9597",
+    email="pilotolite@onebeleza.com.br",
     senha="123456"
 )
 

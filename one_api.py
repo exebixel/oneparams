@@ -54,7 +54,7 @@ class one_api():
         except:
             print("login erro!")
             print(f'Erro code: {response.status_code}')
-            print(content)
+            print(response.content)
             exit()
 
     def create_service(self,
@@ -165,8 +165,14 @@ class one_api():
 
         if response.status_code == 200:
             content = json.loads(response.content)
+            # if content["Gservs"] == []:
+            #     return 0
+
+            cont = 0
             for content in content["Gservs"]:
                 for servs in content["Servicos"]:
+                    if servs == []:
+                        cont+=1
                     if servs["ServicosAtivo"]:
                         self.__services.append({
                             "id": servs["ServicosId"],
@@ -175,6 +181,9 @@ class one_api():
                             "tempo_execucao": servs["ServicoTempoExecucao"],
                             "grupo": content["GservsNome"]
                         })
+            else:
+                if cont == 0:
+                    return 0
 
         else:
             print("erro researching service groups")
@@ -211,5 +220,24 @@ class one_api():
                     "grupo": gservs
                 })
         else:
-            self.all_services()
-            self.services(nome, preco, comissao, tempoExecucao, gservs)
+            if self.all_services() != 0:
+                self.services(nome,
+                              preco,
+                              comissao,
+                              tempoExecucao,
+                              gservs)
+            else:
+                service_id = self.create_service(
+                    nome = nome,
+                    preco = preco,
+                    comissao = comissao,
+                    tempoExecucao = tempoExecucao,
+                    gservs = gservs
+                )
+                self.__services.append({
+                    "id": service_id,
+                    "nome": nome,
+                    "comissao": comissao,
+                    "tempo_execucao": tempoExecucao,
+                    "grupo": gservs
+                })
