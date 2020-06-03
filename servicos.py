@@ -1,6 +1,6 @@
 import xlrd
 from  datetime import time
-from api.one_api import one_api
+from api.servicos import servicos
 from excel_class import excel
 
 def servico(book, access_token):
@@ -18,7 +18,7 @@ def servico(book, access_token):
     comissao_index = excel.column_index(sh, "comissao")
     execucao_index = excel.column_index(sh, "execucao")
 
-    one = one_api(access_token)
+    one = servicos(access_token)
 
     for row in range(1, sh.nrows):
         nome_value = sh.cell_value(rowx=row, colx=nome_index)

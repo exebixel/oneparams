@@ -1,22 +1,17 @@
 import json, requests
 
-class one_api():
+class gservis():
 
-    def __init__(self, access_token=""):
+    def __init__(self, access_token):
         self.__api_url = "https://oneapinovo.azurewebsites.net/api"
-
-        if access_token != "":
-            self.__header = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {access_token}'
+        self.__header = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {access_token}'
             }
-        else:
-            self.__header = ""
 
         self.__gservisId = []
         self.__gservisNome = []
 
-        self.__services = []
 
     def all_Gservis(self):
         print("researching service groups")
@@ -70,7 +65,7 @@ class one_api():
             print(content)
             exit()
 
-    def Gservis(self, 
+    def Gservis(self,
                 nome):
         try:
             index = self.__gservisNome.index(nome)
@@ -84,4 +79,3 @@ class one_api():
                 gservs_id = self.create_Gservis(nome)
         finally:
             return gservs_id
-
