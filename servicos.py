@@ -1,6 +1,6 @@
 import xlrd
 from  datetime import time
-from one_api import one_api
+from api.one_api import one_api
 from excel_class import excel
 
 def servico(book, access_token):

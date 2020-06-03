@@ -1,6 +1,6 @@
 import xlrd
 import sys
-from one_api import one_api
+from api.login import login
 from servicos import servico
 
 if len(sys.argv) == 2:
@@ -17,7 +17,7 @@ except xlrd.biffh.XLRDError:
     print("Arquivo não suportado!")
     exit()
 
-one = one_api()
+one = login()
 access_token = one.login(
     empresaId="9467",
     filialId="9597",

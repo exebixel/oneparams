@@ -18,45 +18,6 @@ class one_api():
 
         self.__services = []
 
-    def login(self,
-              empresaId,
-              filialId,
-              email,
-              senha):
-
-        header = {
-            'Content-Type': 'application/json',
-        }
-        dados = {
-            "empresaId": empresaId,
-            "filialId": filialId,
-            "email": email,
-            "senha": senha
-        }
-
-        try:
-            print("logging in")
-            response = requests.post(
-                "{0}/ologin".format(self.__api_url),
-                data = json.dumps(dados),
-                headers = header
-            )
-
-            content = json.loads(response.content)
-            access_token =  content["data"]["access_token"]
-            self.__header = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {access_token}'
-            }
-            print("successful login")
-            return access_token
-
-        except:
-            print("login erro!")
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            exit()
-
     def create_service(self,
                        nome,
                        preco,
