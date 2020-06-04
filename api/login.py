@@ -1,4 +1,4 @@
-import json, requests
+import json, requests, sys
 
 class login():
 
@@ -38,4 +38,4 @@ class login():
             print("login erro!")
             print(f'Erro code: {response.status_code}')
             print(response.content)
-            exit()
+            sys.exit()

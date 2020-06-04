@@ -1,4 +1,4 @@
-import json, requests
+import json, requests, sys
 from api.gservs import gservis
 
 class servicos():
@@ -11,6 +11,7 @@ class servicos():
         }
 
         self.__services = []
+        self.all_services()
         self.Gservs = gservis(access_token)
 
     def create_service(self,
@@ -43,7 +44,7 @@ class servicos():
             print("erro creating service {0}".format(nome))
             print(f'Erro code: {response.status_code}')
             print(response.content)
-            exit()
+            sys.exit()
 
     def all_services(self):
         print("researching services")
@@ -54,13 +55,11 @@ class servicos():
 
         if response.status_code == 200:
             content = json.loads(response.content)
-            # if content["Gservs"] == []:
-            #     return 0
 
             cont = 0
             for content in content["Gservs"]:
                 for servs in content["Servicos"]:
-                    if servs == []:
+                    if servs is not []:
                         cont+=1
                     if servs["ServicosAtivo"]:
                         self.__services.append({
@@ -72,61 +71,43 @@ class servicos():
                         })
             else:
                 if cont == 0:
-                    return 0
+                    return None
 
         else:
             print("erro researching service groups")
             print(f'Erro code: {response.status_code}')
             print(response.content)
-            exit()
+            sys.exit()
 
-    def services(self,
-                 nome,
-                 preco,
-                 comissao,
-                 tempoExecucao,
-                 gservs):
+    def exists(self, nome):
+        for services in self.__services:
+            if services["nome"] is nome:
+                return True
 
-        if self.__services != []:
-            for services in self.__services:
-                if services["nome"] == nome:
-                    print("skipping service {0}".format(nome))
-                    break
+        return False
 
-            else:
-                service_id = self.create_service(
-                    nome = nome,
-                    preco = preco,
-                    comissao = comissao,
-                    tempoExecucao = tempoExecucao,
-                    gservs = gservs
-                )
-                self.__services.append({
-                    "id": service_id,
-                    "nome": nome,
-                    "comissao": comissao,
-                    "tempo_execucao": tempoExecucao,
-                    "grupo": gservs
-                })
+    def equals(self, data):
+        for services in self.__services:
+            services.pop("id")
+            if services is data:
+                return True
+
+        return False
+
+    def services(self, data):
+
+        if not self.exists(data["nome"]):
+            service_id = self.create_service(
+                nome = data["nome"],
+                preco = data["preco"],
+                comissao = data["comissao"],
+                tempoExecucao = data["tempo_execucao"],
+                gservs = data["grupo"]
+            )
+            data["id"] = service_id
+            self.__services.append(data)
+
         else:
-            if self.all_services() != 0:
-                self.services(nome,
-                              preco,
-                              comissao,
-                              tempoExecucao,
-                              gservs)
-            else:
-                service_id = self.create_service(
-                    nome = nome,
-                    preco = preco,
-                    comissao = comissao,
-                    tempoExecucao = tempoExecucao,
-                    gservs = gservs
-                )
-                self.__services.append({
-                    "id": service_id,
-                    "nome": nome,
-                    "comissao": comissao,
-                    "tempo_execucao": tempoExecucao,
-                    "grupo": gservs
-                })
+            print(f'Service {data["nome"]} exist')
+
+        # elif not equals(data):

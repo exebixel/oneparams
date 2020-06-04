@@ -32,7 +32,7 @@ class gservis():
             print("erro researching service groups")
             print(f'Erro code: {response.status_code}')
             print(response.content)
-            exit()
+            sys.exit()
 
     def create_Gservis(self,
                        nome):
@@ -63,7 +63,7 @@ class gservis():
             print("erro creating service group {0}".format(nome))
             print(f'Erro code: {response.status_code}')
             print(content)
-            exit()
+            sys.exit()
 
     def Gservis(self,
                 nome):

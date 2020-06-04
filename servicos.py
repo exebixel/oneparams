@@ -34,11 +34,12 @@ def servico(book, access_token):
         except TypeError:
             pass
 
+        data = {
+            "nome":  nome_value,
+            "preco":  preco_value,
+            "comissao":  comissao_value,
+            "tempo_execucao":  tempo_execucao,
+            "grupo":  gservs_value
+        }
 
-        one.services(
-            nome = nome_value,
-            preco = preco_value,
-            comissao = comissao_value,
-            tempoExecucao = tempo_execucao,
-            gservs = gservs_value
-        )
+        one.services(data)
