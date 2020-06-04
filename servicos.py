@@ -16,11 +16,11 @@ def servico(book, access_token):
     grupo_index = excel.column_index(sh, "grupo")
     preco_index = excel.column_index(sh, "valor")
     comissao_index = excel.column_index(sh, "comissao")
-    execucao_index = excel.column_index(sh, "execucao")
+    execucao_index = excel.column_index(sh, "realizacao")
 
     one = servicos(access_token)
 
-    for row in range(1, sh.nrows):
+    for row in range(2, sh.nrows):
         nome_value = sh.cell_value(rowx=row, colx=nome_index)
         preco_value = sh.cell_value(rowx=row, colx=preco_index)
         comissao_value = sh.cell_value(rowx=row, colx=comissao_index)

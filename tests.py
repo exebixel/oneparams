@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import xlrd
 import sys
 from api.login import login
@@ -25,7 +26,7 @@ access_token = one.login(
     senha="123456"
 )
 
-book = xlrd.open_workbook("excel.xlsx")
+book = xlrd.open_workbook(workbook_name)
 
 servico(book, access_token)
 # one.services(
