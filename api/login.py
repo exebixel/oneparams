@@ -21,21 +21,21 @@ class login():
             "senha": senha
         }
 
-        try:
-            print("logging in")
-            response = requests.post(
-                "{0}/ologin".format(self.__api_url),
-                data = json.dumps(dados),
-                headers = header
-            )
+        print("logging in")
+        response = requests.post(
+            "{0}/ologin".format(self.__api_url),
+            data = json.dumps(dados),
+            headers = header
+        )
 
+        if response.status_code == 200:
             content = json.loads(response.content)
             access_token =  content["data"]["access_token"]
             print("successful login")
             return access_token
 
-        except:
+        else:
             print("login erro!")
             print(f'Erro code: {response.status_code}')
             print(response.content)
-            sys.exit()
+            sys.exit(0)
