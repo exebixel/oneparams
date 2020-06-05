@@ -12,19 +12,19 @@ def servico(book, access_token):
 
     sh = book.sheet_by_index(sh_index)
 
-    nome_index = excel.column_index(sh, "descricao")
+    nome_index = excel.column_index(sh, "nome")
     grupo_index = excel.column_index(sh, "grupo")
     preco_index = excel.column_index(sh, "valor")
     comissao_index = excel.column_index(sh, "comissao")
-    execucao_index = excel.column_index(sh, "realizacao")
+    execucao_index = excel.column_index(sh, "execucao")
 
     one = servicos(access_token)
 
     for row in range(2, sh.nrows):
-        nome_value = sh.cell_value(rowx=row, colx=nome_index)
+        nome_value = sh.cell_value(rowx=row, colx=nome_index).strip()
         preco_value = sh.cell_value(rowx=row, colx=preco_index)
         comissao_value = sh.cell_value(rowx=row, colx=comissao_index)
-        gservs_value = sh.cell_value(rowx=row, colx=grupo_index)
+        gservs_value = sh.cell_value(rowx=row, colx=grupo_index).strip()
 
         tempo_execucao = sh.cell_value(rowx=row, colx=execucao_index)
         try:
