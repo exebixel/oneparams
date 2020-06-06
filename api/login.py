@@ -1,9 +1,13 @@
 import json, requests, sys
+from urllib.parse import quote
 
 class login():
 
     def __init__(self):
         self.__api_url = "https://oneapinovo.azurewebsites.net/api"
+        self.__header = {
+            'Content-Type': 'application/json',
+        }
 
     def login(self,
               empresaId: str,
@@ -11,9 +15,6 @@ class login():
               email: str,
               senha: str) -> str:
 
-        header = {
-            'Content-Type': 'application/json',
-        }
         dados = {
             "empresaId": empresaId,
             "filialId": filialId,
@@ -25,7 +26,7 @@ class login():
         response = requests.post(
             "{0}/ologin".format(self.__api_url),
             data = json.dumps(dados),
-            headers = header
+            headers = self.__header
         )
 
         if response.status_code == 200:
@@ -39,3 +40,29 @@ class login():
             print(f'Erro code: {response.status_code}')
             print(response.content)
             sys.exit(0)
+
+    def empresa_id(self, name):
+
+        name = quote(name)
+        response = requests.get(
+            "{0}/OMobilidades/PesquisarEmpresaPorNome/{1}".format(self.__api_url, name),
+            headers = self.__header
+        )
+
+        if response.status_code != 200:
+            print("Error finding company")
+            print(f'Erro code: {response.status_code}')
+            print(response.content)
+            sys.exit(0)
+
+        content = json.loads(response.content)
+        if len(content) != 1:
+            print("company not found!!")
+            sys.exit(0)
+
+        empresa = {
+            "id": content[0]["empresasID"],
+            "filial_id": content[0]["filiaisID"],
+            "filial": content[0]["temFilial"]
+        }
+        return empresa
