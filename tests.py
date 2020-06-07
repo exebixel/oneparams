@@ -20,15 +20,15 @@ except xlrd.biffh.XLRDError:
 
 one = login()
 access_token = one.login(
-    empresaId="9467",
-    filialId="9597",
-    email="pilotolite@onebeleza.com.br",
+    nome_empresa="teste mmtools 5",
+    # filialId="",
+    email="ezequielnat7@gmail.com",
     senha="123456"
 )
 
-book = xlrd.open_workbook(workbook_name)
+# book = xlrd.open_workbook(workbook_name)
 
-servico(book, access_token)
+# servico(book, access_token)
 # one.services(
 #     nome = "teste",
 #     preco = 20,
