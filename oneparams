@@ -1,0 +1,38 @@
+#!/usr/bin/python
+import xlrd
+import sys, argparse
+from api.login import login
+from servicos import servico
+
+parser = argparse.ArgumentParser(
+    description = "One system parameterizer"
+)
+parser.add_argument('worksheet', help= "Parameterization worksheet path")
+parser.add_argument("--login", "-l", required=True,
+                    help= "Login email")
+parser.add_argument("--empresa", "-e", required=True,
+                    help= "Company Name")
+parser.add_argument("--filial", "-f",
+                    help= "Branch name (if any)")
+parser.add_argument("--password", "-p", default="123456",
+                    help= "Access password (default = 123456)")
+args = parser.parse_args()
+
+try:
+    book = xlrd.open_workbook(args.worksheet)
+except FileNotFoundError:
+    print("File not found!!")
+    sys.exit()
+except xlrd.biffh.XLRDError:
+    print("Unsupported file!!")
+    sys.exit()
+
+one = login()
+access_token = one.login(
+    nome_empresa= args.empresa,
+    nome_filial= args.filial,
+    email= args.login,
+    senha= args.password
+)
+
+servico(book, access_token)
