@@ -9,8 +9,9 @@ class gservis():
             'Authorization': f'Bearer {access_token}'
             }
 
-        self.__gservisId = []
-        self.__gservisNome = []
+        self.__gservis = []
+
+        self.all_Gservis()
 
 
     def all_Gservis(self):
@@ -23,10 +24,11 @@ class gservis():
         if response.status_code == 200:
             content = json.loads(response.content)
             for gservs in content["Gservs"]:
-                self.__gservisId.append(gservs["GservsId"])
-                self.__gservisNome.append(gservs["GservsNome"])
-            else:
-                print("services groups founds")
+                self.__gservis.append({
+                    "id": gservs["GservsId"],
+                    "nome": gservs["GservsNome"],
+                    "cont": len(gservs["Servicos"])
+                })
 
         else:
             print("erro researching service groups")
@@ -38,7 +40,6 @@ class gservis():
                        nome):
 
         dados = {
-            "id": "0",
             "nome": nome
         }
 
@@ -50,32 +51,26 @@ class gservis():
         )
 
         if response.status_code == 200:
-            try:
-                content = json.loads(response.content)
-            except json.decoder.JSONDecodeError:
-                print("Erro in convert JSON")
+            content = json.loads(response.content)
 
             print("service group {0} created successful".format(nome))
-            self.__gservisId.append(content["data"])
-            self.__gservisNome.append(nome)
+            self.__gservis.append({
+                "id": content["data"],
+                "nome": nome,
+                "cont": 0
+            })
             return content["data"]
         else:
             print("erro creating service group {0}".format(nome))
             print(f'Erro code: {response.status_code}')
-            print(content)
+            print(response.content)
             sys.exit()
 
     def Gservis(self,
                 nome):
-        try:
-            index = self.__gservisNome.index(nome)
-            gservs_id = self.__gservisId[index]
-        except ValueError:
-            self.all_Gservis()
-            try:
-                index = self.__gservisNome.index(nome)
-                gservs_id = self.__gservisId[index]
-            except ValueError:
-                gservs_id = self.create_Gservis(nome)
-        finally:
+        for gserv in self.__gservis:
+            if gserv["nome"] == nome:
+                return gserv["id"]
+        else:
+            gservs_id = self.create_Gservis(nome)
             return gservs_id
