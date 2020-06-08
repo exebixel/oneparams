@@ -1,6 +1,7 @@
 import xlrd
 from  datetime import time
 from api.servicos import servicos
+from api.gservs import gservis
 from excel_class import excel
 
 def servico(book, access_token):
@@ -43,3 +44,6 @@ def servico(book, access_token):
         }
 
         one.services(data)
+
+    grupo = gservis(access_token)
+    grupo.clear()

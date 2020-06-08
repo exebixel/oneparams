@@ -66,6 +66,27 @@ class gservis():
             print(response.content)
             sys.exit()
 
+    def delete(self, gserv_id):
+        for i in range( len(self.__gservis) ):
+            if self.__gservis[i]["id"] == gserv_id:
+                gserv_nome = self.__gservis[i]["nome"]
+                break
+
+        print("deleting {} service group".format(gserv_nome))
+        response = requests.delete(
+            "{0}/Gservs/DeleteGservs/{1}".format(self.__api_url, gserv_id),
+            headers = self.__header
+        )
+
+        if response.status_code == 200:
+            self.__gservis.pop(i)
+
+        else:
+            print("erro creating service group {0}".format(nome))
+            print(f'Erro code: {response.status_code}')
+            print(response.content)
+            sys.exit()
+
     def Gservis(self,
                 nome):
         for gserv in self.__gservis:
@@ -74,3 +95,8 @@ class gservis():
         else:
             gservs_id = self.create_Gservis(nome)
             return gservs_id
+
+    def clear(self):
+        for gserv in self.__gservis:
+            if gserv["cont"] == 0:
+                self.delete(gserv["id"])
