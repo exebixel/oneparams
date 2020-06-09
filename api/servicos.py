@@ -1,6 +1,5 @@
 import json, requests, sys
 from api.gservs import gservis
-import pdb
 
 class servicos():
 
@@ -15,7 +14,7 @@ class servicos():
         self.all_services()
         self.Gservs = gservis(access_token)
 
-    def create_service(self,
+    def create(self,
                        nome,
                        preco,
                        comissao,
@@ -47,7 +46,7 @@ class servicos():
             print(response.content)
             sys.exit()
 
-    def patch_service(self,
+    def patch(self,
                       service_id,
                       nome,
                       preco,
@@ -142,7 +141,7 @@ class servicos():
 
     def services(self, data):
         if not self.exists(data["nome"]):
-            service_id = self.create_service(
+            service_id = self.create(
                 nome = data["nome"],
                 preco = data["preco"],
                 comissao = data["comissao"],
@@ -153,7 +152,7 @@ class servicos():
             self.__services.append(data)
 
         elif not self.equals(data):
-            self.patch_service(
+            self.patch(
                 service_id = self.service_id(data["nome"]),
                 nome = data["nome"],
                 comissao = data["comissao"],
