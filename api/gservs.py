@@ -82,7 +82,7 @@ class gservis():
             self.__gservis.pop(i)
 
         else:
-            print("erro creating service group {0}".format(nome))
+            print("erro deleting service group {0}".format(nome))
             print(f'Erro code: {response.status_code}')
             print(response.content)
             sys.exit()
