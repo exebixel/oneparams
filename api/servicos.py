@@ -79,6 +79,72 @@ class servicos():
             print(response.content)
             sys.exit()
 
+    def delete(self, serv_id):
+        cont = 0
+        for i in self.__services:
+            if i["id"] == serv_id:
+                nome = i["nome"]
+                break
+            cont += 1
+        else:
+            print("service not found!")
+            sys.exit()
+
+        print("deleting {} service".format(nome))
+        response = requests.delete(
+            "{0}/Servicos/DeleteServicos/{1}".format(self.__api_url, serv_id),
+            headers = self.__header
+        )
+
+        if response.status_code == 200:
+            return True
+        else:
+            print("erro deleting service {0}".format(nome))
+            return False
+
+    def inactive(self, serv_id):
+        cont = 0
+        for i in self.__services:
+            if i["id"] == serv_id:
+                nome = i["nome"]
+                break
+            cont += 1
+        else:
+            print("service not found!")
+            sys.exit()
+
+        dados = {
+            "ServicosAtivo": "false",
+            "ServicosId": serv_id
+        }
+
+        print("inactivating {} service".format(nome))
+        response = requests.patch(
+            "{0}/Servicos/SetServicoAtivo".format(self.__api_url),
+            headers = self.__header,
+            data = json.dumps(dados)
+        )
+
+        if response.status_code == 200:
+            return True
+        else:
+            print("erro inactivatin service {0}".format(nome))
+            print(response.content)
+            return False
+
+    def delete_all(self):
+        deleted = []
+
+        for servico in self.__services:
+            if not self.delete(servico["id"]):
+                if self.inactive(servico["id"]):
+                    deleted.append(servico)
+            else:
+                deleted.append(servico)
+
+        for i in deleted:
+            self.__services.remove(i)
+
     def all_services(self):
         print("researching services")
         response = requests.get(

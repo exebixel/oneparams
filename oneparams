@@ -3,6 +3,7 @@ import xlrd
 import sys, argparse
 from api.login import login
 from servicos import servico
+from api.servicos import servicos
 
 parser = argparse.ArgumentParser(
     description = "One system parameterizer"
@@ -35,4 +36,6 @@ access_token = one.login(
     senha= args.password
 )
 
+# serv = servicos(access_token)
+# serv.delete_all()
 servico(book, access_token)
