@@ -41,6 +41,14 @@ class base_api:
             data = json.dumps(data)
         )
 
+    def patch(self, url, data):
+        return requests.patch(
+            "{}{}".format(self.api_url, url),
+            headers = self.header,
+            data = json.dumps(data)
+        )
+
+
     def status_ok(self, response, erro_exit=True):
         if response.status_code != 200:
             print(f'Erro code: {response.status_code}')
