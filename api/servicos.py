@@ -26,6 +26,7 @@ class servicos(base_api):
             "gservsId": self.Gservs.Gservis(gservs)
         }
 
+        print("creating {} service".format(nome))
         response = self.post(
             "/Servicos/ServicosBasic",
             data = dados
@@ -33,7 +34,6 @@ class servicos(base_api):
         self.status_ok(response)
 
         content = json.loads(response.content)
-        print("service {0} created successful".format(nome))
         return content["data"]
 
     def update(self,

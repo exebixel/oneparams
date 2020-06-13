@@ -37,7 +37,6 @@ class gservis(base_api):
         self.status_ok(response)
 
         content = json.loads(response.content)
-        print("service group {0} created successful".format(nome))
         self.__gservis.append({
             "id": content["data"],
             "nome": nome,
