@@ -26,29 +26,23 @@ class servicos(base_api):
             "gservsId": self.Gservs.Gservis(gservs)
         }
 
-        response = requests.post(
-            "{0}/Servicos/ServicosBasic".format(self.api_url),
-            data = json.dumps(dados),
-            headers = self.header
+        response = self.post(
+            "/Servicos/ServicosBasic",
+            data = dados
         )
+        self.status_ok(response)
 
-        if response.status_code == 200:
-            content = json.loads(response.content)
-            print("service {0} created successful".format(nome))
-            return content["data"]
-        else:
-            print("erro creating service {0}".format(nome))
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            sys.exit()
+        content = json.loads(response.content)
+        print("service {0} created successful".format(nome))
+        return content["data"]
 
-    def patch(self,
-                      service_id,
-                      nome,
-                      preco,
-                      comissao,
-                      tempoExecucao,
-                      gservs):
+    def update(self,
+              service_id,
+              nome,
+              preco,
+              comissao,
+              tempoExecucao,
+              gservs):
 
         dados = {
             "descricao": nome,
@@ -59,21 +53,15 @@ class servicos(base_api):
             "servicosId": service_id
         }
 
-        response = requests.put(
-            "{0}/Servicos/UpdateServicosLight/{1}".format(self.api_url, service_id),
-            data = json.dumps(dados),
-            headers = self.header
+        response = self.put(
+            "/Servicos/UpdateServicosLight/{0}".format(service_id),
+            data = dados
         )
+        self.status_ok(response)
 
-        if response.status_code == 200:
-            content = json.loads(response.content)
-            print("service {0} updated successful".format(nome))
-            return content["data"]
-        else:
-            print("erro updating service {0}".format(nome))
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            sys.exit()
+        content = json.loads(response.content)
+        print("service {0} updated successful".format(nome))
+        return content["data"]
 
     def delete(self, serv_id):
         cont = 0
@@ -87,15 +75,13 @@ class servicos(base_api):
             sys.exit()
 
         print("deleting {} service".format(nome))
-        response = requests.delete(
-            "{0}/Servicos/DeleteServicos/{1}".format(self.api_url, serv_id),
-            headers = self.header
+        response = super().delete(
+            "/Servicos/DeleteServicos/{0}".format(serv_id)
         )
 
-        if response.status_code == 200:
+        if self.status_ok(response, erro_exit=False):
             return True
         else:
-            print("erro deleting service {0}".format(nome))
             return False
 
     def inactive(self, serv_id):
@@ -115,17 +101,14 @@ class servicos(base_api):
         }
 
         print("inactivating {} service".format(nome))
-        response = requests.patch(
-            "{0}/Servicos/SetServicoAtivo".format(self.api_url),
-            headers = self.header,
-            data = json.dumps(dados)
+        response = self.patch(
+            "/servicos/setservicoativo",
+            data = dados
         )
 
-        if response.status_code == 200:
+        if self.status_ok(response, erro_exit=False):
             return True
         else:
-            print("erro inactivatin service {0}".format(nome))
-            print(response.content)
             return False
 
     def delete_all(self):
@@ -143,43 +126,35 @@ class servicos(base_api):
 
     def all_services(self):
         print("researching services")
-        response = requests.get(
-            "{0}/OGservsServicos/GservsServicos".format(self.api_url),
-            headers = self.header
+        response = self.get(
+            "/OGservsServicos/GservsServicos",
         )
+        self.status_ok(response)
 
-        if response.status_code == 200:
-            content = json.loads(response.content)
+        content = json.loads(response.content)
 
-            cont = 0
-            for content in content["Gservs"]:
-                for servs in content["Servicos"]:
-                    if servs is not []:
-                        cont+=1
-                    if servs["ServicosAtivo"]:
-                        self.__services.append({
-                            "id": servs["ServicosId"],
-                            "nome": servs["ServicosNome"],
-                            "preco": servs["ServicoPreco"],
-                            "comissao": servs["ServicoValorComissao"],
-                            "tempo_execucao": servs["ServicoTempoExecucao"],
-                            "grupo": content["GservsNome"]
-                        })
-            else:
-                if cont == 0:
-                    return None
-
+        cont = 0
+        for content in content["Gservs"]:
+            for servs in content["Servicos"]:
+                if servs is not []:
+                    cont+=1
+                if servs["ServicosAtivo"]:
+                    self.__services.append({
+                        "id": servs["ServicosId"],
+                        "nome": servs["ServicosNome"],
+                        "preco": servs["ServicoPreco"],
+                        "comissao": servs["ServicoValorComissao"],
+                        "tempo_execucao": servs["ServicoTempoExecucao"],
+                        "grupo": content["GservsNome"]
+                    })
         else:
-            print("erro researching service groups")
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            sys.exit()
+            if cont == 0:
+                return None
 
     def exists(self, nome):
         for services in self.__services:
             if services["nome"] == nome:
                 return True
-
         return False
 
     def equals(self, data):
@@ -191,7 +166,6 @@ class servicos(base_api):
                     cont+=1
             if cont == len(data):
                 return True
-
         return False
 
     def service_id(self, nome):
@@ -214,7 +188,7 @@ class servicos(base_api):
             self.__services.append(data)
 
         elif not self.equals(data):
-            self.patch(
+            self.update(
                 service_id = self.service_id(data["nome"]),
                 nome = data["nome"],
                 comissao = data["comissao"],
