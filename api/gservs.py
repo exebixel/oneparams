@@ -9,25 +9,18 @@ class gservis(base_api):
 
     def all_Gservis(self):
         print("researching service groups")
-        response = requests.get(
-            "{0}/OGservsServicos/GservsServicos".format(self.api_url),
-            headers = self.header
+        response = self.get(
+            "/OGservsServicos/GservsServicos"
         )
+        self.status_ok(response)
 
-        if response.status_code == 200:
-            content = json.loads(response.content)
-            for gservs in content["Gservs"]:
-                self.__gservis.append({
-                    "id": gservs["GservsId"],
-                    "nome": gservs["GservsNome"],
-                    "cont": len(gservs["Servicos"])
-                })
-
-        else:
-            print("erro researching service groups")
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            sys.exit()
+        content = json.loads(response.content)
+        for gservs in content["Gservs"]:
+            self.__gservis.append({
+                "id": gservs["GservsId"],
+                "nome": gservs["GservsNome"],
+                "cont": len(gservs["Servicos"])
+            })
 
     def create_Gservis(self,
                        nome):
@@ -37,27 +30,20 @@ class gservis(base_api):
         }
 
         print("creating service group {0}".format(nome))
-        response = requests.post(
-            "{0}/Gservs/CreateGServsLight".format(self.api_url),
-            data = json.dumps(dados),
-            headers = self.header
+        response = self.post(
+            "/Gservs/CreateGServsLight",
+            data = dados
         )
+        self.status_ok(response)
 
-        if response.status_code == 200:
-            content = json.loads(response.content)
-
-            print("service group {0} created successful".format(nome))
-            self.__gservis.append({
-                "id": content["data"],
-                "nome": nome,
-                "cont": 0
-            })
-            return content["data"]
-        else:
-            print("erro creating service group {0}".format(nome))
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            sys.exit()
+        content = json.loads(response.content)
+        print("service group {0} created successful".format(nome))
+        self.__gservis.append({
+            "id": content["data"],
+            "nome": nome,
+            "cont": 0
+        })
+        return content["data"]
 
     def delete(self, gserv_id):
         for i in range( len(self.__gservis) ):
@@ -66,19 +52,12 @@ class gservis(base_api):
                 break
 
         print("deleting {} service group".format(gserv_nome))
-        response = requests.delete(
-            "{0}/Gservs/DeleteGservs/{1}".format(self.api_url, gserv_id),
-            headers = self.header
+        response = super().delete(
+            "/Gservs/DeleteGservs/{0}".format(gserv_id)
         )
+        self.status_ok(response)
 
-        if response.status_code == 200:
-            self.__gservis.pop(i)
-
-        else:
-            print("erro deleting service group {0}".format(nome))
-            print(f'Erro code: {response.status_code}')
-            print(response.content)
-            sys.exit()
+        self.__gservis.pop(i)
 
     def Gservis(self,
                 nome):
