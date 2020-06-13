@@ -36,6 +36,6 @@ access_token = one.login(
     senha= args.password
 )
 
-# serv = servicos(access_token)
-# serv.delete_all()
-servico(book, access_token)
+serv = servicos()
+serv.delete_all()
+servico(book)

@@ -4,7 +4,7 @@ from api.servicos import servicos
 from api.gservs import gservis
 from excel_class import excel
 
-def servico(book, access_token):
+def servico(book):
     sheet_name = "servico"
     sh_index = excel.sheet_index(book, sheet_name)
     if sh_index == -1:
@@ -19,7 +19,7 @@ def servico(book, access_token):
     comissao_index = excel.column_index(sh, "comissao")
     execucao_index = excel.column_index(sh, "execucao")
 
-    one = servicos(access_token)
+    one = servicos()
 
     for row in range(2, sh.nrows):
         nome_value = sh.cell_value(rowx=row, colx=nome_index).strip()
@@ -45,5 +45,5 @@ def servico(book, access_token):
 
         one.services(data)
 
-    grupo = gservis(access_token)
+    grupo = gservis()
     grupo.clear()

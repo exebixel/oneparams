@@ -1,18 +1,14 @@
 import json, requests, sys
 from api.gservs import gservis
+from api.base import base_api
 
-class servicos():
+class servicos(base_api):
 
-    def __init__(self, access_token):
-        self.__api_url = "https://oneapinovo.azurewebsites.net/api"
-        self.__header = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {access_token}'
-        }
 
+    def __init__(self):
         self.__services = []
         self.all_services()
-        self.Gservs = gservis(access_token)
+        self.Gservs = gservis()
 
     def create(self,
                        nome,
@@ -31,9 +27,9 @@ class servicos():
         }
 
         response = requests.post(
-            "{0}/Servicos/ServicosBasic".format(self.__api_url),
+            "{0}/Servicos/ServicosBasic".format(self.api_url),
             data = json.dumps(dados),
-            headers = self.__header
+            headers = self.header
         )
 
         if response.status_code == 200:
@@ -64,9 +60,9 @@ class servicos():
         }
 
         response = requests.put(
-            "{0}/Servicos/UpdateServicosLight/{1}".format(self.__api_url, service_id),
+            "{0}/Servicos/UpdateServicosLight/{1}".format(self.api_url, service_id),
             data = json.dumps(dados),
-            headers = self.__header
+            headers = self.header
         )
 
         if response.status_code == 200:
@@ -92,8 +88,8 @@ class servicos():
 
         print("deleting {} service".format(nome))
         response = requests.delete(
-            "{0}/Servicos/DeleteServicos/{1}".format(self.__api_url, serv_id),
-            headers = self.__header
+            "{0}/Servicos/DeleteServicos/{1}".format(self.api_url, serv_id),
+            headers = self.header
         )
 
         if response.status_code == 200:
@@ -120,8 +116,8 @@ class servicos():
 
         print("inactivating {} service".format(nome))
         response = requests.patch(
-            "{0}/Servicos/SetServicoAtivo".format(self.__api_url),
-            headers = self.__header,
+            "{0}/Servicos/SetServicoAtivo".format(self.api_url),
+            headers = self.header,
             data = json.dumps(dados)
         )
 
@@ -148,8 +144,8 @@ class servicos():
     def all_services(self):
         print("researching services")
         response = requests.get(
-            "{0}/OGservsServicos/GservsServicos".format(self.__api_url),
-            headers = self.__header
+            "{0}/OGservsServicos/GservsServicos".format(self.api_url),
+            headers = self.header
         )
 
         if response.status_code == 200:

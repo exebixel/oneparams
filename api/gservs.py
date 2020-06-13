@@ -1,24 +1,17 @@
 import json, requests
+from api.base import base_api
 
-class gservis():
+class gservis(base_api):
 
-    def __init__(self, access_token):
-        self.__api_url = "https://oneapinovo.azurewebsites.net/api"
-        self.__header = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {access_token}'
-            }
-
+    def __init__(self):
         self.__gservis = []
-
         self.all_Gservis()
-
 
     def all_Gservis(self):
         print("researching service groups")
         response = requests.get(
-            "{0}/OGservsServicos/GservsServicos".format(self.__api_url),
-            headers = self.__header
+            "{0}/OGservsServicos/GservsServicos".format(self.api_url),
+            headers = self.header
         )
 
         if response.status_code == 200:
@@ -45,9 +38,9 @@ class gservis():
 
         print("creating service group {0}".format(nome))
         response = requests.post(
-            "{0}/Gservs/CreateGServsLight".format(self.__api_url),
+            "{0}/Gservs/CreateGServsLight".format(self.api_url),
             data = json.dumps(dados),
-            headers = self.__header
+            headers = self.header
         )
 
         if response.status_code == 200:
@@ -74,8 +67,8 @@ class gservis():
 
         print("deleting {} service group".format(gserv_nome))
         response = requests.delete(
-            "{0}/Gservs/DeleteGservs/{1}".format(self.__api_url, gserv_id),
-            headers = self.__header
+            "{0}/Gservs/DeleteGservs/{1}".format(self.api_url, gserv_id),
+            headers = self.header
         )
 
         if response.status_code == 200:

@@ -1,13 +1,8 @@
 import json, requests, sys
 from urllib.parse import quote
+from api.base import base_api
 
-class login():
-
-    def __init__(self):
-        self.__api_url = "https://oneapinovo.azurewebsites.net/api"
-        self.__header = {
-            'Content-Type': 'application/json',
-        }
+class login(base_api):
 
     def login(self,
               nome_empresa,
@@ -25,16 +20,16 @@ class login():
 
         print("logging in")
         response = requests.post(
-            "{0}/ologin".format(self.__api_url),
+            "{0}/ologin".format(self.api_url),
             data = json.dumps(dados),
-            headers = self.__header
+            headers = self.header
         )
 
         if response.status_code == 200:
             content = json.loads(response.content)
             access_token =  content["data"]["access_token"]
             print("successful login")
-            return access_token
+            super().update_token(access_token)
 
         else:
             print("login erro!")
@@ -47,8 +42,8 @@ class login():
 
         name = quote(name)
         response = requests.get(
-            "{0}/OMobilidades/PesquisarEmpresaPorNome/{1}".format(self.__api_url, name),
-            headers = self.__header
+            "{0}/OMobilidades/PesquisarEmpresaPorNome/{1}".format(self.api_url, name),
+            headers = self.header
         )
 
         if response.status_code != 200:
@@ -75,11 +70,11 @@ class login():
         name = quote(name)
         response = requests.get(
             "{0}/OMobilidades/PesquisarFilialPorNome/{1}/{2}".format(
-                self.__api_url,
+                self.api_url,
                 empresa_id,
                 name
             ),
-            headers = self.__header
+            headers = self.header
         )
 
         if response.status_code != 200:
