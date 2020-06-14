@@ -1,23 +1,23 @@
 import xlrd
-from  datetime import time
+from datetime import time
 from api.servicos import servicos
 from api.gservs import gservis
-from excel_class import excel
+from excel.excel import *
 
 def servico(book):
     sheet_name = "servico"
-    sh_index = excel.sheet_index(book, sheet_name)
+    sh_index = sheet_index(book, sheet_name)
     if sh_index == -1:
         print("sheet {0} not found!".format(sheet_name))
         exit()
 
     sh = book.sheet_by_index(sh_index)
 
-    nome_index = excel.column_index(sh, "nome")
-    grupo_index = excel.column_index(sh, "grupo")
-    preco_index = excel.column_index(sh, "valor")
-    comissao_index = excel.column_index(sh, "comissao")
-    execucao_index = excel.column_index(sh, "execucao")
+    nome_index = column_index(sh, "nome")
+    grupo_index = column_index(sh, "grupo")
+    preco_index = column_index(sh, "valor")
+    comissao_index = column_index(sh, "comissao")
+    execucao_index = column_index(sh, "execucao")
 
     one = servicos()
 
@@ -42,7 +42,6 @@ def servico(book):
             "tempo_execucao":  tempo_execucao,
             "grupo":  gservs_value
         }
-
         one.services(data)
 
     grupo = gservis()

@@ -2,8 +2,9 @@
 import xlrd
 import sys, argparse
 from api.login import login
-from servicos import servico
+from excel.servicos import servico
 from api.servicos import servicos
+from api.colaborador import colaborador
 
 parser = argparse.ArgumentParser(
     description = "One system parameterizer"
