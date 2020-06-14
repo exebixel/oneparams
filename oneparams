@@ -3,8 +3,8 @@ import xlrd
 import sys, argparse
 from api.login import login
 from excel.servicos import servico
+from excel.colaborador import colaborador
 from api.servicos import servicos
-from api.colaborador import colaborador
 
 parser = argparse.ArgumentParser(
     description = "One system parameterizer"
@@ -37,6 +37,7 @@ access_token = one.login(
     senha= args.password
 )
 
-serv = servicos()
-serv.delete_all()
+# serv = servicos()
+# serv.delete_all()
 servico(book)
+# colaborador(book)
