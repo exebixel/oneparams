@@ -162,7 +162,7 @@ class servicos(base_api):
             cont = 0
             for key in data.keys():
                 # services.pop("id")
-                if services[key] == data[key]:
+                if str(services[key]) == data[key]:
                     cont+=1
             if cont == len(data):
                 return True
