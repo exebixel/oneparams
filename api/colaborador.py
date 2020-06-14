@@ -1,7 +1,8 @@
 import json, requests, sys, re
 from api.base import base_api
+from utils import *
 
-class colaborador(base_api):
+class colaboradores(base_api):
 
     def __init__(self):
         self.__colaboradores = []
@@ -143,6 +144,7 @@ class colaborador(base_api):
             "celular": col["celular"],
             "email": col["email"],
             "perfil": content["perfil"],
+            "perfilId": col["perfilId"],
             "profissao": content["profissao"],
             "agendavel": col["agendavel"]
         }
@@ -158,11 +160,15 @@ class colaborador(base_api):
         cont = 0
         for key in data.keys():
             if key == "perfil":
-                if self.perfil_id(data[key]) == self.perfil_id(col[key]):
+                if col["perfilId"] == self.perfil_id(data[key]):
                     cont += 1
                     continue
             if key == "profissao":
                 if self.profissao_id(data[key]) == self.profissao_id(col[key]):
+                    cont += 1
+                    continue
+            if key == "celular":
+                if data[key] == get_num(col[key]):
                     cont += 1
                     continue
 
