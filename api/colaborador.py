@@ -60,6 +60,8 @@ class colaboradores(base_api):
                profissao):
 
         dados = {
+            "flagCliente": "true",
+            "flagFornecedor": "true",
             "colaboradorId": col_id,
             "agendavel": agendavel,
             "celular": celular,
