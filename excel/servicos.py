@@ -15,13 +15,8 @@ def servico(book):
     one = servicos()
 
     for row in range(2, ex.nrows):
-        # nome_value = sh.cell_value(rowx=row, colx=nome_index).strip()
-        # preco_value = sh.cell_value(rowx=row, colx=preco_index)
-        # comissao_value = sh.cell_value(rowx=row, colx=comissao_index)
-        # gservs_value = sh.cell_value(rowx=row, colx=grupo_index).strip()
         data = ex.data_row(row)
 
-        # tempo_execucao = sh.cell_value(rowx=row, colx=execucao_index)
         try:
             # convert data
             data["tempo_execucao"] = xlrd.xldate_as_tuple(
@@ -30,16 +25,12 @@ def servico(book):
             data["tempo_execucao"] = str(
                 time(*data["tempo_execucao"][3:])
             )
-        except TypeError:
+        except:
             pass
 
-        # data = {
-        #     "nome":  nome_value,
-        #     "preco":  preco_value,
-        #     "comissao":  comissao_value,
-        #     "tempo_execucao":  tempo_execucao,
-        #     "grupo":  gservs_value
-        # }
+        comissao = float(data["comissao"])
+        if comissao <= 1: data["comissao"] = str(comissao * 100)
+
         one.services(data)
 
     grupo = gservis()
