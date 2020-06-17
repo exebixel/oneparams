@@ -14,7 +14,7 @@ def get_num(x):
     return str(''.join(ele for ele in x if ele.isdigit()))
 
 def get_cel(x):
-    x = x.rstrip(".0")
+    x = re.sub('\.0$', '', x)
     cel = get_num(x)
     if len(cel) == 11:
         return cel[:11]
