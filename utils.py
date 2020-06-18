@@ -1,4 +1,5 @@
 import unicodedata, re, sys
+import random, string
 from datetime import datetime
 
 def string_normalize(palavra):
@@ -23,3 +24,12 @@ def get_cel(x):
     else:
         print("invalid phone {}".format(x))
         sys.exit()
+
+
+def create_email():
+    char_set = string.ascii_lowercase + string.digits
+    rand = ''.join(random.sample(char_set*7, 7))
+    return f'one_{rand}@onebeleza.com.br'
+
+def create_cel():
+    return ''.join(random.sample(string.digits*11, 11))
