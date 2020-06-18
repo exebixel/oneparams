@@ -1,23 +1,29 @@
 #!/usr/bin/python
 import xlrd
 import sys, argparse
+from args import parse_base
 from api.login import login
+from api.servicos import servicos
 from excel.servicos import servico
 from excel.colaborador import colaborador
-from api.servicos import servicos
+
 
 parser = argparse.ArgumentParser(
     description = "One system parameterizer"
 )
-parser.add_argument('worksheet', help= "Parameterization worksheet path")
-parser.add_argument("--login", "-l", required=True,
-                    help= "Login email")
-parser.add_argument("--empresa", "-e", required=True,
-                    help= "Company Name")
-parser.add_argument("--filial", "-f",
-                    help= "Branch name (if any)")
-parser.add_argument("--password", "-p", default="123456",
-                    help= "Access password (default = 123456)")
+sub = parser.add_subparsers(dest="cmd")
+sub.required = True
+
+serv = sub.add_parser("serv",
+               help= "manipulating services")
+serv.add_argument("-R", "--reset", action="store_true",
+                  help= "Delete or inactivate all services")
+serv = parse_base(serv)
+
+cols = sub.add_parser("cols",
+                      help= "manipulating collaborators")
+cols = parse_base(cols)
+
 args = parser.parse_args()
 
 try:
@@ -37,7 +43,11 @@ access_token = one.login(
     senha= args.password
 )
 
-# serv = servicos()
-# serv.delete_all()
-servico(book)
-# colaborador(book)
+if args.cmd == "serv":
+    if args.reset:
+        serv = servicos()
+        serv.delete_all()
+    servico(book)
+
+if args.cmd == "cols":
+    colaborador(book)
