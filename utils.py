@@ -33,3 +33,14 @@ def create_email():
 
 def create_cel():
     return ''.join(random.sample(string.digits*11, 11))
+
+def card_type(card):
+    if ( re.search("credito", card, re.IGNORECASE) or
+            re.search("^c$", card, re.IGNORECASE) ):
+        return "C"
+    elif ( re.search("debito", card, re.IGNORECASE) or
+            re.search("^d$", card, re.IGNORECASE) ):
+        return "D"
+    else:
+        print("unrecognized card type {}".format(card))
+        sys.exit()

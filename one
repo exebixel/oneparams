@@ -6,6 +6,7 @@ from api.login import login
 from api.servicos import servicos
 from excel.servicos import servico
 from excel.colaborador import colaborador
+from excel.card import cards
 
 
 parser = argparse.ArgumentParser(
@@ -23,6 +24,10 @@ serv = parse_base(serv)
 cols = sub.add_parser("cols",
                       help= "manipulating collaborators")
 cols = parse_base(cols)
+
+card = sub.add_parser("card",
+                      help= "manipulating cards")
+card = parse_base(card)
 
 args = parser.parse_args()
 
@@ -51,3 +56,6 @@ if args.cmd == "serv":
 
 if args.cmd == "cols":
     colaborador(book)
+
+if args.cmd == "card":
+    cards(book)
