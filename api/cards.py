@@ -7,6 +7,7 @@ class card(base_api):
 
     def __init__(self):
         self.__cards = []
+        self.all_cards()
         self.operadora = operadora()
         self.conta = conta()
 
@@ -35,13 +36,14 @@ class card(base_api):
         self.status_ok(response)
 
         content = json.loads(response.content)
+        card = content["cartoesLight"]
         return {
-            "descricao": content["descricao"],
-            "debito_Credito": content["debito_Credito"],
-            "comissao": content["comissao"],
-            "comissaoNegociadaOperadora": content["comissaoNegociadaOperadora"],
-            "operadora": content["operadora"],
-            "operadoraCartaoId": content["operadoraCartaoId"]
+            "descricao": card["descricao"],
+            "debito_Credito": card["debito_Credito"],
+            "comissao": card["comissao"],
+            "comissaoNegociadaOperadora": card["comissaoNegociadaOperadora"],
+            "operadora": content["operadoraCartoesPesquisa"]["descricao"],
+            "operadoraCartaoId": card["operadoraCartaoId"]
         }
 
     def create(self, data):
@@ -54,3 +56,25 @@ class card(base_api):
         content = json.loads(response.content)
         data["cartoesId"] = content["data"]
         self.__cards.append(data)
+
+    def update(self, data):
+        card_id = self.get_id(data["descricao"])
+        data["cartoesId"] = card_id
+        data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
+        data["contasId"] = self.conta.get_id("conta corrente")
+
+        print("updating {} card".format(data["descricao"]))
+        response = self.put("/OCartao/Cartoes/{}".format(card_id), data)
+        self.status_ok(response)
+
+
+    def equals(self, data):
+        detalis = self.details(data["descricao"])
+        keys = data.keys()
+        cont = 0
+        for key in keys:
+            if data[key] == str(detalis[key]):
+                cont += 1
+        if cont == len(data):
+            return True
+        return False
