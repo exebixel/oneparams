@@ -78,3 +78,11 @@ class card(base_api):
         if cont == len(data):
             return True
         return False
+
+    def card(self, data):
+        if self.get_id(data["descricao"]) == None:
+            self.create(data)
+        elif not self.equals(data):
+            self.update(data)
+        else:
+            print("skiping {0} card".format(data["descricao"]))
