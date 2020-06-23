@@ -93,6 +93,8 @@ class colaboradores(base_api):
                 })
 
     def perfil_id(self, nome):
+        if nome == "":
+            return self.perfil_id("colaborador")
         for perfil in self.__perfils:
             if ( re.search(nome, perfil["nome"], re.IGNORECASE) ):
                 return perfil["id"]
@@ -101,6 +103,9 @@ class colaboradores(base_api):
             sys.exit()
 
     def profissao_id(self, nome):
+        if nome == "":
+            return None
+
         response = self.get(
             "/Profissoes/PesquisaProfissoes/{}".format(nome)
         )
@@ -147,6 +152,7 @@ class colaboradores(base_api):
             "email": col["email"],
             "perfil": content["perfil"],
             "perfilId": col["perfilId"],
+            "profissaoId": col["profissaoId"],
             "profissao": content["profissao"],
             "agendavel": col["agendavel"]
         }
@@ -166,7 +172,7 @@ class colaboradores(base_api):
                     cont += 1
                     continue
             if key == "profissao":
-                if self.profissao_id(data[key]) == self.profissao_id(col[key]):
+                if self.profissao_id(data[key]) == col["profissaoId"]:
                     cont += 1
                     continue
             if key == "celular":
