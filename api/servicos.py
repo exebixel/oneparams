@@ -136,7 +136,7 @@ class servicos(base_api):
         service = self.details(data["descricao"])
         cont = 0
         for key in data.keys():
-            if str(service[key]) == data[key]:
+            if str(service[key]) == str(data[key]):
                 cont+=1
         if cont == len(data):
             return True
