@@ -7,11 +7,11 @@ from excel.excel import excel
 def servico(book):
     ex = excel(book, "servico")
 
-    ex.add_column("nome", "nome")
-    ex.add_column("grupo", "grupo")
+    ex.add_column("descricao", "nome")
+    ex.add_column("gserv", "grupo")
     ex.add_column("preco", "valor")
     ex.add_column("comissao", "comissao")
-    ex.add_column("tempo_execucao", "execucao")
+    ex.add_column("tempoExecucao", "execucao")
     one = servicos()
 
     for row in range(2, ex.nrows):
@@ -19,11 +19,11 @@ def servico(book):
 
         try:
             # convert data
-            data["tempo_execucao"] = xlrd.xldate_as_tuple(
-                float(data["tempo_execucao"]), book.datemode
+            data["tempoExecucao"] = xlrd.xldate_as_tuple(
+                float(data["tempoExecucao"]), book.datemode
             )
-            data["tempo_execucao"] = str(
-                time(*data["tempo_execucao"][3:])
+            data["tempoExecucao"] = str(
+                time(*data["tempoExecucao"][3:])
             )
         except:
             pass

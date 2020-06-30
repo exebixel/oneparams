@@ -10,64 +10,54 @@ class servicos(base_api):
         self.all_services()
         self.Gservs = gservis()
 
-    def create(self,
-                       nome,
-                       preco,
-                       comissao,
-                       tempoExecucao,
-                       gservs):
+    def create(self, data):
 
-        dados = {
-            "ativo": "true",
-            "nome": nome,
-            "preco": preco,
-            "comissao": comissao,
-            "tempoExecucao": tempoExecucao,
-            "gservsId": self.Gservs.Gservis(gservs)
-        }
+        # dados = {
+        #     "ativo": "true",
+        #     "nome": nome,
+        #     "preco": preco,
+        #     "comissao": comissao,
+        #     "tempoExecucao": tempoExecucao,
+        #     "gservsId": self.Gservs.Gservis(gservs)
+        # }
 
-        print("creating {} service".format(nome))
+
+        print("creating {} service".format(data["descricao"]))
         response = self.post(
-            "/Servicos/ServicosBasic",
-            data = dados
+            "/Servicos/CreateServicosLight",
+            data = data
         )
         self.status_ok(response)
 
         content = json.loads(response.content)
         return content["data"]
 
-    def update(self,
-              service_id,
-              nome,
-              preco,
-              comissao,
-              tempoExecucao,
-              gservs):
+    def update(self, data):
 
-        dados = {
-            "descricao": nome,
-            "preco": preco,
-            "comissao": comissao,
-            "tempoExecucao": tempoExecucao,
-            "gservId": self.Gservs.Gservis(gservs),
-            "servicosId": service_id
-        }
+        # dados = {
+        #     "descricao": nome,
+        #     "preco": preco,
+        #     "comissao": comissao,
+        #     "tempoExecucao": tempoExecucao,
+        #     "gservId": self.Gservs.Gservis(gservs),
+        #     "servicosId": service_id
+        # }
 
+        print("updating {} service".format(data["descricao"]))
         response = self.put(
-            "/Servicos/UpdateServicosLight/{0}".format(service_id),
-            data = dados
+            "/Servicos/UpdateServicosLight/{0}".format(data["servicosId"]),
+            data = data
         )
         self.status_ok(response)
 
         content = json.loads(response.content)
-        print("service {0} updated successful".format(nome))
         return content["data"]
 
     def delete(self, serv_id):
         cont = 0
         for i in self.__services:
-            if i["id"] == serv_id:
-                nome = i["nome"]
+            if i["servicosId"] == serv_id:
+                nome = i["descricao"]
                 break
             cont += 1
         else:
@@ -87,8 +77,8 @@ class servicos(base_api):
     def inactive(self, serv_id):
         cont = 0
         for i in self.__services:
-            if i["id"] == serv_id:
-                nome = i["nome"]
+            if i["servicosId"] == serv_id:
+                nome = i["descricao"]
                 break
             cont += 1
         else:
@@ -115,8 +105,8 @@ class servicos(base_api):
         deleted = []
 
         for servico in self.__services:
-            if not self.delete(servico["id"]):
-                if self.inactive(servico["id"]):
+            if not self.delete(servico["servicosId"]):
+                if self.inactive(servico["servicosId"]):
                     deleted.append(servico)
             else:
                 deleted.append(servico)
@@ -127,74 +117,58 @@ class servicos(base_api):
     def all_services(self):
         print("researching services")
         response = self.get(
-            "/OGservsServicos/GservsServicos",
+            "/OGservsServicos/ListaDetalhesServicosLight"
         )
         self.status_ok(response)
 
         content = json.loads(response.content)
-
-        cont = 0
-        for content in content["Gservs"]:
-            for servs in content["Servicos"]:
-                if servs is not []:
-                    cont+=1
-                if servs["ServicosAtivo"]:
-                    self.__services.append({
-                        "id": servs["ServicosId"],
-                        "nome": servs["ServicosNome"],
-                        "preco": servs["ServicoPreco"],
-                        "comissao": servs["ServicoValorComissao"],
-                        "tempo_execucao": servs["ServicoTempoExecucao"],
-                        "grupo": content["GservsNome"]
-                    })
-        else:
-            if cont == 0:
-                return None
+        for servs in content:
+            if servs["flagAtivo"]:
+                self.__services.append(servs)
 
     def exists(self, nome):
         for services in self.__services:
-            if services["nome"] == nome:
+            if services["descricao"] == nome:
                 return True
         return False
 
     def equals(self, data):
-        for services in self.__services:
-            cont = 0
-            for key in data.keys():
-                # services.pop("id")
-                if str(services[key]) == data[key]:
-                    cont+=1
-            if cont == len(data):
-                return True
+        service = self.details(data["descricao"])
+        cont = 0
+        for key in data.keys():
+            if str(service[key]) == data[key]:
+                cont+=1
+        if cont == len(data):
+            return True
         return False
 
     def service_id(self, nome):
         for services in self.__services:
-            if services["nome"] == nome:
-                return services["id"]
+            if services["descricao"] == nome:
+                return services["servicosId"]
         return 0
 
+    def details(self, nome):
+        serv_id = self.service_id(nome)
+        response = self.get(
+            "/OServicos/DetalhesServicosLight/{0}".format(serv_id)
+        )
+        self.status_ok(response)
+        content = json.loads(response.content)
+        data = content["servicoLightModel"]
+        data["gserv"] = content["grupo"]
+        return data
 
     def services(self, data):
-        if not self.exists(data["nome"]):
-            service_id = self.create(
-                nome = data["nome"],
-                preco = data["preco"],
-                comissao = data["comissao"],
-                tempoExecucao = data["tempo_execucao"],
-                gservs = data["grupo"]
-            )
-            data["id"] = service_id
-            self.__services.append(data)
+        data["gservId"] = self.Gservs.Gservis(data["gserv"])
+        data["valPercComissao"] = "P"
+        if not self.exists(data["descricao"]):
+            service_id = self.create(data)
+            # data["id"] = service_id
+            # self.__services.append(data)
 
         elif not self.equals(data):
-            self.update(
-                service_id = self.service_id(data["nome"]),
-                nome = data["nome"],
-                comissao = data["comissao"],
-                preco = data["preco"],
-                tempoExecucao = data["tempo_execucao"],
-                gservs = data["grupo"]
-            )
+            data["servicosId"] = self.service_id(data["descricao"])
+            self.update(data)
         else:
-            print("skiping {0} service".format(data["nome"]))
+            print("skiping {0} service".format(data["descricao"]))
