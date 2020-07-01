@@ -28,7 +28,7 @@ def colaborador(book):
         elif string_normalize(data["agendavel"]) == "nao":
             data["agendavel"] = False
         else:
-            print("unrecognized calendar option!!")
+            print("unrecognized schedule option!!")
             sys.exit()
 
         one.colaborador(data)
