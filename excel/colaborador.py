@@ -9,12 +9,15 @@ def colaborador(book):
         sheet_name= "profissiona"
     )
 
-    ex.add_column("nome", "nome")
-    ex.add_column("email", "email")
-    ex.add_column("celular", "celular")
-    ex.add_column("perfil", "perfil")
-    ex.add_column("agendavel", "agenda")
-    ex.add_column("profissao", "profissao")
+    ex.add_column(key="nome", name="nome")
+    ex.add_column(key="email", name="email")
+    ex.add_column(key="celular", name="celular")
+    ex.add_column(key="perfil", name="perfil",
+                  default="colaborador")
+    ex.add_column(key="agendavel", name="agenda",
+                  default=False)
+    ex.add_column(key="profissao", name="profissao",
+                  default=None)
 
     one = colaboradores()
 
@@ -23,11 +26,8 @@ def colaborador(book):
 
         data["celular"] = get_cel(data["celular"])
 
-        if string_normalize(data["agendavel"]) == "sim":
-            data["agendavel"] = True
-        elif string_normalize(data["agendavel"]) == "nao":
-            data["agendavel"] = False
-        else:
+        data["agendavel"] = get_bool(data["agendavel"])
+        if data["agendavel"] == None:
             print("unrecognized schedule option!!")
             sys.exit()
 

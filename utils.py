@@ -44,3 +44,15 @@ def card_type(card):
     else:
         print("unrecognized card type {}".format(card))
         sys.exit()
+
+def get_bool(value):
+    if value == True or value == False: return value
+
+    if (string_normalize(value) == "sim" or
+            string_normalize(value) == "s"):
+        return True
+    elif (string_normalize(value) == "nao" or
+          string_normalize(value) == "n"):
+        return False
+    return None
+
