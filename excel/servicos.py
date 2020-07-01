@@ -12,6 +12,8 @@ def servico(book):
     ex.add_column("preco", "valor")
     ex.add_column("comissao", "comissao")
     ex.add_column("tempoExecucao", "execucao")
+    ex.add_column(key="intervaloMarcacao", name="intervalo",
+                  required=False, default="00:10:00")
     one = servicos()
 
     for row in range(2, ex.nrows):

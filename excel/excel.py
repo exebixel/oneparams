@@ -6,6 +6,7 @@ class excel:
     def __init__(self, book, sheet_name):
         self.__keys = []
         self.__column_index = []
+        self.__defaults = []
 
         sh_index = self.sheet_index(book, sheet_name)
         if sh_index == -1:
@@ -38,23 +39,29 @@ class excel:
             return -1
         return cont
 
-    def add_column(self, key, name):
+    def add_column(self, key, name, required=True, default=None):
         column_index = self.column_index(name)
-        if column_index == -1:
-            print("column not found!!")
+        if column_index == -1 and required:
+            print("column {} not found!!".format(name))
             sys.exit()
 
         self.__column_index.append(column_index)
         self.__keys.append(key)
+        self.__defaults.append(default)
 
 
     def data_row(self, row):
         keys = self.__keys
         index = self.__column_index
+        default = self.__defaults
+
         data = {}
         for i in range( len(self.__keys) ):
-            index_value = self.__sh.cell_value(rowx=row, colx=index[i])
-            index_value = str(index_value).strip()
+            index_value = default[i]
+            if index[i] != -1:
+                index_value = self.__sh.cell_value(rowx=row, colx=index[i])
+                if index_value != "":
+                    index_value = str(index_value).strip()
             data[ keys[i] ] = index_value
 
         return data
