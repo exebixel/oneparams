@@ -1,4 +1,5 @@
 import xlrd, sys, re
+from datetime import time
 from utils import *
 
 class excel:
@@ -8,6 +9,7 @@ class excel:
         self.__column_index = []
         self.__defaults = []
 
+        self.__book = book
         sh_index = self.sheet_index(book, sheet_name)
         if sh_index == -1:
             print("sheet {0} not found!".format(sheet_name))
@@ -54,14 +56,32 @@ class excel:
         keys = self.__keys
         index = self.__column_index
         default = self.__defaults
+        sh = self.__sh
 
         data = {}
         for i in range( len(self.__keys) ):
-            index_value = default[i]
-            if index[i] != -1:
-                index_value = self.__sh.cell_value(rowx=row, colx=index[i])
-                if index_value != "":
-                    index_value = str(index_value).strip()
-            data[ keys[i] ] = index_value
+            if index[i] == -1:
+                index_value = default[i]
+                data[ keys[i] ] = index_value
+                continue
 
+            index_type = sh.cell_type(row, index[i])
+            index_value = sh.cell_value(row, index[i])
+
+            if index_type == xlrd.XL_CELL_EMPTY:
+                index_value = default[i]
+            elif index_type == xlrd.XL_CELL_DATE:
+                # try:
+                # convert data
+                index_value = xlrd.xldate_as_tuple(
+                    index_value, self.__book.datemode
+                )
+                index_value = str(time(*index_value[3:]))
+                # except:
+                #     pass
+            elif index_type == xlrd.XL_CELL_TEXT:
+                index_value = index_value.strip()
+
+
+            data[ keys[i] ] = index_value
         return data
