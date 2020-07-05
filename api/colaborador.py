@@ -28,7 +28,9 @@ class colaboradores(base_api):
 
         print("updating {} collaborator".format(data["nomeCompleto"]))
         response = self.put(
-            "/OCliForColsUsuarioPerfil/UpdateColaboradores/{}".format(col_id),
+            "/OCliForColsUsuarioPerfil/UpdateColaboradores/{}".format(
+                data["colaboradorId"]
+            ),
             data = data
         )
         self.status_ok(response)
@@ -134,15 +136,10 @@ class colaboradores(base_api):
             self.create(data)
 
         elif not self.equals(data):
-            pass
-            # self.update(
-            #     col_id= self.colaborador_id(data["nome"]),
-            #     agendavel= data["agendavel"],
-            #     nome= data["nome"],
-            #     celular= data["celular"],
-            #     email= data["email"],
-            #     perfil= data["perfil"],
-            #     profissao= data["profissao"]
-            # )
+            data["colaboradorId"] = self.colaborador_id(
+                data["nomeCompleto"]
+            )
+            self.update(data)
+
         else:
             print("skiping {0} collaborator".format(data["nomeCompleto"]))
