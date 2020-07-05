@@ -62,6 +62,21 @@ class card(base_api):
         response = self.put("/OCartao/Cartoes/{}".format(card_id), data)
         self.status_ok(response)
 
+    def delete(self, card_id):
+        for i in self.__cards:
+            if i["cartoesId"] == card_id:
+                nome = i["descricao"]
+                break
+        else:
+            print("card not found!!")
+
+        print("deleting {} card".format(nome))
+        response = super().delete("/Cartoes/{0}".format(card_id))
+        self.status_ok(response, erro_exit=False)
+
+    def delete_all(self):
+        for i in self.__cards:
+            self.delete(i["cartoesId"])
 
     def equals(self, data):
         detalis = self.details(data["descricao"])

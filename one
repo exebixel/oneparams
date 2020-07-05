@@ -4,6 +4,8 @@ import sys, argparse
 from args import parse_base
 from api.login import login
 from api.servicos import servicos
+from api.cards import card
+from api.operadora import operadora
 from excel.servicos import servico
 from excel.colaborador import colaborador
 from excel.card import cards
@@ -25,9 +27,11 @@ cols = sub.add_parser("cols",
                       help= "manipulating collaborators")
 cols = parse_base(cols)
 
-card = sub.add_parser("card",
+card_parse = sub.add_parser("card",
                       help= "manipulating cards")
-card = parse_base(card)
+card_parse.add_argument("-R", "--reset", action="store_true",
+                  help= "Delete or inactivate all cards")
+card_parse= parse_base(card_parse)
 
 args = parser.parse_args()
 
@@ -58,4 +62,8 @@ if args.cmd == "cols":
     colaborador(book)
 
 if args.cmd == "card":
+    if args.reset:
+        cd = card()
+        cd.delete_all()
+        cd.operadora.delete_all()
     cards(book)
