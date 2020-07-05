@@ -38,12 +38,10 @@ class card(base_api):
         content = json.loads(response.content)
         data = content["cartoesLight"]
         data["operadora"] = content["operadoraCartoesPesquisa"]["descricao"]
-        data["contas"] = content["conta"]
         return data
 
     def create(self, data):
         data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
-        data["contasId"] = self.conta.get_id(data["contas"])
         print("creating {} card".format(data["descricao"]))
         response = self.post("/OCartao/Cartoes", data)
         self.status_ok(response)
@@ -56,10 +54,12 @@ class card(base_api):
         card_id = self.get_id(data["descricao"])
         data["cartoesId"] = card_id
         data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
-        data["contasId"] = self.conta.get_id(data["contas"])
 
         print("updating {} card".format(data["descricao"]))
-        response = self.put("/OCartao/Cartoes/{}".format(card_id), data)
+        response = self.put(
+            "/OCartao/Cartoes/{}".format(card_id),
+            data
+        )
         self.status_ok(response)
 
     def delete(self, card_id):
@@ -83,13 +83,15 @@ class card(base_api):
         keys = data.keys()
         cont = 0
         for key in keys:
-            if data[key] == str(detalis[key]):
+            if data[key] == detalis[key]:
                 cont += 1
         if cont == len(data):
             return True
         return False
 
     def card(self, data):
+        data["contasId"] = self.conta.get_id(data["contas"])
+        data.pop("contas")
         if self.get_id(data["descricao"]) == None:
             self.create(data)
         elif not self.equals(data):
