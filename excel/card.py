@@ -11,9 +11,14 @@ def cards(book):
 
     ex.add_column("descricao", "nome")
     ex.add_column("debito_Credito", "tipo")
-    ex.add_column("comissao", "comissao")
-    ex.add_column("comissaoNegociadaOperadora", "cobrada")
-    ex.add_column("operadora", "operadora")
+    ex.add_column("comissao", "comissao",
+                  default=0)
+    ex.add_column("comissaoNegociadaOperadora", "cobrada",
+                  default=0)
+    ex.add_column("operadora", "operadora",
+                  default="Padrão")
+    ex.add_column("contas", "conta",
+                  required=False, default="conta corrente")
 
     one = card()
 

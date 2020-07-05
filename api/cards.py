@@ -36,19 +36,14 @@ class card(base_api):
         self.status_ok(response)
 
         content = json.loads(response.content)
-        card = content["cartoesLight"]
-        return {
-            "descricao": card["descricao"],
-            "debito_Credito": card["debito_Credito"],
-            "comissao": card["comissao"],
-            "comissaoNegociadaOperadora": card["comissaoNegociadaOperadora"],
-            "operadora": content["operadoraCartoesPesquisa"]["descricao"],
-            "operadoraCartaoId": card["operadoraCartaoId"]
-        }
+        data = content["cartoesLight"]
+        data["operadora"] = content["operadoraCartoesPesquisa"]["descricao"]
+        data["contas"] = content["conta"]
+        return data
 
     def create(self, data):
         data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
-        data["contasId"] = self.conta.get_id("conta corrente")
+        data["contasId"] = self.conta.get_id(data["contas"])
         print("creating {} card".format(data["descricao"]))
         response = self.post("/OCartao/Cartoes", data)
         self.status_ok(response)
@@ -61,7 +56,7 @@ class card(base_api):
         card_id = self.get_id(data["descricao"])
         data["cartoesId"] = card_id
         data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
-        data["contasId"] = self.conta.get_id("conta corrente")
+        data["contasId"] = self.conta.get_id(data["contas"])
 
         print("updating {} card".format(data["descricao"]))
         response = self.put("/OCartao/Cartoes/{}".format(card_id), data)
