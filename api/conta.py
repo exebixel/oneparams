@@ -18,7 +18,7 @@ class conta(base_api):
 
     def get_id(self, nome):
         for i in self.__contas:
-            if re.search(i["nome"], nome, re.IGNORECASE):
+            if re.search(nome, i["nome"], re.IGNORECASE):
                 return i["contasId"]
         return None
 
