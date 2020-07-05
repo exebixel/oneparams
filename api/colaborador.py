@@ -11,70 +11,25 @@ class colaboradores(base_api):
         self.all_perfils()
         self.all_colaboradores()
 
-    def create(self,
-               nome,
-               email,
-               celular,
-               agendavel = True,
-               perfil = "colaborador",
-               profissao = None):
+    def create(self, data):
 
-        dados = {
-            "agendavelMobilidade": "true",
-            "ativoColaborador": "true",
-            "flagCliente": "true",
-            "flagFornecedor": "true",
-            "agendavel": agendavel,
-            "celular": celular,
-            "email": email,
-            "nomeCompleto": nome,
-            "profissaoId": self.profissao_id(profissao),
-            "perfilId": self.perfil_id(perfil)
-        }
-
-        print("creating {} collaborator".format(nome))
+        print("creating {} collaborator".format(data["nomeCompleto"]))
         response = self.post(
             "/OCliForColsUsuarioPerfil/CreateColaboradores",
-            data= dados
+            data= data
         )
         self.status_ok(response)
 
         content = json.loads(response.content)
-        self.__colaboradores.append({
-            "id": content["data"],
-            "nome": nome,
-            "email": email,
-            "celular": celular,
-            "perfil": perfil,
-            "profissao": profissao,
-            "agendavel": agendavel
-        })
+        data["colaboradorId"] = content["data"]
+        self.__colaboradores.append(data)
 
-    def update(self,
-               col_id,
-               nome,
-               email,
-               celular,
-               agendavel,
-               perfil,
-               profissao):
+    def update(self, data):
 
-        dados = {
-            "flagCliente": "true",
-            "flagFornecedor": "true",
-            "colaboradorId": col_id,
-            "agendavel": agendavel,
-            "celular": celular,
-            "email": email,
-            "nomeCompleto": nome,
-            "profissaoId": self.profissao_id(profissao),
-            "perfilId": self.perfil_id(perfil)
-        }
-
-        print("updating {} collaborator".format(nome))
+        print("updating {} collaborator".format(data["nomeCompleto"]))
         response = self.put(
             "/OCliForColsUsuarioPerfil/UpdateColaboradores/{}".format(col_id),
-            data = dados
+            data = data
         )
         self.status_ok(response)
 
@@ -89,14 +44,14 @@ class colaboradores(base_api):
             if not re.search("cliente", i["descricao"], re.IGNORECASE):
                 self.__perfils.append({
                     "id": i["perfilsId"],
-                    "nome": i["descricao"]
+                    "nomeCompleto": i["descricao"]
                 })
 
     def perfil_id(self, nome):
         if nome == "":
             return self.perfil_id("colaborador")
         for perfil in self.__perfils:
-            if ( re.search(nome, perfil["nome"], re.IGNORECASE) ):
+            if ( re.search(nome, perfil["nomeCompleto"], re.IGNORECASE) ):
                 return perfil["id"]
         else:
             print("Perfil not found!!")
@@ -124,93 +79,70 @@ class colaboradores(base_api):
         for i in content:
             if i["ativoColaborador"]:
                 self.__colaboradores.append({
-                    "id": i["cliForColsId"],
-                    "nome": i["nomeCompleto"],
-                    "email": i["email"],
-                    "celular": i["celular"]
+                    "colaboradorId": i["cliForColsId"],
+                    "nomeCompleto": i["nomeCompleto"]
                 })
 
     def details(self, nome):
         cont = 0
         for i in self.__colaboradores:
-            if i["nome"] == nome:
-                cols_id = i["id"]
+            if i["nomeCompleto"] == nome:
+                cols_id = i["colaboradorId"]
                 break
             cont += 1
         else:
             print("colaborador not found!!")
 
-        response = self.get("/OColaborador/DetalhesColaboradores/{}".format(cols_id))
+        response = self.get(
+            "/OColaborador/DetalhesColaboradores/{}".format(cols_id)
+        )
         self.status_ok(response)
 
         content = json.loads(response.content)
-        col = content["colaboradoresCliForColsLightModel"]
-        return {
-            "id": cols_id,
-            "nome": col["nomeCompleto"],
-            "celular": col["celular"],
-            "email": col["email"],
-            "perfil": content["perfil"],
-            "perfilId": col["perfilId"],
-            "profissaoId": col["profissaoId"],
-            "profissao": content["profissao"],
-            "agendavel": col["agendavel"]
-        }
+        return content["colaboradoresCliForColsLightModel"]
 
     def exist(self, nome):
         for i in self.__colaboradores:
-            if i["nome"] == nome:
+            if i["nomeCompleto"] == nome:
                 return True
         return False
 
     def equals(self, data):
-        col = self.details(data["nome"])
+        col = self.details(data["nomeCompleto"])
         cont = 0
         for key in data.keys():
-            if key == "perfil":
-                if col["perfilId"] == self.perfil_id(data[key]):
-                    cont += 1
-                    continue
-            if key == "profissao":
-                if self.profissao_id(data[key]) == col["profissaoId"]:
-                    cont += 1
-                    continue
-            if key == "celular":
-                if data[key] == get_num(col[key]):
-                    cont += 1
-                    continue
-
             if col[key] == data[key]:
                 cont+=1
+
         if cont == len(data):
             return True
         return False
 
     def colaborador_id(self, nome):
         for i in self.__colaboradores:
-            if i["nome"] == nome:
-                return i["id"]
+            if i["nomeCompleto"] == nome:
+                return i["colaboradorId"]
 
     def colaborador(self, data):
-        if not self.exist(data["nome"]):
-            self.create(
-                agendavel= data["agendavel"],
-                nome= data["nome"],
-                celular= data["celular"],
-                email= data["email"],
-                perfil= data["perfil"],
-                profissao= data["profissao"]
-            )
+        data["profissaoId"] = self.profissao_id(data["profissao"])
+        data.pop("profissao")
+        data["perfilId"] = self.perfil_id(data["perfil"])
+        data.pop("perfil")
+        data["ativoColaborador"] = True
+
+        if not self.exist(data["nomeCompleto"]):
+            self.create(data)
 
         elif not self.equals(data):
-            self.update(
-                col_id= self.colaborador_id(data["nome"]),
-                agendavel= data["agendavel"],
-                nome= data["nome"],
-                celular= data["celular"],
-                email= data["email"],
-                perfil= data["perfil"],
-                profissao= data["profissao"]
-            )
+            pass
+            # self.update(
+            #     col_id= self.colaborador_id(data["nome"]),
+            #     agendavel= data["agendavel"],
+            #     nome= data["nome"],
+            #     celular= data["celular"],
+            #     email= data["email"],
+            #     perfil= data["perfil"],
+            #     profissao= data["profissao"]
+            # )
         else:
-            print("skiping {0} collaborator".format(data["nome"]))
+            print("skiping {0} collaborator".format(data["nomeCompleto"]))

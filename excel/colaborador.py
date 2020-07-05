@@ -9,7 +9,7 @@ def colaborador(book):
         sheet_name= "profissiona"
     )
 
-    ex.add_column(key="nome", name="nome")
+    ex.add_column(key="nomeCompleto", name="nome")
     ex.add_column(key="email", name="email")
     ex.add_column(key="celular", name="celular")
     ex.add_column(key="perfil", name="perfil",
@@ -18,6 +18,12 @@ def colaborador(book):
                   default=False)
     ex.add_column(key="profissao", name="profissao",
                   default=None)
+    ex.add_column(key="flagCliente", name="cliente",
+                  required=False, default=True)
+    ex.add_column(key="flagFornecedor", name="fornecedor",
+                  required=False, default=True)
+    ex.add_column(key="agendavelMobilidade", name="mobilidade",
+                  required=False, default=True)
 
     one = colaboradores()
 
