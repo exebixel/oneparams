@@ -1,21 +1,21 @@
 import json, requests, sys
 from api.gservs import gservis
-from api.diff_analize import diff_analize
+from api.add_diff import add_diff
 
 class servicos(diff_analize):
 
     def __init__(self):
-        self.key_id = "servicosId"
-        self.key_name = "descricao"
-        self.item_name = "service"
+        super().__init__(
+            key_id = "servicosId",
+            key_name = "descricao",
+            item_name = "service",
 
-        self.url_create = "/Servicos/CreateServicosLight"
-        self.url_update = "/Servicos/UpdateServicosLight"
-        self.url_get_all = "/OGservsServicos/ListaDetalhesServicosLight"
-        self.url_gel_detail = "/OServicos/DetalhesServicosLight"
+            url_create = "/Servicos/CreateServicosLight",
+            url_update = "/Servicos/UpdateServicosLight",
+            url_get_all = "/OGservsServicos/ListaDetalhesServicosLight",
+            url_gel_detail = "/OServicos/DetalhesServicosLight",
+        )
 
-        self.items = []
-        self.get_all()
         self.Gservs = gservis()
 
     def delete(self, serv_id):
