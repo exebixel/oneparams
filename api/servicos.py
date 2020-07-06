@@ -2,7 +2,7 @@ import json, requests, sys
 from api.gservs import gservis
 from api.add_diff import add_diff
 
-class servicos(diff_analize):
+class servicos(add_diff):
 
     def __init__(self):
         super().__init__(
@@ -13,7 +13,7 @@ class servicos(diff_analize):
             url_create = "/Servicos/CreateServicosLight",
             url_update = "/Servicos/UpdateServicosLight",
             url_get_all = "/OGservsServicos/ListaDetalhesServicosLight",
-            url_gel_detail = "/OServicos/DetalhesServicosLight",
+            url_get_detail = "/OServicos/DetalhesServicosLight",
         )
 
         self.Gservs = gservis()

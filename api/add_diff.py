@@ -19,7 +19,7 @@ class add_diff(base_api):
         self.__url_update = url_update
         self.__url_create = url_create
         self.__url_get_all = url_get_all
-        self.__url_gel_detail = url_gel_detail
+        self.__url_get_detail = url_get_detail
 
         self.items = []
         self.get_all()
@@ -84,7 +84,7 @@ class add_diff(base_api):
     def details(self, nome):
         item_id = self.item_id(nome)
         response = self.get(
-            "{}/{}".format(self.__url_gel_detail, item_id)
+            "{}/{}".format(self.__url_get_detail, item_id)
         )
         self.status_ok(response)
         return json.loads(response.content)
