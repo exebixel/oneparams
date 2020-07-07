@@ -76,8 +76,7 @@ class servicos(add_diff):
     def get_all(self):
         content = super().get_all()
         for i in content:
-            if i["flagAtivo"]:
-                self.items.append(i)
+            self.items.append(i)
 
     def details(self, nome):
         return super().details(nome)["servicoLightModel"]
@@ -86,4 +85,5 @@ class servicos(add_diff):
         data["gservId"] = self.Gservs.Gservis(data["gserv"])
         data.pop("gserv")
         data["valPercComissao"] = "P"
+        data["flagAtivo"] = True
         super().diff_item(data)
