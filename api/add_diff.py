@@ -59,14 +59,8 @@ class add_diff(base_api):
 
         return json.loads(response.content)
 
-    def exists(self, nome):
-        for i in self.items:
-            if i[self.__key_name] == nome:
-                return True
-        return False
-
     def equals(self, data):
-        detail = self.details(data[self.__key_name])
+        detail = self.details(data[self.__key_id])
         cont = 0
         for key in data.keys():
             if detail[key] == data[key]:
@@ -75,14 +69,13 @@ class add_diff(base_api):
             return True
         return False
 
-    def item_id(self, nome):
+    def item_id(self, data):
         for i in self.items:
-            if i[self.__key_name] == nome:
+            if i[self.__key_name] == data[self.__key_name]:
                 return i[self.__key_id]
         return 0
 
-    def details(self, nome):
-        item_id = self.item_id(nome)
+    def details(self, item_id):
         response = self.get(
             "{}/{}".format(self.__url_get_detail, item_id)
         )
@@ -90,15 +83,14 @@ class add_diff(base_api):
         return json.loads(response.content)
 
     def diff_item(self, data):
-        if not self.exists(data[self.__key_name]):
+        data[self.__key_id] = self.item_id(data)
+
+        if data[self.__key_id] == 0:
             item_id = self.create(data)
             data[self.__key_id] = item_id
             self.items.append(data)
 
         elif not self.equals(data):
-            data[self.__key_id] = self.item_id(
-                data[self.__key_name]
-            )
             self.update(data)
 
         else:
