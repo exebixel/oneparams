@@ -1,42 +1,25 @@
 import json, requests, sys, re
-from api.base import base_api
+from api.base_diff import base_diff
 from utils import *
 
-class colaboradores(base_api):
+class colaboradores(base_diff):
 
     def __init__(self):
-        self.__colaboradores = []
+        super().__init__(
+            key_id = "colaboradorId",
+            key_name = "nomeCompleto",
+            item_name = "collaborator",
+
+            url_create = "/OCliForColsUsuarioPerfil/CreateColaboradores",
+            url_update = "/OCliForColsUsuarioPerfil/UpdateColaboradores",
+            url_get_all = "/CliForCols/ListaDetalhesColaboradores",
+            url_get_detail = "/OColaborador/DetalhesColaboradores"
+        )
+
         self.__perfils = []
-
         self.all_perfils()
-        self.all_colaboradores()
-
-    def create(self, data):
-
-        print("creating {} collaborator".format(data["nomeCompleto"]))
-        response = self.post(
-            "/OCliForColsUsuarioPerfil/CreateColaboradores",
-            data= data
-        )
-        self.status_ok(response)
-
-        content = json.loads(response.content)
-        data["colaboradorId"] = content["data"]
-        self.__colaboradores.append(data)
-
-    def update(self, data):
-
-        print("updating {} collaborator".format(data["nomeCompleto"]))
-        response = self.put(
-            "/OCliForColsUsuarioPerfil/UpdateColaboradores/{}".format(
-                data["colaboradorId"]
-            ),
-            data = data
-        )
-        self.status_ok(response)
 
     def all_perfils(self):
-
         print("researching collaborators")
         response = self.get("/Perfils/ListaPerfils")
         self.status_ok(response)
@@ -73,57 +56,16 @@ class colaboradores(base_api):
             sys.exit()
         return content[0]["profissoesId"]
 
-    def all_colaboradores(self):
-        response = self.get("/CliForCols/ListaDetalhesColaboradores")
-        self.status_ok(response)
-
-        content = json.loads(response.content)
+    def get_all(self):
+        content = super().get_all()
         for i in content:
-            if i["ativoColaborador"]:
-                self.__colaboradores.append({
-                    "colaboradorId": i["cliForColsId"],
-                    "nomeCompleto": i["nomeCompleto"]
-                })
+            self.items.append({
+                "colaboradorId": i["cliForColsId"],
+                "nomeCompleto": i["nomeCompleto"]
+            })
 
-    def details(self, nome):
-        cont = 0
-        for i in self.__colaboradores:
-            if i["nomeCompleto"] == nome:
-                cols_id = i["colaboradorId"]
-                break
-            cont += 1
-        else:
-            print("colaborador not found!!")
-
-        response = self.get(
-            "/OColaborador/DetalhesColaboradores/{}".format(cols_id)
-        )
-        self.status_ok(response)
-
-        content = json.loads(response.content)
-        return content["colaboradoresCliForColsLightModel"]
-
-    def exist(self, nome):
-        for i in self.__colaboradores:
-            if i["nomeCompleto"] == nome:
-                return True
-        return False
-
-    def equals(self, data):
-        col = self.details(data["nomeCompleto"])
-        cont = 0
-        for key in data.keys():
-            if col[key] == data[key]:
-                cont+=1
-
-        if cont == len(data):
-            return True
-        return False
-
-    def colaborador_id(self, nome):
-        for i in self.__colaboradores:
-            if i["nomeCompleto"] == nome:
-                return i["colaboradorId"]
+    def details(self, item_id):
+        return super().details(item_id)["colaboradoresCliForColsLightModel"]
 
     def colaborador(self, data):
         data["profissaoId"] = self.profissao_id(data["profissao"])
@@ -132,14 +74,4 @@ class colaboradores(base_api):
         data.pop("perfil")
         data["ativoColaborador"] = True
 
-        if not self.exist(data["nomeCompleto"]):
-            self.create(data)
-
-        elif not self.equals(data):
-            data["colaboradorId"] = self.colaborador_id(
-                data["nomeCompleto"]
-            )
-            self.update(data)
-
-        else:
-            print("skiping {0} collaborator".format(data["nomeCompleto"]))
+        super().diff_item(data)
