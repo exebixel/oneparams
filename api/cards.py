@@ -1,100 +1,39 @@
 import json
-from api.base import base_api
+from api.base_diff import base_diff
 from api.operadora import operadora
 from api.conta import conta
 
-class card(base_api):
+class card(base_diff):
 
     def __init__(self):
-        self.__cards = []
-        self.all_cards()
+        super().__init__(
+            key_id = "cartoesId",
+            key_name = "descricao",
+            item_name = "card",
+
+            url_create = "/OCartao/Cartoes",
+            url_update = "/OCartao/Cartoes",
+            url_get_all = "/Cartoes",
+            url_get_detail = "/OCartao/CartaoDetalhes",
+
+            url_delete = "/Cartoes"
+        )
+
         self.operadora = operadora()
         self.conta = conta()
 
-    def all_cards(self):
-        response = self.get("/Cartoes")
-        self.status_ok(response)
-
-        print("researching cards")
-        content = json.loads(response.content)
+    def get_all(self):
+        content = super().get_all()
         for i in content:
-            self.__cards.append({
-                "cartoesId": i["cartoesId"],
-                "descricao": i["descricao"],
-                "debito_Credito": i["debito_Credito"]
-            })
+            self.items.append(i)
 
-    def get_id(self, nome):
-        for i in self.__cards:
-            if i["descricao"] == nome:
-                return i["cartoesId"]
-        return None
-
-    def details(self, nome):
-        card_id = self.get_id(nome)
-        response = self.get("/OCartao/CartaoDetalhes/{}".format(card_id))
-        self.status_ok(response)
-
-        content = json.loads(response.content)
-        data = content["cartoesLight"]
-        data["operadora"] = content["operadoraCartoesPesquisa"]["descricao"]
-        return data
-
-    def create(self, data):
-        data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
-        print("creating {} card".format(data["descricao"]))
-        response = self.post("/OCartao/Cartoes", data)
-        self.status_ok(response)
-
-        content = json.loads(response.content)
-        data["cartoesId"] = content["data"]
-        self.__cards.append(data)
-
-    def update(self, data):
-        card_id = self.get_id(data["descricao"])
-        data["cartoesId"] = card_id
-        data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
-
-        print("updating {} card".format(data["descricao"]))
-        response = self.put(
-            "/OCartao/Cartoes/{}".format(card_id),
-            data
-        )
-        self.status_ok(response)
-
-    def delete(self, card_id):
-        for i in self.__cards:
-            if i["cartoesId"] == card_id:
-                nome = i["descricao"]
-                break
-        else:
-            print("card not found!!")
-
-        print("deleting {} card".format(nome))
-        response = super().delete("/Cartoes/{0}".format(card_id))
-        self.status_ok(response, erro_exit=False)
-
-    def delete_all(self):
-        for i in self.__cards:
-            self.delete(i["cartoesId"])
-
-    def equals(self, data):
-        detalis = self.details(data["descricao"])
-        keys = data.keys()
-        cont = 0
-        for key in keys:
-            if data[key] == detalis[key]:
-                cont += 1
-        if cont == len(data):
-            return True
-        return False
+    def details(self, item_id):
+        return super().details(item_id)["cartoesLight"]
 
     def card(self, data):
         data["contasId"] = self.conta.get_id(data["contas"])
         data.pop("contas")
-        if self.get_id(data["descricao"]) == None:
-            self.create(data)
-        elif not self.equals(data):
-            self.update(data)
-        else:
-            print("skiping {0} card".format(data["descricao"]))
+        data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
+        data.pop("operadora")
+
+        super().diff_item(data)
