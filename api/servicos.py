@@ -1,8 +1,8 @@
 import json, requests, sys
 from api.gservs import gservis
-from api.add_diff import add_diff
+from api.base_diff import base_diff
 
-class servicos(add_diff):
+class servicos(base_diff):
 
     def __init__(self):
         super().__init__(
@@ -14,64 +14,14 @@ class servicos(add_diff):
             url_update = "/Servicos/UpdateServicosLight",
             url_get_all = "/OGservsServicos/ListaDetalhesServicosLight",
             url_get_detail = "/OServicos/DetalhesServicosLight",
+
+            url_delete= "/Servicos/DeleteServicos",
+            url_inactive = "/Servicos/UpdateServicosLight",
+            key_active = "flagAtivo"
         )
 
         self.Gservs = gservis()
 
-    def delete(self, serv_id):
-        cont = 0
-        for i in self.items:
-            if i["servicosId"] == serv_id:
-                nome = i["descricao"]
-                break
-            cont += 1
-        else:
-            print("service not found!")
-            sys.exit()
-
-        print("deleting {} service".format(nome))
-        response = super().delete(
-            "/Servicos/DeleteServicos/{0}".format(serv_id)
-        )
-
-        return self.status_ok(response, erro_exit=False)
-
-    def inactive(self, serv_id):
-        cont = 0
-        for i in self.items:
-            if i["servicosId"] == serv_id:
-                nome = i["descricao"]
-                break
-            cont += 1
-        else:
-            print("service not found!")
-            sys.exit()
-
-        dados = {
-            "ServicosAtivo": "false",
-            "ServicosId": serv_id
-        }
-
-        print("inactivating {} service".format(nome))
-        response = self.patch(
-            "/servicos/setservicoativo",
-            data = dados
-        )
-
-        return self.status_ok(response, erro_exit=False)
-
-    def delete_all(self):
-        deleted = []
-
-        for servico in self.items:
-            if not self.delete(servico["servicosId"]):
-                if self.inactive(servico["servicosId"]):
-                    deleted.append(servico)
-            else:
-                deleted.append(servico)
-
-        for i in deleted:
-            self.items.remove(i)
 
     def get_all(self):
         content = super().get_all()

@@ -1,7 +1,7 @@
 import json, requests, sys
 from api.base import base_api
 
-class add_diff(base_api):
+class base_diff(base_api):
 
     def __init__(self,
                  key_id,
@@ -10,7 +10,10 @@ class add_diff(base_api):
                  url_update,
                  url_create,
                  url_get_all,
-                 url_get_detail):
+                 url_get_detail,
+                 url_delete=None,
+                 key_active=None,
+                 url_inactive=None):
 
         self.__key_id = key_id
         self.__key_name = key_name
@@ -20,6 +23,10 @@ class add_diff(base_api):
         self.__url_create = url_create
         self.__url_get_all = url_get_all
         self.__url_get_detail = url_get_detail
+
+        self.__url_delete = url_delete
+        self.__url_inactive = url_inactive
+        self.__key_active = key_active
 
         self.items = []
         self.get_all()
@@ -97,3 +104,44 @@ class add_diff(base_api):
             print("skiping {} {}".format(
                 data[self.__key_name], self.__item_name)
             )
+
+
+    def delete(self, data):
+        if self.__url_delete == None:
+            return False
+
+        print("deleting {} {}".format(
+            data[self.__key_name], self.__item_name))
+        response = super().delete(
+            "{}/{}".format(self.__url_delete, data[self.__key_id])
+        )
+
+        return self.status_ok(response, erro_exit=False)
+
+    def inactive(self, data):
+        if self.__url_inactive == None:
+            return False
+
+        data = self.details(data[self.__key_id])
+        data[self.__key_active] = False
+
+        print("inactivating {} {}".format(
+            data[self.__key_name], self.__item_name))
+        response = self.put(
+            "{}/{}".format(self.__url_inactive, data[self.__key_id]),
+            data = data
+        )
+
+        return self.status_ok(response, erro_exit=False)
+
+    def delete_all(self):
+        deleted = []
+
+        for item in self.items:
+            if self.delete(item):
+                deleted.append(item)
+            else:
+                self.inactive(item)
+
+        for i in deleted:
+            self.items.remove(i)
