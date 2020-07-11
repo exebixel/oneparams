@@ -33,8 +33,6 @@ class colaboradores(base_diff):
                 })
 
     def perfil_id(self, nome):
-        if nome == "":
-            return self.perfil_id("colaborador")
         for perfil in self.__perfils:
             if ( re.search(nome, perfil["nomeCompleto"], re.IGNORECASE) ):
                 return perfil["id"]
@@ -43,9 +41,6 @@ class colaboradores(base_diff):
             sys.exit()
 
     def profissao_id(self, nome):
-        if nome == "":
-            return None
-
         response = self.get(
             "/Profissoes/PesquisaProfissoes/{}".format(nome)
         )
