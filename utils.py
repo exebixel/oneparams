@@ -2,14 +2,25 @@ import unicodedata, re, sys
 import random, string
 from datetime import datetime
 
-def string_normalize(palavra):
+def deemphasize(word):
     # Unicode normalize transforma um caracter em seu equivalente em latin.
-    nfkd = unicodedata.normalize('NFKD', palavra)
-    palavraSemAcento = u"".join([c for c in nfkd if not unicodedata.combining(c)])
+    nfkd = unicodedata.normalize('NFKD', word)
+    word = u"".join([c for c in nfkd if not unicodedata.combining(c)])
+    return word.lower()
+
+def string_normalize(palavra):
+    palavra = deemphasize(palavra)
 
     # Usa expressão regular para retornar a palavra apenas com números, letras e espaço
-    palavra = re.sub('[^a-zA-Z0-9 \\\]', '', palavraSemAcento)
+    palavra = re.sub('[^a-zA-Z0-9 \\\]', '', palavra)
     return palavra.lower()
+
+def get_names(string):
+    string = deemphasize(string)
+    names = re.findall(r"[a-z- ]+", string)
+    for i in range(len(names)):
+        names[i] = names[i].strip()
+    return names
 
 def get_num(x):
     return str(''.join(ele for ele in x if ele.isdigit()))
