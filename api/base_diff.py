@@ -1,5 +1,6 @@
-import json, requests, sys
+import json, sys, re
 from api.base import base_api
+from utils import deemphasize
 
 class base_diff(base_api):
 
@@ -81,6 +82,19 @@ class base_diff(base_api):
             if i[self.__key_name] == data[self.__key_name]:
                 return i[self.__key_id]
         return 0
+
+    def search_item_by_name(self, nome):
+        nome = deemphasize(nome)
+        ids = []
+        for i in self.items:
+            nome_item = deemphasize(i[self.__key_name])
+            if re.search(nome, nome_item):
+                ids.append(i[self.__key_id])
+        if len(ids) == 1:
+            return ids[0]
+        else:
+            print("{} {} not found!".format(self.__item_name, nome))
+            sys.exit(0)
 
     def details(self, item_id):
         response = self.get(

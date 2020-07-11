@@ -1,4 +1,5 @@
 from excel.excel import excel
+from api.commission import commission
 from utils import *
 
 def comissao(book):
@@ -7,15 +8,18 @@ def comissao(book):
     ex.add_column(key="servico", name="nome")
     ex.add_column(key="cols", name="profissionais")
 
+    one = commission()
+
     for row in range(2, ex.nrows):
         data = ex.data_row(row)
         data["cols"] = get_names(data["cols"])
 
         proc_data = []
-        for i in data["profissional"]:
+        for i in data["cols"]:
             proc_data.append({
                 "cols": i,
-                "servico": data["ServicosNome"],
+                "servico": data["servico"],
                 "ativo": True
             })
-        print(proc_data)
+        for i in proc_data:
+            one.comissao(i)

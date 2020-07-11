@@ -1,37 +1,16 @@
 import re, sys
-from api.base import base
+from api.base import base_api
+from api.colaborador import colaboradores
+from api.servicos import servicos
 from utils import *
 
-class comissao(base):
+class commission(base_api):
 
     def __init__(self):
-        self.__cols = []
+        self.cols = colaboradores()
+        self.serv = servicos()
 
-    def get_cols(self):
-        response = self.get(
-            "/CliForCols/ListaDetalhesColaboradores"
-        )
-        self.status_ok(response)
-
-        content = json.loads(response.content)
-        for i in content:
-            if i["ativoColaborador"]:
-                self.__cols.append(i)
-
-    def get_cols_id(self, nome):
-        nome = deemphasize(nome)
-        for i in self.__cols:
-            nomeCompleto = deemphasize(i["nomeCompleto"])
-            if re.search(nome, nomeCompleto):
-                colsId = i["cliForColsId"]
-
-        if len(colsId) == 1:
-            return colsId[0]
-        else:
-            print("collaborator {} not found".format(nome))
-            sys.exit()
-
-    def get_serv(self, colsId):
+    def get_servs_in_cols(self, colsId):
         response = self.get(
             "/OGservsServicosComis/GservsServicosProfissionalRealiza/{}".format(colsId),
         )
@@ -55,8 +34,16 @@ class comissao(base):
         )
         self.status_ok(response)
 
-    def del(self, colsId, servId):
-        response = self.delete(
+    def delete(self, colsId, servId):
+        response = super().delete(
             "/Comiservs/RemoverComissao/{}/{}".format(colsId, servId)
         )
         self.status_ok(response)
+
+    def comissao(self, data):
+        data["colsId"] = self.cols.search_item_by_name(data["cols"])
+        data.pop("cols")
+        data["servId"] = self.serv.item_id(
+            {"descricao": data["servico"]})
+        data.pop("servico")
+        print(data)
