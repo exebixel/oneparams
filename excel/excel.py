@@ -70,15 +70,13 @@ class excel:
 
             if index_type == xlrd.XL_CELL_EMPTY:
                 index_value = default[i]
+
             elif index_type == xlrd.XL_CELL_DATE:
-                # try:
-                # convert data
                 index_value = xlrd.xldate_as_tuple(
                     index_value, self.__book.datemode
                 )
                 index_value = str(time(*index_value[3:]))
-                # except:
-                #     pass
+
             elif index_type == xlrd.XL_CELL_TEXT:
                 index_value = index_value.strip()
 

@@ -15,9 +15,9 @@ def colaborador(book):
     ex.add_column(key="perfil", name="perfil",
                   default="colaborador")
     ex.add_column(key="agendavel", name="agenda",
-                  default=False)
+                  required=False, default=False)
     ex.add_column(key="profissao", name="profissao",
-                  default=None)
+                  required=False, default=None)
     ex.add_column(key="flagCliente", name="cliente",
                   required=False, default=True)
     ex.add_column(key="flagFornecedor", name="fornecedor",
