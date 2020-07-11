@@ -9,6 +9,7 @@ from api.operadora import operadora
 from excel.servicos import servico
 from excel.colaborador import colaborador
 from excel.card import cards
+from excel.comissao import comissao
 
 
 parser = argparse.ArgumentParser(
@@ -32,6 +33,10 @@ card_parse = sub.add_parser("card",
 card_parse.add_argument("-R", "--reset", action="store_true",
                   help= "Delete or inactivate all cards")
 card_parse= parse_base(card_parse)
+
+com_parse = sub.add_parser("comm",
+                      help= "Professional committee manipulation")
+com_parse = parse_base(com_parse)
 
 args = parser.parse_args()
 
@@ -67,3 +72,6 @@ if args.cmd == "card":
         cd.delete_all()
         cd.operadora.delete_all()
     cards(book)
+
+if args.cmd == "comm":
+    comissao(book)
