@@ -1,4 +1,4 @@
-import re, sys
+import re, sys, json
 from api.base import base_api
 from api.colaborador import colaboradores
 from api.servicos import servicos
@@ -9,6 +9,7 @@ class commission(base_api):
     def __init__(self):
         self.cols = colaboradores()
         self.serv = servicos()
+        self.items = []
 
     def get_servs_in_cols(self, colsId):
         response = self.get(
@@ -16,27 +17,49 @@ class commission(base_api):
         )
         self.status_ok(response)
         content = json.loads(response.content)
-        data = []
+        data = {}
+        data["colsId"] = colsId
+        data["servs"] = []
         for i in content["Gservs"]:
             for i in i["Servicos"]:
-                data.append({
+                data["servs"].append({
                     "servId": i["ServicosId"],
-                    "servico": i["ServicosNome"],
                     "comissao": i["ServicoValorComissao"],
-                    "ativo": i["ServicosAtivo"]
                 })
         return data
 
-    def add(self, colsId, servId):
+    def index_cols(self, colsId):
+        index = 0
+        for i in self.items:
+            if (i["colsId"] == colsId):
+                return index
+            index += 1
+        return -1
+
+    def exist(self, data):
+        index = self.index_cols(data["colsId"])
+        if index == -1:
+            item = self.get_servs_in_cols(data["colsId"])
+            self.items.append(item)
+        else:
+            item = self.items[index]
+
+        for i in item["servs"]:
+            if i["servId"] == data["servId"]:
+                return True
+        return False
+
+    def add(self, data):
         response = self.post(
-            "/OServicosComis/AdicionarComissao/{}".format(colsId),
-            data = servId
+            "/OServicosComis/AdicionarComissao/{}".format(data["colsId"]),
+            data = data["servId"]
         )
         self.status_ok(response)
 
-    def delete(self, colsId, servId):
+    def delete(self, data):
         response = super().delete(
-            "/Comiservs/RemoverComissao/{}/{}".format(colsId, servId)
+            "/Comiservs/RemoverComissao/{}/{}".format(
+                data["colsId"], data["servId"])
         )
         self.status_ok(response)
 
@@ -46,4 +69,9 @@ class commission(base_api):
         data["servId"] = self.serv.item_id(
             {"descricao": data["servico"]})
         data.pop("servico")
-        print(data)
+
+        if not self.exist(data):
+            self.add(data)
+        else:
+            self.delete(data)
+            self.add(data)
