@@ -12,6 +12,9 @@ def comissao(book):
 
     for row in range(2, ex.nrows):
         data = ex.data_row(row)
+        if data["cols"] == None:
+            continue
+
         data["cols"] = get_names(data["cols"])
 
         proc_data = []
