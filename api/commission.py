@@ -24,6 +24,7 @@ class commission(base_api):
             for i in i["Servicos"]:
                 data["servs"].append({
                     "servId": i["ServicosId"],
+                    "serv": i["ServicosNome"],
                     "comissao": i["ServicoValorComissao"],
                 })
         return data
@@ -62,6 +63,18 @@ class commission(base_api):
                 data["colsId"], data["servId"])
         )
         self.status_ok(response)
+
+    def delete_all(self):
+        cols = self.cols.items
+        for cols in cols:
+            data = self.get_servs_in_cols(cols["colaboradorId"])
+            for i in data["servs"]:
+                print("deleting {} service in professional {}".format(
+                    i["serv"], cols["nomeCompleto"]
+                ))
+                self.delete(
+                    {"colsId": cols["colaboradorId"], "servId": i["servId"]}
+                )
 
     def comissao(self, data):
         data["colsId"] = self.cols.search_item_by_name(data["cols"])

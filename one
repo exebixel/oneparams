@@ -6,6 +6,7 @@ from api.login import login
 from api.servicos import servicos
 from api.cards import card
 from api.operadora import operadora
+from api.commission import commission
 from excel.servicos import servico
 from excel.colaborador import colaborador
 from excel.card import cards
@@ -36,6 +37,8 @@ card_parse= parse_base(card_parse)
 
 com_parse = sub.add_parser("comm",
                       help= "Professional committee manipulation")
+com_parse.add_argument("-R", "--reset", action="store_true",
+                  help= "Delete all professional committee")
 com_parse = parse_base(com_parse)
 
 args = parser.parse_args()
@@ -74,4 +77,7 @@ if args.cmd == "card":
     cards(book)
 
 if args.cmd == "comm":
+    if args.reset:
+        comm = commission()
+        comm.delete_all()
     comissao(book)
