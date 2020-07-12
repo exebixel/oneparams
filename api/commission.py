@@ -65,13 +65,19 @@ class commission(base_api):
 
     def comissao(self, data):
         data["colsId"] = self.cols.search_item_by_name(data["cols"])
-        data.pop("cols")
+        # data.pop("cols")
         data["servId"] = self.serv.item_id(
             {"descricao": data["servico"]})
-        data.pop("servico")
+        # data.pop("servico")
 
         if not self.exist(data):
+            print("adding {} service to professional {}".format(
+                data["servico"], data["cols"]
+            ))
             self.add(data)
         else:
+            print("updating {} service to professional {}".format(
+                data["servico"], data["cols"]
+            ))
             self.delete(data)
             self.add(data)
