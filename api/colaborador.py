@@ -20,7 +20,7 @@ class colaboradores(base_diff):
         self.all_perfils()
 
     def all_perfils(self):
-        print("researching collaborators")
+        print("researching perfils")
         response = self.get("/Perfils/ListaPerfils")
         self.status_ok(response)
         content = json.loads(response.content)
