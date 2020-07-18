@@ -1,16 +1,14 @@
-"""
-modulo auxiliar, sua principal função é retornar um fornecedor com determinado nome
-"""
 import json
+
 from api.base import BaseApi
 from utils import create_cel, create_email
+
 
 class Fornecedor(BaseApi):
     """
     classe de gerenciamento de fornecedores da one,
     sua principal função é criar e pesquisar fornecedores
     """
-
     def __init__(self):
         self.__fornecedores = []
         self.all_fornecedores()
@@ -44,7 +42,7 @@ class Fornecedor(BaseApi):
 
     def create(self, nome):
         """
-        Cria um fornecedor, 
+        Cria um fornecedor,
         Dados de criação padrão:
         data={
             "ativoFornecedor": "true",
@@ -56,23 +54,18 @@ class Fornecedor(BaseApi):
         }
         """
         print("creating {} supplier".format(nome))
-        response = self.post(
-            "/OCliForColsUsuarioPerfil/CreateFornecedores",
-            data={
-                "ativoFornecedor": "true",
-                "flagCliente": "false",
-                "flagColaborador": "false",
-                "email": create_email(),
-                "celular": create_cel(),
-                "nomeCompleto": nome
-            }
-        )
+        response = self.post("/OCliForColsUsuarioPerfil/CreateFornecedores",
+                             data={
+                                 "ativoFornecedor": "true",
+                                 "flagCliente": "false",
+                                 "flagColaborador": "false",
+                                 "email": create_email(),
+                                 "celular": create_cel(),
+                                 "nomeCompleto": nome
+                             })
         self.status_ok(response)
         content = json.loads(response.content)
-        self.__fornecedores.append({
-            "id": content["data"],
-            "nome": nome
-        })
+        self.__fornecedores.append({"id": content["data"], "nome": nome})
         return content["data"]
 
     def get_for(self, nome):

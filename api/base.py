@@ -1,7 +1,8 @@
-""" imports basicos """
 import json
 import sys
+
 import requests
+
 
 class BaseApi:
     """
@@ -10,9 +11,7 @@ class BaseApi:
     e do json dumps
     """
 
-    header = {
-        'Content-Type': 'application/json'
-    }
+    header = {'Content-Type': 'application/json'}
 
     def __init_subclass__(cls):
         cls.api_url = "https://oneapinovo.azurewebsites.net/api"
@@ -30,49 +29,39 @@ class BaseApi:
         """
         Post request, url base já inclusa
         """
-        return requests.post(
-            "{}{}".format(self.api_url, url),
-            headers=self.header,
-            data=json.dumps(data)
-        )
+        return requests.post("{}{}".format(self.api_url, url),
+                             headers=self.header,
+                             data=json.dumps(data))
 
     def get(self, url):
         """
         Get request, irl base já inclusa
         """
-        return requests.get(
-            "{}{}".format(self.api_url, url),
-            headers=self.header
-        )
+        return requests.get("{}{}".format(self.api_url, url),
+                            headers=self.header)
 
     def delete(self, url):
         """
         Delete request, url base já inclusa
         """
-        return requests.delete(
-            "{}{}".format(self.api_url, url),
-            headers=self.header
-        )
+        return requests.delete("{}{}".format(self.api_url, url),
+                               headers=self.header)
 
     def put(self, url, data):
         """
         Put request, url base já inclusa
         """
-        return requests.put(
-            "{}{}".format(self.api_url, url),
-            headers=self.header,
-            data=json.dumps(data)
-        )
+        return requests.put("{}{}".format(self.api_url, url),
+                            headers=self.header,
+                            data=json.dumps(data))
 
     def patch(self, url, data):
         """
         Patch requests, url base já inclusa
         """
-        return requests.patch(
-            "{}{}".format(self.api_url, url),
-            headers=self.header,
-            data=json.dumps(data)
-        )
+        return requests.patch("{}{}".format(self.api_url, url),
+                              headers=self.header,
+                              data=json.dumps(data))
 
     def status_ok(self, response, erro_exit=True):
         """

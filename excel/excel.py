@@ -1,9 +1,13 @@
-import xlrd, sys, re
+import re
+import sys
 from datetime import time
-from utils import *
 
-class excel:
+import xlrd
 
+from utils import string_normalize
+
+
+class Excel:
     def __init__(self, book, sheet_name):
         self.__keys = []
         self.__column_index = []
@@ -21,9 +25,9 @@ class excel:
         cont = 0
         for names in book.sheet_names():
             names = string_normalize(names)
-            if ( re.search(sheet_name, names, re.IGNORECASE) ):
+            if (re.search(sheet_name, names, re.IGNORECASE)):
                 break
-            cont+=1
+            cont += 1
         else:
             return -1
         return cont
@@ -34,9 +38,9 @@ class excel:
             header_name = self.__sh.cell_value(rowx=1, colx=header)
             header_name = string_normalize(header_name)
 
-            if ( re.search(column_name, header_name, re.IGNORECASE) ):
+            if (re.search(column_name, header_name, re.IGNORECASE)):
                 break
-            cont+=1
+            cont += 1
         else:
             return -1
         return cont
@@ -51,7 +55,6 @@ class excel:
         self.__keys.append(key)
         self.__defaults.append(default)
 
-
     def data_row(self, row):
         keys = self.__keys
         index = self.__column_index
@@ -59,10 +62,10 @@ class excel:
         sh = self.__sh
 
         data = {}
-        for i in range( len(self.__keys) ):
+        for i in range(len(self.__keys)):
             if index[i] == -1:
                 index_value = default[i]
-                data[ keys[i] ] = index_value
+                data[keys[i]] = index_value
                 continue
 
             index_type = sh.cell_type(row, index[i])
@@ -72,14 +75,12 @@ class excel:
                 index_value = default[i]
 
             elif index_type == xlrd.XL_CELL_DATE:
-                index_value = xlrd.xldate_as_tuple(
-                    index_value, self.__book.datemode
-                )
+                index_value = xlrd.xldate_as_tuple(index_value,
+                                                   self.__book.datemode)
                 index_value = str(time(*index_value[3:]))
 
             elif index_type == xlrd.XL_CELL_TEXT:
                 index_value = index_value.strip()
 
-
-            data[ keys[i] ] = index_value
+            data[keys[i]] = index_value
         return data

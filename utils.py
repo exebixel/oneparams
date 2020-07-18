@@ -1,9 +1,10 @@
 """ imports básicos """
+import random
 import re
+import string
 import sys
 import unicodedata
-import string
-import random
+
 
 def deemphasize(word):
     """
@@ -14,13 +15,15 @@ def deemphasize(word):
     word = u"".join([c for c in nfkd if not unicodedata.combining(c)])
     return word.lower()
 
+
 def string_normalize(word):
     """
     Retorna todos as letras e números de uma string
     """
     word = deemphasize(word)
-    # Usa expressão regular para retornar a palavra apenas com números, letras e espaço
-    return re.sub(r'[^a-zA-Z0-9 \\\]', '', word)
+    # Retornar a palavra apenas com números, letras e espaço
+    return re.sub(r'[^a-zA-Z0-9 \\]', '', word)
+
 
 def get_names(word):
     """
@@ -35,11 +38,13 @@ def get_names(word):
         names[index] = i
     return names
 
+
 def get_num(word):
     """
     Retorna todos os números de uma string
     """
     return str(''.join(ele for ele in word if ele.isdigit()))
+
 
 def get_cel(word):
     """
@@ -65,29 +70,32 @@ def create_email():
     onde <alguma_coisa> é composto por 6 caracteres aleatórios
     """
     char_set = string.ascii_lowercase + string.digits
-    rand = ''.join(random.sample(char_set*7, 7))
+    rand = ''.join(random.sample(char_set * 7, 7))
     return f'one_{rand}@onebeleza.com'
+
 
 def create_cel():
     """
     Cria uma string de 11 dígitos aleatórios
     """
-    return ''.join(random.sample(string.digits*11, 11))
+    return ''.join(random.sample(string.digits * 11, 11))
+
 
 def card_type(card):
     """
     Retorna 'C' ou 'D' dependendo do parâmetro (card),
     card pode ser 'credito' ou 'debito'
     """
-    if (re.search("credito", card, re.IGNORECASE) or
-            re.search("^c$", card, re.IGNORECASE)):
+    if (re.search("credito", card, re.IGNORECASE)
+            or re.search("^c$", card, re.IGNORECASE)):
         return "C"
-    if (re.search("debito", card, re.IGNORECASE) or
-            re.search("^d$", card, re.IGNORECASE)):
+    if (re.search("debito", card, re.IGNORECASE)
+            or re.search("^d$", card, re.IGNORECASE)):
         return "D"
 
     print("unrecognized card type {}".format(card))
     sys.exit()
+
 
 def get_bool(value):
     """
@@ -97,10 +105,8 @@ def get_bool(value):
     if value or not value:
         return value
 
-    if (string_normalize(value) == "sim" or
-            string_normalize(value) == "s"):
+    if (string_normalize(value) == "sim" or string_normalize(value) == "s"):
         return True
-    if (string_normalize(value) == "nao" or
-            string_normalize(value) == "n"):
+    if (string_normalize(value) == "nao" or string_normalize(value) == "n"):
         return False
     return None

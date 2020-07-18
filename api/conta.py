@@ -1,8 +1,10 @@
-import json, re
-from api.base import base_api
+import json
+import re
 
-class conta(base_api):
+from api.base import BaseApi
 
+
+class conta(BaseApi):
     def __init__(self):
         self.__contas = []
         self.all_contas()
@@ -21,4 +23,3 @@ class conta(base_api):
             if re.search(nome, i["nome"], re.IGNORECASE):
                 return i["contasId"]
         return None
-

@@ -1,25 +1,20 @@
-import json
-from api.base_diff import base_diff
-from api.operadora import operadora
+from api.base_diff import BaseDiff
 from api.conta import conta
+from api.operadora import Operadora
 
-class card(base_diff):
 
+class Card(BaseDiff):
     def __init__(self):
-        super().__init__(
-            key_id = "cartoesId",
-            key_name = "descricao",
-            item_name = "card",
+        super().__init__(key_id="cartoesId",
+                         key_name="descricao",
+                         item_name="card",
+                         url_create="/OCartao/Cartoes",
+                         url_update="/OCartao/Cartoes",
+                         url_get_all="/Cartoes",
+                         url_get_detail="/OCartao/CartaoDetalhes",
+                         url_delete="/Cartoes")
 
-            url_create = "/OCartao/Cartoes",
-            url_update = "/OCartao/Cartoes",
-            url_get_all = "/Cartoes",
-            url_get_detail = "/OCartao/CartaoDetalhes",
-
-            url_delete = "/Cartoes"
-        )
-
-        self.operadora = operadora()
+        self.operadora = Operadora()
         self.conta = conta()
 
     def get_all(self):

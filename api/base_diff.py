@@ -1,18 +1,17 @@
-""" Imports básicos """
 import json
-import sys
 import re
-# tirar acentos de string
+import sys
+
 from utils import deemphasize
-# classe base
+
 from .base import BaseApi
+
 
 class BaseDiff(BaseApi):
     """
     Base de suporte para adicionar e atualizar items no sistema
     verificando suas existências e diferenças
     """
-
     def __init__(self,
                  key_id,
                  key_name,
@@ -49,12 +48,8 @@ class BaseDiff(BaseApi):
         """
         Adiciona um item ao sistema
         """
-        print("creating {} {}".format(
-            data[self.__key_name], self.__item_name))
-        response = self.post(
-            self.__url_create,
-            data=data
-        )
+        print("creating {} {}".format(data[self.__key_name], self.__item_name))
+        response = self.post(self.__url_create, data=data)
         self.status_ok(response)
 
         content = json.loads(response.content)
@@ -64,12 +59,10 @@ class BaseDiff(BaseApi):
         """
         Atualiza os dados de um item já cadastrado no sistema
         """
-        print("updating {} {}".format(
-            data[self.__key_name], self.__item_name))
-        response = self.put(
-            "{}/{}".format(self.__url_update, data[self.__key_id]),
-            data=data
-        )
+        print("updating {} {}".format(data[self.__key_name], self.__item_name))
+        response = self.put("{}/{}".format(self.__url_update,
+                                           data[self.__key_id]),
+                            data=data)
         self.status_ok(response)
 
         content = json.loads(response.content)
@@ -80,16 +73,15 @@ class BaseDiff(BaseApi):
         Retorna todos os items cadastrados no sistema
         """
         print("researching {}".format(self.__item_name))
-        response = self.get(
-            self.__url_get_all
-        )
+        response = self.get(self.__url_get_all)
         self.status_ok(response)
 
         return json.loads(response.content)
 
     def equals(self, data):
         """
-        verifica se os dados de item são iguais aos dados já cadastrados no sistema
+        verifica se os dados de item são iguais aos dados
+        já cadastrados no sistema
         retorna True ou False
         """
         detail = self.details(data[self.__key_id])
@@ -117,7 +109,7 @@ class BaseDiff(BaseApi):
 
     def search_item_by_name(self, nome):
         """
-        Pesquisa por um nome (self.__key_name) e retorna seu Id (self.__key_id),
+        Pesquisa por um nome (self.__key_name) e retorna o Id (self.__key_id),
         a pesquisa é feita ignorando o case das letras e os acentos,
         então ISSó == iss
 
@@ -141,9 +133,7 @@ class BaseDiff(BaseApi):
         """
         Retorna um dict com as informações do cadastro completo do item
         """
-        response = self.get(
-            "{}/{}".format(self.__url_get_detail, item_id)
-        )
+        response = self.get("{}/{}".format(self.__url_get_detail, item_id))
         self.status_ok(response)
         return json.loads(response.content)
 
@@ -165,8 +155,8 @@ class BaseDiff(BaseApi):
             self.update(data)
 
         else:
-            print("skiping {} {}".format(
-                data[self.__key_name], self.__item_name))
+            print("skiping {} {}".format(data[self.__key_name],
+                                         self.__item_name))
 
     def delete(self, data):
         """
@@ -180,11 +170,9 @@ class BaseDiff(BaseApi):
         if self.__url_delete is None:
             return False
 
-        print("deleting {} {}".format(
-            data[self.__key_name], self.__item_name))
-        response = super().delete(
-            "{}/{}".format(self.__url_delete, data[self.__key_id])
-        )
+        print("deleting {} {}".format(data[self.__key_name], self.__item_name))
+        response = super().delete("{}/{}".format(self.__url_delete,
+                                                 data[self.__key_id]))
 
         return self.status_ok(response, erro_exit=False)
 
@@ -203,12 +191,11 @@ class BaseDiff(BaseApi):
         data = self.details(data[self.__key_id])
         data[self.__key_active] = False
 
-        print("inactivating {} {}".format(
-            data[self.__key_name], self.__item_name))
-        response = self.put(
-            "{}/{}".format(self.__url_inactive, data[self.__key_id]),
-            data=data
-        )
+        print("inactivating {} {}".format(data[self.__key_name],
+                                          self.__item_name))
+        response = self.put("{}/{}".format(self.__url_inactive,
+                                           data[self.__key_id]),
+                            data=data)
 
         return self.status_ok(response, erro_exit=False)
 

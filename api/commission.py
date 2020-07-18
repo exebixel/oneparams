@@ -1,20 +1,20 @@
-import re, sys, json
-from api.base import base_api
-from api.colaborador import colaboradores
-from api.servicos import servicos
-from utils import *
+import json
 
-class commission(base_api):
+from api.base import BaseApi
+from api.colaborador import Colaboradores
+from api.servicos import Servicos
 
+
+class Commission(BaseApi):
     def __init__(self):
-        self.cols = colaboradores()
-        self.serv = servicos()
+        self.cols = Colaboradores()
+        self.serv = Servicos()
         self.items = []
 
     def get_servs_in_cols(self, colsId):
         response = self.get(
-            "/OGservsServicosComis/GservsServicosProfissionalRealiza/{}".format(colsId),
-        )
+            "/OGservsServicosComis/GservsServicosProfissionalRealiza/{}".
+            format(colsId), )
         self.status_ok(response)
         content = json.loads(response.content)
         data = {}
@@ -51,17 +51,14 @@ class commission(base_api):
         return False
 
     def add(self, data):
-        response = self.post(
-            "/OServicosComis/AdicionarComissao/{}".format(data["colsId"]),
-            data = data["servId"]
-        )
+        response = self.post("/OServicosComis/AdicionarComissao/{}".format(
+            data["colsId"]),
+                             data=data["servId"])
         self.status_ok(response)
 
     def delete(self, data):
-        response = super().delete(
-            "/Comiservs/RemoverComissao/{}/{}".format(
-                data["colsId"], data["servId"])
-        )
+        response = super().delete("/Comiservs/RemoverComissao/{}/{}".format(
+            data["colsId"], data["servId"]))
         self.status_ok(response)
 
     def delete_all(self):
@@ -70,27 +67,22 @@ class commission(base_api):
             data = self.get_servs_in_cols(cols["colaboradorId"])
             for i in data["servs"]:
                 print("deleting {} service in professional {}".format(
-                    i["serv"], cols["nomeCompleto"]
-                ))
-                self.delete(
-                    {"colsId": cols["colaboradorId"], "servId": i["servId"]}
-                )
+                    i["serv"], cols["nomeCompleto"]))
+                self.delete({
+                    "colsId": cols["colaboradorId"],
+                    "servId": i["servId"]
+                })
 
     def comissao(self, data):
         data["colsId"] = self.cols.search_item_by_name(data["cols"])
-        # data.pop("cols")
-        data["servId"] = self.serv.item_id(
-            {"descricao": data["servico"]})
-        # data.pop("servico")
+        data["servId"] = self.serv.item_id({"descricao": data["servico"]})
 
         if not self.exist(data):
             print("adding {} service to professional {}".format(
-                data["servico"], data["cols"]
-            ))
+                data["servico"], data["cols"]))
             self.add(data)
         else:
             print("updating {} service to professional {}".format(
-                data["servico"], data["cols"]
-            ))
+                data["servico"], data["cols"]))
             self.delete(data)
             self.add(data)

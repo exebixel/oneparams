@@ -1,26 +1,23 @@
-from excel.excel import excel
-from api.cards import card
-from utils import *
+from api.cards import Card
+from excel.excel import Excel
+from utils import card_type
+
 
 def cards(book):
 
-    ex = excel(
-        book= book,
-        sheet_name= "cart"
-    )
+    ex = Excel(book=book, sheet_name="cart")
 
-    ex.add_column("descricao", "nome")
-    ex.add_column("debito_Credito", "tipo")
-    ex.add_column("comissao", "comissao",
-                  default=0)
-    ex.add_column("comissaoNegociadaOperadora", "cobrada",
-                  default=0)
-    ex.add_column("operadora", "operadora",
-                  default="Padrão")
-    ex.add_column("contas", "conta",
-                  required=False, default="conta corrente")
+    ex.add_column(key="descricao", name="nome")
+    ex.add_column(key="debito_Credito", name="tipo")
+    ex.add_column(key="comissao", name="comissao", default=0)
+    ex.add_column(key="comissaoNegociadaOperadora", name="cobrada", default=0)
+    ex.add_column(key="operadora", name="operadora", default="Padrão")
+    ex.add_column(key="contas",
+                  name="conta",
+                  required=False,
+                  default="conta corrente")
 
-    one = card()
+    one = Card()
 
     for row in range(2, ex.nrows):
         data = ex.data_row(row)

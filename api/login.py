@@ -1,14 +1,12 @@
-import json, requests, sys
+import json
+import sys
 from urllib.parse import quote
-from api.base import base_api
 
-class login(base_api):
+from api.base import BaseApi
 
-    def login(self,
-              nome_empresa,
-              email,
-              senha,
-              nome_filial = ""):
+
+class login(BaseApi):
+    def login(self, nome_empresa, email, senha, nome_filial=""):
 
         empresa = self.empresa(nome_empresa, nome_filial)
         dados = {
@@ -19,14 +17,11 @@ class login(base_api):
         }
 
         print("logging in")
-        response = self.post(
-            "/ologin",
-            data = dados
-        )
+        response = self.post("/ologin", data=dados)
 
         if self.status_ok(response):
             content = json.loads(response.content)
-            access_token =  content["data"]["access_token"]
+            access_token = content["data"]["access_token"]
             print("successful login")
             super().update_token(access_token)
 
@@ -34,8 +29,7 @@ class login(base_api):
 
         name = quote(name)
         response = self.get(
-            "/OMobilidades/PesquisarEmpresaPorNome/{0}".format(name),
-        )
+            "/OMobilidades/PesquisarEmpresaPorNome/{0}".format(name), )
         self.status_ok(response)
 
         content = json.loads(response.content)
@@ -50,16 +44,12 @@ class login(base_api):
         }
         return empresa
 
-
     def filial_id(self, empresa_id, name):
 
         name = quote(name)
         response = self.get(
             "/OMobilidades/PesquisarFilialPorNome/{0}/{1}".format(
-                empresa_id,
-                name
-            )
-        )
+                empresa_id, name))
         self.status_ok(response)
 
         content = json.loads(response.content)

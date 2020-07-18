@@ -1,13 +1,14 @@
-from api.base import base_api
-from api.fornecedor import fornecedor
 import json
 
-class operadora(base_api):
+from api.base import BaseApi
+from api.fornecedor import Fornecedor
 
+
+class Operadora(BaseApi):
     def __init__(self):
         self.__operadoras = []
         self.all_operators()
-        self.__fornecedor = fornecedor()
+        self.__fornecedor = Fornecedor()
 
     def all_operators(self):
         print("researching card operators")
@@ -28,17 +29,11 @@ class operadora(base_api):
         }
 
         print("creating {} card operator".format(nome))
-        response = self.post(
-            "/OperadoraCartoes",
-            data = dados
-        )
+        response = self.post("/OperadoraCartoes", data=dados)
         self.status_ok(response)
 
         content = json.loads(response.content)
-        self.__operadoras.append({
-            "id": content["data"],
-            "nome": nome
-        })
+        self.__operadoras.append({"id": content["data"], "nome": nome})
         return content["data"]
 
     def delete(self, op_id):
@@ -66,6 +61,6 @@ class operadora(base_api):
 
     def operator(self, nome):
         op_id = self.get_id(nome)
-        if op_id == None:
+        if op_id is None:
             op_id = self.create(nome)
         return op_id
