@@ -31,7 +31,7 @@ def get_names(word):
     entre caracteres especiais e números
     """
     word = deemphasize(word)
-    names = re.findall(r"[a-z- ]+", word)
+    names = re.findall(r"[a-z? *]+", word)
     for i in names:
         index = names.index(i)
         i = i.strip()
