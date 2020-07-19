@@ -102,7 +102,7 @@ def get_bool(value):
     Recebe uma parâmetro (value) contendo "sim" ou "nao",
     e retorna True ou False
     """
-    if value or not value:
+    if value == True or value == False:
         return value
 
     if (string_normalize(value) == "sim" or string_normalize(value) == "s"):
