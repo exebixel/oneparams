@@ -86,6 +86,7 @@ def card_type(card):
     Retorna 'C' ou 'D' dependendo do parâmetro (card),
     card pode ser 'credito' ou 'debito'
     """
+    card = deemphasize(card)
     if (re.search("credito", card, re.IGNORECASE)
             or re.search("^c$", card, re.IGNORECASE)):
         return "C"
