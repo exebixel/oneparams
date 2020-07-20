@@ -12,7 +12,7 @@ class Colaboradores(BaseDiff):
             key_name="nomeCompleto",
             item_name="collaborator",
             url_create="/OCliForColsUsuarioPerfil/CreateColaboradores",
-            url_update="/OCliForColsUsuarioPerfil/UpdateColaboradores",
+            url_update="/OCliForColsFiliais/UpdateColaboradores",
             url_get_all="/CliForCols/ListaDetalhesColaboradores",
             url_get_detail="/OColaborador/DetalhesColaboradores")
 
