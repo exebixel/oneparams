@@ -52,7 +52,7 @@ def get_cel(word):
     verificando se existem 11 ou 9 números na string final,
     Se não tiver o 11 ou 9 números o programa é encerrado
     """
-    word = re.sub(r'\.0$', '', word)
+    word = re.sub(r'\.0$', '', str(word))
     cel = get_num(word)
     if len(cel) == 11:
         return cel[:11]

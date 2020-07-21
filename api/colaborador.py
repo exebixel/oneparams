@@ -41,6 +41,9 @@ class Colaboradores(BaseDiff):
             sys.exit()
 
     def profissao_id(self, nome):
+        if nome is None:
+            return None
+
         response = self.get("/Profissoes/PesquisaProfissoes/{}".format(nome))
         self.status_ok(response)
         content = json.loads(response.content)
