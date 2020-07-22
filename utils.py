@@ -1,9 +1,9 @@
-""" imports básicos """
 import random
 import re
 import string
 import sys
 import unicodedata
+from difflib import SequenceMatcher
 
 
 def deemphasize(word):
@@ -111,3 +111,7 @@ def get_bool(value):
     if (string_normalize(value) == "nao" or string_normalize(value) == "n"):
         return False
     return None
+
+
+def similar(word, word_diff):
+    return SequenceMatcher(None, word, word_diff).ratio()
