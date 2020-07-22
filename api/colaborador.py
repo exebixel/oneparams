@@ -3,6 +3,7 @@ import re
 import sys
 
 from api.base_diff import BaseDiff
+from api.profissao import Profissao
 from utils import similar
 
 
@@ -19,22 +20,7 @@ class Colaboradores(BaseDiff):
 
         self.__perfils = []
         self.all_perfils()
-
-        self.profissoes = [
-            "Cabeleireiro",
-            "Manicure/Pedicure",
-            "Depilador",
-            "Maquiador",
-            "Esteticista",
-            "Administrador",
-            "Massoterapeuta",
-            "Barbeiro",
-            "Recepcionista",
-            "Estoquista",
-            "Auxiliar",
-            "Gerente",
-            "Copeiro",
-        ]
+        self.profissao = Profissao()
 
     def all_perfils(self):
         print("researching perfils")
@@ -64,24 +50,6 @@ class Colaboradores(BaseDiff):
 
         return self.__perfils[len_similar.index(max_similar)]["id"]
 
-    def profissao_id(self, nome):
-        if nome is None:
-            return None
-
-        len_similar = []
-        for profissao in self.profissoes:
-            len_similar.append(similar(nome, profissao))
-
-        max_similar = max(len_similar)
-        if (max_similar == 0 or len_similar.count(max_similar) == 0):
-            print(f'Profissao {nome} not found!!')
-            sys.exit()
-        if len_similar.count(max_similar) > 1:
-            print(f'Profissao {nome} is duplicated!!')
-            sys.exit()
-
-        return self.__perfils[len_similar.index(max_similar)]["id"]
-
     def get_all(self):
         content = super().get_all()
         for i in content:
@@ -94,7 +62,7 @@ class Colaboradores(BaseDiff):
         return super().details(item_id)["colaboradoresCliForColsLightModel"]
 
     def colaborador(self, data):
-        data["profissaoId"] = self.profissao_id(data["profissao"])
+        data["profissaoId"] = self.profissao.profissao_id(data["profissao"])
         data.pop("profissao")
         data["perfilId"] = self.perfil_id(data["perfil"])
         data.pop("perfil")
