@@ -3,6 +3,7 @@ import re
 import sys
 
 from api.base_diff import BaseDiff
+from utils import similar
 
 
 class Colaboradores(BaseDiff):
@@ -19,6 +20,22 @@ class Colaboradores(BaseDiff):
         self.__perfils = []
         self.all_perfils()
 
+        self.profissoes = [
+            "Cabeleireiro",
+            "Manicure/Pedicure",
+            "Depilador",
+            "Maquiador",
+            "Esteticista",
+            "Administrador",
+            "Massoterapeuta",
+            "Barbeiro",
+            "Recepcionista",
+            "Estoquista",
+            "Auxiliar",
+            "Gerente",
+            "Copeiro",
+        ]
+
     def all_perfils(self):
         print("researching perfils")
         response = self.get("/Perfils/ListaPerfils")
@@ -33,24 +50,37 @@ class Colaboradores(BaseDiff):
                 })
 
     def perfil_id(self, nome):
+        len_similar = []
         for perfil in self.__perfils:
-            if (re.search(nome, perfil["nomeCompleto"], re.IGNORECASE)):
-                return perfil["id"]
-        else:
-            print("Perfil not found!!")
+            len_similar.append(similar(nome, perfil["nomeCompleto"]))
+
+        max_similar = max(len_similar)
+        if (max_similar == 0 or len_similar.count(max_similar) == 0):
+            print(f'Perfil {nome} not found!!')
             sys.exit()
+        if len_similar.count(max_similar) > 1:
+            print(f'Perfil {nome} is duplicated!!')
+            sys.exit()
+
+        return self.__perfils[len_similar.index(max_similar)]["id"]
 
     def profissao_id(self, nome):
         if nome is None:
             return None
 
-        response = self.get("/Profissoes/PesquisaProfissoes/{}".format(nome))
-        self.status_ok(response)
-        content = json.loads(response.content)
-        if len(content) != 1:
-            print("profession not found!!")
+        len_similar = []
+        for profissao in self.profissoes:
+            len_similar.append(similar(nome, profissao))
+
+        max_similar = max(len_similar)
+        if (max_similar == 0 or len_similar.count(max_similar) == 0):
+            print(f'Profissao {nome} not found!!')
             sys.exit()
-        return content[0]["profissoesId"]
+        if len_similar.count(max_similar) > 1:
+            print(f'Profissao {nome} is duplicated!!')
+            sys.exit()
+
+        return self.__perfils[len_similar.index(max_similar)]["id"]
 
     def get_all(self):
         content = super().get_all()
