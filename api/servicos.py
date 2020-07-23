@@ -23,9 +23,7 @@ class Servicos(BaseDiff):
         self.gservs = Gservis()
 
     def get_all(self):
-        content = super().get_all()
-        for i in content:
-            self.items.append(i)
+        self.items = super().get_all()
 
     def details(self, item_id):
         return super().details(item_id)["servicoLightModel"]

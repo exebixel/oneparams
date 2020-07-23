@@ -4,7 +4,7 @@ import sys
 
 from api.base_diff import BaseDiff
 from api.profissao import Profissao
-from utils import similar
+from utils import deemphasize, similar
 
 
 class Colaboradores(BaseDiff):
@@ -30,25 +30,24 @@ class Colaboradores(BaseDiff):
 
         for i in content:
             if not re.search("cliente", i["descricao"], re.IGNORECASE):
-                self.__perfils.append({
-                    "id": i["perfilsId"],
-                    "nomeCompleto": i["descricao"]
-                })
+                self.__perfils.append(i)
 
     def perfil_id(self, nome):
+        nome = deemphasize(nome)
         len_similar = []
         for perfil in self.__perfils:
-            len_similar.append(similar(nome, perfil["nomeCompleto"]))
+            nome_perfil = deemphasize(perfil["descricao"])
+            len_similar.append(similar(nome, nome_perfil))
 
         max_similar = max(len_similar)
-        if (max_similar == 0 or len_similar.count(max_similar) == 0):
+        if (max_similar < 0.55 or len_similar.count(max_similar) == 0):
             print(f'Perfil {nome} not found!!')
             sys.exit()
         if len_similar.count(max_similar) > 1:
             print(f'Perfil {nome} is duplicated!!')
             sys.exit()
 
-        return self.__perfils[len_similar.index(max_similar)]["id"]
+        return self.__perfils[len_similar.index(max_similar)]["perfilsId"]
 
     def get_all(self):
         content = super().get_all()

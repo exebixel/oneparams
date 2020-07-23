@@ -7,7 +7,6 @@ from api.base import BaseApi
 
 class login(BaseApi):
     def login(self, nome_empresa, email, senha, nome_filial=""):
-
         empresa = self.empresa(nome_empresa, nome_filial)
         dados = {
             "empresaId": empresa["id"],
@@ -26,10 +25,10 @@ class login(BaseApi):
             super().update_token(access_token)
 
     def empresa_id(self, name):
-
         name = quote(name)
         response = self.get(
-            "/OMobilidades/PesquisarEmpresaPorNome/{0}".format(name), )
+            "/OMobilidades/PesquisarEmpresaPorNome?nomeEmpresa={}".format(
+                name))
         self.status_ok(response)
 
         content = json.loads(response.content)
@@ -45,11 +44,10 @@ class login(BaseApi):
         return empresa
 
     def filial_id(self, empresa_id, name):
-
         name = quote(name)
         response = self.get(
-            "/OMobilidades/PesquisarFilialPorNome/{0}/{1}".format(
-                empresa_id, name))
+            "/OMobilidades/PesquisarFilialPorNome?empresaId={}&nomeEmpresaFilial={}"
+            .format(empresa_id, name))
         self.status_ok(response)
 
         content = json.loads(response.content)
