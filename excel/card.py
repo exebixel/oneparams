@@ -1,6 +1,7 @@
 from api.cards import Card
-from excel.excel import Excel
 from utils import card_type
+
+from excel.excel import Excel
 
 
 def cards(book):
@@ -21,6 +22,13 @@ def cards(book):
 
     for row in range(2, ex.nrows):
         data = ex.data_row(row)
+
+        if data["debito_Credito"] is None:
+            data["debito_Credito"] = "C"
+            one.card(data)
+            data["debito_Credito"] = "D"
+            one.card(data)
+            continue
 
         data["debito_Credito"] = card_type(data["debito_Credito"])
         one.card(data)

@@ -23,10 +23,20 @@ class Card(BaseDiff):
     def details(self, item_id):
         return super().details(item_id)["cartoesLight"]
 
+    def item_id(self, data):
+        for i in self.items:
+            if (i["descricao"] == data["descricao"]
+                    and i["debito_Credito"] == data["debito_Credito"]):
+                return i["cartoesId"]
+        return 0
+
     def card(self, data):
-        data["contasId"] = self.conta.get_id(data["contas"])
-        data.pop("contas")
-        data["operadoraCartaoId"] = self.operadora.operator(data["operadora"])
-        data.pop("operadora")
+        if "contasId" not in data.keys():
+            data["contasId"] = self.conta.get_id(data["contas"])
+            data.pop("contas")
+        if "operadoraCartaoId" not in data.keys():
+            data["operadoraCartaoId"] = self.operadora.operator(
+                data["operadora"])
+            data.pop("operadora")
 
         super().diff_item(data)
