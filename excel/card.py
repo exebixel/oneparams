@@ -26,8 +26,10 @@ def cards(book):
         if data["debito_Credito"] is None:
             data["debito_Credito"] = "C"
             one.card(data)
-            data["debito_Credito"] = "D"
-            one.card(data)
+
+            data2 = ex.data_row(row)
+            data2["debito_Credito"] = "D"
+            one.card(data2)
             continue
 
         data["debito_Credito"] = card_type(data["debito_Credito"])
