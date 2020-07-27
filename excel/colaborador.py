@@ -1,11 +1,13 @@
 import sys
 
+from api.app import App
 from api.colaborador import Colaboradores
-from excel.excel import Excel
 from utils import get_bool, get_cel
 
+from excel.excel import Excel
 
-def colaborador(book):
+
+def colaborador(book, app_regist=False):
     ex = Excel(book=book, sheet_name="profissiona")
 
     ex.add_column(key="nomeCompleto", name="nome")
@@ -34,6 +36,7 @@ def colaborador(book):
                   default=True)
 
     one = Colaboradores()
+    app = App()
 
     for row in range(2, ex.nrows):
         data = ex.data_row(row)
@@ -46,3 +49,7 @@ def colaborador(book):
             sys.exit()
 
         one.colaborador(data)
+        if app_regist:
+            app.app(nome=data["nomeCompleto"],
+                    email=data["email"],
+                    celular=data["celular"])
