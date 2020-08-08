@@ -1,7 +1,7 @@
 import json
 import re
 
-from api.base import BaseApi
+from oneparams.api.base import BaseApi
 
 
 class conta(BaseApi):

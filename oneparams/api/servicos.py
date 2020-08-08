@@ -1,5 +1,5 @@
-from api.base_diff import BaseDiff
-from api.gservs import Gservis
+from oneparams.api.base_diff import BaseDiff
+from oneparams.api.gservs import Gservis
 
 
 class Servicos(BaseDiff):

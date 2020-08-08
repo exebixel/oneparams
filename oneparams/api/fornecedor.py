@@ -1,7 +1,7 @@
 import json
 
-from api.base import BaseApi
-from utils import create_cel, create_email
+from oneparams.api.base import BaseApi
+from oneparams.utils import create_cel, create_email
 
 
 class Fornecedor(BaseApi):

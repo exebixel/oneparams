@@ -1,6 +1,6 @@
-from api.base_diff import BaseDiff
-from api.conta import conta
-from api.operadora import Operadora
+from oneparams.api.base_diff import BaseDiff
+from oneparams.api.conta import conta
+from oneparams.api.operadora import Operadora
 
 
 class Card(BaseDiff):

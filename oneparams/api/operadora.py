@@ -1,7 +1,7 @@
 import json
 
-from api.base import BaseApi
-from api.fornecedor import Fornecedor
+from oneparams.api.base import BaseApi
+from oneparams.api.fornecedor import Fornecedor
 
 
 class Operadora(BaseApi):

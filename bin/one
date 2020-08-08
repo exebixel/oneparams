@@ -1,0 +1,7 @@
+#!/usr/bin/python
+from oneparams.one import main
+
+try:
+    main()
+except KeyboardInterrupt:
+    print("Quiting...")

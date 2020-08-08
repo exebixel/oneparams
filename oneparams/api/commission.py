@@ -1,8 +1,8 @@
 import json
 
-from api.base import BaseApi
-from api.colaborador import Colaboradores
-from api.servicos import Servicos
+from oneparams.api.base import BaseApi
+from oneparams.api.colaborador import Colaboradores
+from oneparams.api.servicos import Servicos
 
 
 class Commission(BaseApi):

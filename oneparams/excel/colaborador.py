@@ -1,10 +1,9 @@
 import sys
 
-from api.app import App
-from api.colaborador import Colaboradores
-from utils import get_bool, get_cel
-
-from excel.excel import Excel
+from oneparams.api.app import App
+from oneparams.api.colaborador import Colaboradores
+from oneparams.excel.excel import Excel
+from oneparams.utils import get_bool, get_cel
 
 
 def colaborador(book, app_regist=False):

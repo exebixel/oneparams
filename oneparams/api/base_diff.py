@@ -2,9 +2,8 @@ import json
 import re
 import sys
 
-from utils import deemphasize
-
-from .base import BaseApi
+from oneparams.api.base import BaseApi
+from oneparams.utils import deemphasize
 
 
 class BaseDiff(BaseApi):

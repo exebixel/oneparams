@@ -1,6 +1,6 @@
-from api.commission import Commission
-from excel.excel import Excel
-from utils import get_names
+from oneparams.api.commission import Commission
+from oneparams.excel.excel import Excel
+from oneparams.utils import get_names
 
 
 def comissao(book):

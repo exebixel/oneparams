@@ -1,7 +1,6 @@
-from api.cards import Card
-from utils import card_type
-
-from excel.excel import Excel
+from oneparams.api.cards import Card
+from oneparams.excel.excel import Excel
+from oneparams.utils import card_type
 
 
 def cards(book):

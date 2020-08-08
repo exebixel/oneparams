@@ -2,9 +2,9 @@ import json
 import re
 import sys
 
-from api.base_diff import BaseDiff
-from api.profissao import Profissao
-from utils import deemphasize, similar
+from oneparams.api.base_diff import BaseDiff
+from oneparams.api.profissao import Profissao
+from oneparams.utils import deemphasize, similar
 
 
 class Colaboradores(BaseDiff):

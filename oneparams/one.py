@@ -4,15 +4,15 @@ import sys
 
 import xlrd
 
-from api.cards import Card
-from api.commission import Commission
-from api.login import login
-from api.servicos import Servicos
-from args import parse_base
-from excel.card import cards
-from excel.colaborador import colaborador
-from excel.comissao import comissao
-from excel.servicos import servico
+from oneparams.api.cards import Card
+from oneparams.api.commission import Commission
+from oneparams.api.login import login
+from oneparams.api.servicos import Servicos
+from oneparams.args import parse_base
+from oneparams.excel.card import cards
+from oneparams.excel.colaborador import colaborador
+from oneparams.excel.comissao import comissao
+from oneparams.excel.servicos import servico
 
 
 def main():

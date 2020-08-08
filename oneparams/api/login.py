@@ -2,7 +2,7 @@ import json
 import sys
 from urllib.parse import quote
 
-from api.base import BaseApi
+from oneparams.api.base import BaseApi
 
 
 class login(BaseApi):

@@ -3,8 +3,7 @@ import sys
 from datetime import time
 
 import xlrd
-
-from utils import string_normalize
+from oneparams.utils import string_normalize
 
 
 class Excel:

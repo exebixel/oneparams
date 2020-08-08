@@ -1,7 +1,7 @@
-from api.gservs import Gservis
-from api.servicos import Servicos
-from excel.excel import Excel
-from utils import get_bool
+from oneparams.api.gservs import Gservis
+from oneparams.api.servicos import Servicos
+from oneparams.excel.excel import Excel
+from oneparams.utils import get_bool
 
 
 def servico(book):
