@@ -3,7 +3,6 @@ import argparse
 import sys
 
 import xlrd
-
 from oneparams.api.cards import Card
 from oneparams.api.commission import Commission
 from oneparams.api.login import login
@@ -15,7 +14,7 @@ from oneparams.excel.comissao import comissao
 from oneparams.excel.servicos import servico
 
 
-def main():
+def one():
     parser = argparse.ArgumentParser(description="One system parameterizer")
     sub = parser.add_subparsers(dest="cmd")
     sub.required = True
@@ -87,6 +86,13 @@ def main():
             comm = Commission()
             comm.delete_all()
         comissao(book)
+
+
+def main():
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Quiting...")
 
 
 if __name__ == "__main__":
