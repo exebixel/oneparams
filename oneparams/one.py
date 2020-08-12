@@ -90,7 +90,7 @@ def one():
 
 def main():
     try:
-        main()
+        one()
     except KeyboardInterrupt:
         print("Quiting...")
 
