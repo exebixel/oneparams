@@ -3,11 +3,10 @@ import setuptools
 setuptools.setup(
     name="oneparams",
     packages=setuptools.find_packages(),
-    # scripts=['bin/one'],
     entry_points={
         'console_scripts': ['one = oneparams.one:main'],
     },
-    version="0.1.13",
+    version="0.1.15",
     description="One System Parametrizer",
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
@@ -19,7 +18,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Operating System :: POSIX :: Linux"
     ],
     zip_safe=False,
 )
