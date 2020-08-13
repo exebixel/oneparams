@@ -1,4 +1,20 @@
+import os
+import shutil
+
 import setuptools
+
+currentDir = os.getcwd()
+distDir = f'{currentDir}/dist'
+buildDir = f'{currentDir}/build'
+
+if os.path.isdir(distDir):
+    shutil.rmtree(distDir)
+
+if os.path.isdir(buildDir):
+    shutil.rmtree(buildDir)
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setuptools.setup(
     name="oneparams",
@@ -6,8 +22,9 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['one = oneparams.one:main'],
     },
-    version="0.1.15",
+    version="0.1.16",
     description="One System Parametrizer",
+    long_description=long_description,
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
     url="https://github.com/exebixel/oneparams",
