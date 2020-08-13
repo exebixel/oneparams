@@ -25,6 +25,7 @@ setuptools.setup(
     version="0.1.16",
     description="One System Parametrizer",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
     url="https://github.com/exebixel/oneparams",
