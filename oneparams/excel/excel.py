@@ -7,7 +7,7 @@ from oneparams.utils import string_normalize
 
 
 class Excel:
-    def __init__(self, book, sheet_name):
+    def __init__(self, book, sheet_name, header_row=1):
         self.__keys = []
         self.__column_index = []
         self.__defaults = []
@@ -18,6 +18,7 @@ class Excel:
             print("sheet {0} not found!".format(sheet_name))
             sys.exit()
         self.__sh = book.sheet_by_index(sh_index)
+        self.__header_row = header_row
         self.nrows = self.__sh.nrows
 
     def sheet_index(self, book, sheet_name):
@@ -82,4 +83,10 @@ class Excel:
                 index_value = index_value.strip()
 
             data[keys[i]] = index_value
+        return data
+
+    def data_all(self):
+        data = []
+        for row in range(self.__header_row + 1, self.nrows):
+            data.append(self.data_row(row))
         return data
