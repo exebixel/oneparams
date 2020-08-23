@@ -52,7 +52,7 @@ class BaseDiff(BaseApi):
         self.status_ok(response)
 
         content = json.loads(response.content)
-        return content["data"]
+        return content
 
     def update(self, data):
         """
@@ -65,7 +65,7 @@ class BaseDiff(BaseApi):
         self.status_ok(response)
 
         content = json.loads(response.content)
-        return content["data"]
+        return content
 
     def get_all(self):
         """

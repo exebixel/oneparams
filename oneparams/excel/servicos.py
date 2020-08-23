@@ -12,6 +12,7 @@ def servico(book):
     ex.add_column(key="preco", name="valor", default=0)
     ex.add_column(key="comissao", name="comissao", default=0)
     ex.add_column(key="tempoExecucao", name="execucao", default="00:30:00")
+    ex.add_column(key="custosGerais", name="custo", required=False, default=0)
     ex.add_column(key="intervaloMarcacao",
                   name="intervalo",
                   required=False,

@@ -13,7 +13,7 @@ class Servicos(BaseDiff):
             key_name="descricao",
             item_name="service",
             url_create="/Servicos/CreateServicosLight",
-            url_update="/Servicos/UpdateServicosLight",
+            url_update="/OServicosComis/UpdateServicosLight",
             url_get_all="/OGservsServicos/ListaDetalhesServicosLight",
             url_get_detail="/OServicos/DetalhesServicosLight",
             url_delete="/Servicos/DeleteServicos",
@@ -32,5 +32,6 @@ class Servicos(BaseDiff):
         data["gservId"] = self.gservs.Gservis(data["gserv"])
         data.pop("gserv")
         data["valPercComissao"] = "P"
+        data["valPercCustos"] = "P"
         data["flagAtivo"] = True
         super().diff_item(data)
