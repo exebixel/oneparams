@@ -16,7 +16,9 @@ class login(BaseApi):
         }
 
         print("logging in")
-        response = self.post("/ologin", data=dados)
+        response = self.post("/ologin?empresaId={}&filialId={}".format(
+            dados["empresaId"], dados["filialId"]),
+                             data=dados)
 
         if self.status_ok(response):
             content = json.loads(response.content)
