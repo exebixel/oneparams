@@ -57,6 +57,11 @@ class Colaboradores(BaseDiff):
                 "nomeCompleto": i["nomeCompleto"]
             })
 
+    def get_sheduler(self):
+        response = self.get("/OProfissional/ProfissionaisAgendaveis")
+        self.status_ok(response)
+        return json.loads(response.content)
+
     def details(self, item_id):
         return super().details(item_id)["colaboradoresCliForColsLightModel"]
 
