@@ -25,7 +25,7 @@ Fedora:
 ```
 $ sudo yum install python3 python3-pip
 ```
-Depois só falta adicionar o diretório``~/.local/bin`` a sua variavel  ``PATH``, adicionando essa linha no seu ``~/.bashrc`` ou ``~/zshrc``:
+Depois só falta adicionar o diretório``~/.local/bin`` a sua variavel  ``PATH``, adicionando essa linha no seu ``~/.bashrc`` ou ``~/.zshrc``:
 ```
 export PATH="$PATH:$HOME/.local/bin"
 ```
