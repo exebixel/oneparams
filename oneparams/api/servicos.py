@@ -17,7 +17,7 @@ class Servicos(BaseDiff):
             url_get_all="/OGservsServicos/ListaDetalhesServicosLight",
             url_get_detail="/OServicos/DetalhesServicosLight",
             url_delete="/Servicos/DeleteServicos",
-            url_inactive="/Servicos/UpdateServicosLight",
+            url_inactive="/OServicosComis/UpdateServicosLight",
             key_active="flagAtivo")
 
         self.gservs = Gservis()
