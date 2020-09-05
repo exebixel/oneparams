@@ -7,6 +7,9 @@ class Servicos(BaseDiff):
     Gerenciamento de serviços,
     cria, atualiza, deleta e inativa serviços
     """
+    items = []
+    first_get = False
+
     def __init__(self):
         super().__init__(
             key_id="servicosId",
@@ -17,13 +20,16 @@ class Servicos(BaseDiff):
             url_get_all="/OGservsServicos/ListaDetalhesServicosLight",
             url_get_detail="/OServicos/DetalhesServicosLight",
             url_delete="/Servicos/DeleteServicos",
-            url_inactive="/Servicos/UpdateServicosLight",
+            url_inactive="/OServicosComis/UpdateServicosLight",
             key_active="flagAtivo")
 
         self.gservs = Gservis()
+        if not Servicos.first_get:
+            self.get_all()
+            Servicos.first_get = True
 
     def get_all(self):
-        self.items = super().get_all()
+        Servicos.items = super().get_all()
 
     def details(self, item_id):
         return super().details(item_id)["servicoLightModel"]

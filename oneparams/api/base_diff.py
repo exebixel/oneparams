@@ -40,9 +40,6 @@ class BaseDiff(BaseApi):
         self.__url_inactive = url_inactive
         self.__key_active = key_active
 
-        self.items = []
-        self.get_all()
-
     def create(self, data):
         """
         Adiciona um item ao sistema

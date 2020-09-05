@@ -40,4 +40,5 @@ def servico(book):
         one.diff_item(data)
 
     grupo = Gservis()
+    grupo.all_Gservis()
     grupo.clear()
