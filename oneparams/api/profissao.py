@@ -6,16 +6,20 @@ from oneparams.utils import deemphasize, similar
 
 
 class Profissao(BaseApi):
+    items = []
+    first_get = False
+
     def __init__(self):
-        self.profissoes = []
-        self.get_all()
+        if not Profissao.first_get:
+            self.get_all()
+            Profissao.first_get = True
 
     def get_all(self):
         print("researching professions")
         response = self.get("/Profissoes/GetAllProfissoes")
         self.status_ok(response)
         content = json.loads(response.content)
-        self.profissoes = content
+        Profissao.items = content
 
     def profissao_id(self, nome):
         if nome is None:
@@ -23,7 +27,7 @@ class Profissao(BaseApi):
 
         nome = deemphasize(nome)
         len_similar = []
-        for profissao in self.profissoes:
+        for profissao in Profissao.items:
             pro = deemphasize(profissao["descricao"])
             len_similar.append(similar(nome, pro))
 
@@ -35,4 +39,4 @@ class Profissao(BaseApi):
             print(f'profession {nome} is duplicated!!')
             sys.exit()
 
-        return self.profissoes[len_similar.index(max_similar)]["profissoesId"]
+        return Profissao.items[len_similar.index(max_similar)]["profissoesId"]
