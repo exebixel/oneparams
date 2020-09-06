@@ -5,9 +5,13 @@ from oneparams.api.fornecedor import Fornecedor
 
 
 class Operadora(BaseApi):
+    items = []
+    first_get = False
+
     def __init__(self):
-        self.__operadoras = []
-        self.all_operators()
+        if not Operadora.first_get:
+            self.all_operators()
+            Operadora.first_get = True
         self.__fornecedor = Fornecedor()
 
     def all_operators(self):
@@ -16,8 +20,9 @@ class Operadora(BaseApi):
         self.status_ok(response)
 
         content = json.loads(response.content)
+        Operadora.items = []
         for content in content:
-            self.__operadoras.append({
+            Operadora.items.append({
                 "id": content["operadoraCartoesId"],
                 "nome": content["descricao"]
             })
@@ -33,11 +38,11 @@ class Operadora(BaseApi):
         self.status_ok(response)
 
         content = json.loads(response.content)
-        self.__operadoras.append({"id": content["data"], "nome": nome})
+        Operadora.items.append({"id": content["data"], "nome": nome})
         return content["data"]
 
     def delete(self, op_id):
-        for i in self.__operadoras:
+        for i in Operadora.items:
             if i["id"] == op_id:
                 nome = i["nome"]
                 break
@@ -49,11 +54,15 @@ class Operadora(BaseApi):
         self.status_ok(response, erro_exit=False)
 
     def delete_all(self):
-        for i in self.__operadoras:
+        deleted = []
+        for i in Operadora.items:
             self.delete(i["id"])
+            deleted.append(i)
+        for i in deleted:
+            Operadora.items.remove(i)
 
     def get_id(self, nome):
-        for i in self.__operadoras:
+        for i in Operadora.items:
             if i["nome"] == nome:
                 return i["id"]
         else:
