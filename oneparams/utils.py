@@ -42,16 +42,37 @@ def get_names(word):
 def get_float(srtnum):
     srtnum = str(srtnum)
     nums = re.findall(r"[0-9?.?,]+", srtnum)
-    floats = []
-    for i in nums:
-        if "," in i:
-            i = re.sub(r",", ".", i)
+    if len(nums) == 1:
+        if "," in nums[0]:
+            nums[0] = re.sub(r",", ".", nums[0])
         try:
-            i = float(i)
+            nums = float(nums[0])
         except ValueError:
-            continue
-        floats.append(i)
-    return floats
+            raise ValueError("No possible convert number")
+        return nums
+    elif len(nums) == 0:
+        raise ValueError("Number not found")
+    else:
+        raise ValueError("Number is duplicated")
+
+
+def get_time(strtime):
+    strtime = str(strtime)
+    times = re.findall(r"(1[0-2]|0?[0-9]):([0-5][0-9])(:[0-5][0-9])?", strtime)
+    if len(times) == 1:
+        t = []
+        for i in times[0]:
+            try:
+                i = int(i)
+            except ValueError:
+                i = 0
+            t.append(i)
+        return t
+
+    elif len(times) == 0:
+        raise TypeError("Time not found")
+    else:
+        raise TypeError("Time is dupĺicated")
 
 
 def get_num(word):
