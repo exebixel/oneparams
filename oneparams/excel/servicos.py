@@ -37,14 +37,17 @@ def servico(book):
     one = Servicos()
 
     for row in range(2, ex.nrows):
-        data = ex.data_row(row)
-
-        comissao = data["comissao"]
-        if comissao <= 1:
-            data["comissao"] = comissao * 100
-
+        data = ex.data_row(row, check_row=checks)
         one.diff_item(data)
 
     grupo = Gservis()
     grupo.all_Gservis()
     grupo.clear()
+
+
+def checks(row, data):
+    one = Servicos()
+    comissao = data["comissao"]
+    if comissao <= 1:
+        data["comissao"] = comissao * 100
+    return one.name_to_id(data)
