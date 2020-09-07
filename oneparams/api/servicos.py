@@ -34,10 +34,15 @@ class Servicos(BaseDiff):
     def details(self, item_id):
         return super().details(item_id)["servicoLightModel"]
 
-    def diff_item(self, data):
-        data["gservId"] = self.gservs.Gservis(data["gserv"])
-        data.pop("gserv")
+    def name_to_id(self, data):
+        if "gservId" not in data.keys():
+            data["gservId"] = self.gservs.Gservis(data["gserv"])
+            data.pop("gserv")
         data["valPercComissao"] = "P"
         data["valPercCustos"] = "P"
         data["flagAtivo"] = True
+        return data
+
+    def diff_item(self, data):
+        data = self.name_to_id(data)
         super().diff_item(data)
