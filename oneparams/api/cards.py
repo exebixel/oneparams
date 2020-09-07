@@ -36,7 +36,7 @@ class Card(BaseDiff):
                 return i["cartoesId"]
         return 0
 
-    def card(self, data):
+    def name_to_id(self, data):
         if "contasId" not in data.keys():
             data["contasId"] = self.conta.get_id(data["contas"])
             data.pop("contas")
@@ -44,5 +44,8 @@ class Card(BaseDiff):
             data["operadoraCartaoId"] = self.operadora.operator(
                 data["operadora"])
             data.pop("operadora")
+        return data
 
+    def card(self, data):
+        data = self.name_to_id(data)
         super().diff_item(data)
