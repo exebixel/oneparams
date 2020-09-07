@@ -40,6 +40,7 @@ def get_names(word):
 
 
 def get_float(srtnum):
+    srtnum = str(srtnum)
     nums = re.findall(r"[0-9?.?,]+", srtnum)
     floats = []
     for i in nums:
