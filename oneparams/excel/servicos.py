@@ -9,14 +9,22 @@ def servico(book):
 
     ex.add_column(key="descricao", name="nome")
     ex.add_column(key="gserv", name="grupo")
-    ex.add_column(key="preco", name="valor", default=0)
-    ex.add_column(key="comissao", name="comissao", default=0)
-    ex.add_column(key="tempoExecucao", name="execucao", default="00:30:00")
-    ex.add_column(key="custosGerais", name="custo", required=False, default=0)
+    ex.add_column(key="preco", name="valor", default=0, types="float")
+    ex.add_column(key="comissao", name="comissao", default=0, types="float")
+    ex.add_column(key="tempoExecucao",
+                  name="execucao",
+                  default="00:30:00",
+                  types="time")
+    ex.add_column(key="custosGerais",
+                  name="custo",
+                  required=False,
+                  default=0,
+                  types="float")
     ex.add_column(key="intervaloMarcacao",
                   name="intervalo",
                   required=False,
-                  default="00:10:00")
+                  default="00:10:00",
+                  types="time")
     ex.add_column(key="permiteEncaixe",
                   name="encaixe",
                   required=False,

@@ -3,7 +3,8 @@ import sys
 from datetime import time
 
 import xlrd
-from oneparams.utils import string_normalize
+
+from oneparams.utils import get_float, string_normalize
 
 
 class Excel:
@@ -11,6 +12,7 @@ class Excel:
         self.__keys = []
         self.__column_index = []
         self.__defaults = []
+        self.__types = []
 
         self.__book = book
         sh_index = self.sheet_index(book, sheet_name)
@@ -45,7 +47,12 @@ class Excel:
             return -1
         return cont
 
-    def add_column(self, key, name, required=True, default=None):
+    def add_column(self,
+                   key,
+                   name,
+                   required=True,
+                   default=None,
+                   types="string"):
         column_index = self.column_index(name)
         if column_index == -1 and required:
             print("column {} not found!!".format(name))
@@ -54,11 +61,13 @@ class Excel:
         self.__column_index.append(column_index)
         self.__keys.append(key)
         self.__defaults.append(default)
+        self.__types.append(types)
 
     def data_row(self, row):
         keys = self.__keys
         index = self.__column_index
         default = self.__defaults
+        types = self.__types
         sh = self.__sh
 
         data = {}
@@ -74,13 +83,27 @@ class Excel:
             if index_type == xlrd.XL_CELL_EMPTY:
                 index_value = default[i]
 
-            elif index_type == xlrd.XL_CELL_DATE:
-                index_value = xlrd.xldate_as_tuple(index_value,
-                                                   self.__book.datemode)
-                index_value = str(time(*index_value[3:]))
+            elif types[i] == "time":
+                if index_type == xlrd.XL_CELL_DATE:
+                    index_value = xlrd.xldate_as_tuple(index_value,
+                                                       self.__book.datemode)
+                    index_value = str(time(*index_value[3:]))
+                if index_type == xlrd.XL_CELL_TEXT:
+                    pass
 
             elif index_type == xlrd.XL_CELL_TEXT:
                 index_value = index_value.strip()
+
+            if types[i] == "float":
+                index_value = get_float(index_value)
+                if len(index_value) == 1:
+                    index_value = index_value[0]
+                elif len(index_value) == 0:
+                    raise ValueError(
+                        "unrecognized value float in line {}".format(i + 1))
+                else:
+                    raise ValueError(
+                        "duplicated value float in line {}".format(i + 1))
 
             data[keys[i]] = index_value
         return data
