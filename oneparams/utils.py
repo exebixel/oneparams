@@ -39,6 +39,20 @@ def get_names(word):
     return names
 
 
+def get_float(srtnum):
+    nums = re.findall(r"[0-9?.?,]+", srtnum)
+    floats = []
+    for i in nums:
+        if "," in i:
+            i = re.sub(r",", ".", i)
+        try:
+            i = float(i)
+        except ValueError:
+            continue
+        floats.append(i)
+    return floats
+
+
 def get_num(word):
     """
     Retorna todos os números de uma string
