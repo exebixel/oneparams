@@ -1,7 +1,6 @@
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import Servicos
 from oneparams.excel.excel import Excel
-from oneparams.utils import get_bool
 
 
 def servico(book):
@@ -28,11 +27,13 @@ def servico(book):
     ex.add_column(key="permiteEncaixe",
                   name="encaixe",
                   required=False,
-                  default=True)
+                  default=True,
+                  types="bool")
     ex.add_column(key="permiteSimultaneidade",
                   name="simultaniedade",
                   required=False,
-                  default=True)
+                  default=True,
+                  types="bool")
     one = Servicos()
 
     for row in range(2, ex.nrows):
@@ -41,9 +42,6 @@ def servico(book):
         comissao = data["comissao"]
         if comissao <= 1:
             data["comissao"] = comissao * 100
-
-        data["permiteEncaixe"] = get_bool(data["permiteEncaixe"])
-        data["permiteSimultaneidade"] = get_bool(data["permiteSimultaneidade"])
 
         one.diff_item(data)
 
