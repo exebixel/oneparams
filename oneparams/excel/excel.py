@@ -63,7 +63,7 @@ class Excel:
         self.__defaults.append(default)
         self.__types.append(types)
 
-    def data_row(self, row):
+    def data_row(self, row, check_row=None):
         keys = self.__keys
         index = self.__column_index
         default = self.__defaults
@@ -111,10 +111,17 @@ class Excel:
                         format(row + 1))
 
             data[keys[i]] = index_value
+        if check_row is not None:
+            data = check_row(row, data)
         return data
 
-    def data_all(self):
+    def data_all(self, check_row=None):
         data = []
         for row in range(self.__header_row + 1, self.nrows):
-            data.append(self.data_row(row))
+            data_row = self.data_row(row, check_row=check_row)
+            if type(data_row) is dict:
+                data.append(data_row)
+            elif type(data_row) is list:
+                for i in data_row:
+                    data.append(i)
         return data
