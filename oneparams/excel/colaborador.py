@@ -1,9 +1,7 @@
-import sys
-
 from oneparams.api.app import App
 from oneparams.api.colaborador import Colaboradores
 from oneparams.excel.excel import Excel
-from oneparams.utils import get_bool, get_cel
+from oneparams.utils import get_cel
 
 
 def colaborador(book, app_regist=False):
@@ -16,7 +14,8 @@ def colaborador(book, app_regist=False):
     ex.add_column(key="agendavel",
                   name="agenda",
                   required=False,
-                  default=False)
+                  default=False,
+                  types="bool")
     ex.add_column(key="profissao",
                   name="profissao",
                   required=False,
@@ -24,15 +23,18 @@ def colaborador(book, app_regist=False):
     ex.add_column(key="flagCliente",
                   name="cliente",
                   required=False,
-                  default=True)
+                  default=True,
+                  types="bool")
     ex.add_column(key="flagFornecedor",
                   name="fornecedor",
                   required=False,
-                  default=True)
+                  default=True,
+                  types="bool")
     ex.add_column(key="agendavelMobilidade",
                   name="mobilidade",
                   required=False,
-                  default=True)
+                  default=True,
+                  types="bool")
 
     one = Colaboradores()
     app = App()
@@ -41,11 +43,6 @@ def colaborador(book, app_regist=False):
         data = ex.data_row(row)
 
         data["celular"] = get_cel(data["celular"])
-
-        data["agendavel"] = get_bool(data["agendavel"])
-        if data["agendavel"] is None:
-            print("unrecognized schedule option!!")
-            sys.exit()
 
         one.colaborador(data)
         if app_regist:
