@@ -4,7 +4,7 @@ from datetime import time
 
 import xlrd
 
-from oneparams.utils import get_float, string_normalize
+from oneparams.utils import get_bool, get_float, get_time, string_normalize
 
 
 class Excel:
@@ -89,21 +89,26 @@ class Excel:
                                                        self.__book.datemode)
                     index_value = str(time(*index_value[3:]))
                 if index_type == xlrd.XL_CELL_TEXT:
-                    pass
+                    try:
+                        index_value = get_time(index_value)
+                        index_value = str(time(*index_value[:3]))
+                    except TypeError as exp:
+                        sys.exit("ERROR! In line {}: {}".format(row + 1, exp))
 
-            elif index_type == xlrd.XL_CELL_TEXT:
-                index_value = index_value.strip()
+            elif types[i] == "string":
+                index_value = str(index_value).strip()
 
-            if types[i] == "float":
-                index_value = get_float(index_value)
-                if len(index_value) == 1:
-                    index_value = index_value[0]
-                elif len(index_value) == 0:
-                    raise ValueError(
-                        "unrecognized value float in line {}".format(i + 1))
-                else:
-                    raise ValueError(
-                        "duplicated value float in line {}".format(i + 1))
+            elif types[i] == "float":
+                try:
+                    index_value = get_float(index_value)
+                except ValueError as exp:
+                    sys.exit("ERROR! in line {}: {}".format(row + 1, exp))
+            elif types[i] == "bool":
+                index_value = get_bool(index_value)
+                if index_value is None:
+                    sys.exit(
+                        "ERROR! in line {}: not possible change value to bool".
+                        format(row + 1))
 
             data[keys[i]] = index_value
         return data
