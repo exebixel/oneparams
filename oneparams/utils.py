@@ -141,6 +141,10 @@ def get_bool(value):
     """
     if value == True or value == False:
         return value
+    if value == 1:
+        return True
+    elif value == 0:
+        return False
 
     if (string_normalize(value) == "sim" or string_normalize(value) == "s"):
         return True
