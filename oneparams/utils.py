@@ -123,15 +123,18 @@ def card_type(card):
     card pode ser 'credito' ou 'debito'
     """
     card = deemphasize(card)
-    if (re.search("credito", card, re.IGNORECASE)
-            or re.search("^c$", card, re.IGNORECASE)):
-        return "C"
-    if (re.search("debito", card, re.IGNORECASE)
-            or re.search("^d$", card, re.IGNORECASE)):
-        return "D"
+    types = []
+    if (re.search("credito", card) or re.search("^c$", card)):
+        types.append("C")
+    if (re.search("debito", card) or re.search("^d$", card)):
+        types.append("D")
 
-    print("unrecognized card type {}".format(card))
-    sys.exit()
+    if len(types) == 1:
+        return types[0]
+    if len(types) == 2:
+        return "CD"
+
+    raise TypeError("unrecognized card type {}".format(card))
 
 
 def get_bool(value):
