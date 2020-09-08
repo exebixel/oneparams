@@ -1,6 +1,5 @@
 import json
 import re
-import sys
 
 from oneparams.api.base import BaseApi
 from oneparams.utils import deemphasize, similar
@@ -34,10 +33,8 @@ class Perfil(BaseApi):
 
         max_similar = max(len_similar)
         if (max_similar < 0.55 or len_similar.count(max_similar) == 0):
-            print(f'Perfil {nome} not found!!')
-            sys.exit()
+            raise ValueError(f'Perfil {nome} not found!!')
         if len_similar.count(max_similar) > 1:
-            print(f'Perfil {nome} is duplicated!!')
-            sys.exit()
+            raise ValueError(f'Perfil {nome} is duplicated!!')
 
         return Perfil.items[len_similar.index(max_similar)]["perfilsId"]
