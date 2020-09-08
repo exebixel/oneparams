@@ -89,6 +89,7 @@ class Excel:
                                                        self.__book.datemode)
                     index_value = str(time(*index_value[3:]))
                 if index_type == xlrd.XL_CELL_TEXT:
+                    index_value == str(index_value).strip()
                     try:
                         index_value = get_time(index_value)
                         index_value = str(time(*index_value[:3]))
@@ -103,7 +104,9 @@ class Excel:
                     index_value = get_float(index_value)
                 except ValueError as exp:
                     sys.exit("ERROR! in line {}: {}".format(row + 1, exp))
+
             elif types[i] == "bool":
+                index_value == str(index_value).strip()
                 index_value = get_bool(index_value)
                 if index_value is None:
                     sys.exit(

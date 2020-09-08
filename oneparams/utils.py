@@ -40,7 +40,7 @@ def get_names(word):
 
 
 def get_float(srtnum):
-    srtnum = str(srtnum)
+    srtnum = str(srtnum).strip()
     nums = re.findall(r"[0-9?.?,]+", srtnum)
     if len(nums) == 1:
         if "," in nums[0]:
