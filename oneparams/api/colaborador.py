@@ -42,11 +42,31 @@ class Colaboradores(BaseDiff):
     def details(self, item_id):
         return super().details(item_id)["colaboradoresCliForColsLightModel"]
 
-    def colaborador(self, data):
-        data["profissaoId"] = self.profissao.profissao_id(data["profissao"])
-        data.pop("profissao")
-        data["perfilId"] = self.perfil.perfil_id(data["perfil"])
-        data.pop("perfil")
-        data["ativoColaborador"] = True
+    def name_to_id(self, data):
+        erros = False
+        if "profissao" in data.keys():
+            try:
+                data["profissaoId"] = self.profissao.profissao_id(
+                    data["profissao"])
+            except ValueError as exp:
+                print(exp)
+                erros = True
+            data.pop("profissao")
 
+        if "perfil" in data.keys():
+            try:
+                data["perfilId"] = self.perfil.perfil_id(data["perfil"])
+            except ValueError as exp:
+                print(exp)
+                erros = True
+            data.pop("perfil")
+
+        if erros:
+            raise Exception
+
+        data["ativoColaborador"] = True
+        return data
+
+    def colaborador(self, data):
+        data = self.name_to_id(data)
         super().diff_item(data)
