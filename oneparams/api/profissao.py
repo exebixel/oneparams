@@ -33,10 +33,8 @@ class Profissao(BaseApi):
 
         max_similar = max(len_similar)
         if (max_similar < 0.6 or len_similar.count(max_similar) == 0):
-            print(f'profession {nome} not found!!')
-            sys.exit()
+            raise ValueError(f'profession {nome} not found!!')
         if len_similar.count(max_similar) > 1:
-            print(f'profession {nome} is duplicated!!')
-            sys.exit()
+            raise ValueError(f'profession {nome} is duplicated!!')
 
         return Profissao.items[len_similar.index(max_similar)]["profissoesId"]
