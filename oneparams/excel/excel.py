@@ -71,6 +71,7 @@ class Excel:
         sh = self.__sh
 
         data = {}
+        erros = False
         for i in range(len(self.__keys)):
             if index[i] == -1:
                 index_value = default[i]
@@ -94,7 +95,7 @@ class Excel:
                         index_value = get_time(index_value)
                         index_value = str(time(*index_value[:3]))
                     except TypeError as exp:
-                        sys.exit("ERROR! In line {}: {}".format(row + 1, exp))
+                        print("ERROR! In line {}: {}".format(row + 1, exp))
 
             elif types[i] == "string":
                 index_value = str(index_value).strip()
@@ -103,28 +104,43 @@ class Excel:
                 try:
                     index_value = get_float(index_value)
                 except ValueError as exp:
-                    sys.exit("ERROR! in line {}: {}".format(row + 1, exp))
+                    print("ERROR! in line {}: {}".format(row + 1, exp))
 
             elif types[i] == "bool":
                 index_value = str(index_value).strip()
                 index_value = get_bool(index_value)
                 if index_value is None:
-                    sys.exit(
+                    print(
                         "ERROR! in line {}: not possible change value to bool".
                         format(row + 1))
 
             data[keys[i]] = index_value
+
         if check_row is not None:
-            data = check_row(row, data)
+            try:
+                data = check_row(row, data)
+            except Exception:
+                erros = True
+
+        if erros:
+            raise Exception
         return data
 
     def data_all(self, check_row=None):
         data = []
+        erros = False
         for row in range(self.__header_row + 1, self.nrows):
-            data_row = self.data_row(row, check_row=check_row)
-            if type(data_row) is dict:
-                data.append(data_row)
-            elif type(data_row) is list:
-                for i in data_row:
-                    data.append(i)
+            try:
+                data_row = self.data_row(row, check_row=check_row)
+            except Exception:
+                erros = True
+            if not erros:
+                if type(data_row) is dict:
+                    data.append(data_row)
+                elif type(data_row) is list:
+                    for i in data_row:
+                        data.append(i)
+
+        if erros:
+            sys.exit()
         return data
