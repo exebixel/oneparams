@@ -95,8 +95,7 @@ def get_cel(word):
     if len(cel) == 9:
         return cel[:9]
 
-    print("invalid phone {}".format(word))
-    sys.exit()
+    raise ValueError("invalid phone {}".format(word))
 
 
 def create_email():
