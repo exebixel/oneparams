@@ -41,6 +41,7 @@ def colaborador(book, app_regist=False):
     one = Colaboradores()
     app = App()
 
+    print("analyzing spreadsheet")
     data = ex.data_all(check_row=checks)
     for row in data:
 
