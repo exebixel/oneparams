@@ -1,3 +1,5 @@
+import sys
+
 from oneparams.api.app import App
 from oneparams.api.colaborador import Colaboradores
 from oneparams.excel.excel import Excel
@@ -39,13 +41,40 @@ def colaborador(book, app_regist=False):
     one = Colaboradores()
     app = App()
 
-    for row in range(2, ex.nrows):
-        data = ex.data_row(row)
+    data = ex.data_all(check_row=checks)
+    for row in data:
 
-        data["celular"] = get_cel(data["celular"])
-
-        one.colaborador(data)
+        one.colaborador(row)
         if app_regist:
-            app.app(nome=data["nomeCompleto"],
-                    email=data["email"],
-                    celular=data["celular"])
+            app.app(nome=row["nomeCompleto"],
+                    email=row["email"],
+                    celular=row["celular"])
+
+
+def checks(row, data):
+    erros = False
+
+    try:
+        data["celular"] = get_cel(data["celular"])
+    except ValueError as exp:
+        print("ERROR! in line {}: {}".format(row + 1, exp))
+        erros = True
+
+    if data["nomeCompleto"] is None:
+        print("ERROR! in line {}: empty name".format(row + 1))
+        erros = True
+    if data["email"] is None:
+        print("ERROR! in line {}: empty email".format(row + 1))
+        erros = True
+
+    one = Colaboradores()
+    try:
+        data = one.name_to_id(data)
+    except Exception as exp:
+        print("ERROR! in line {}: {}".format(row + 1, exp))
+        erros = True
+
+    if erros:
+        raise Exception
+
+    return data
