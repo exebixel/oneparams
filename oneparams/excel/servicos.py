@@ -36,9 +36,10 @@ def servico(book):
                   types="bool")
     one = Servicos()
 
-    for row in range(2, ex.nrows):
-        data = ex.data_row(row, check_row=checks)
-        one.diff_item(data)
+    print("analyzing spreadsheet")
+    data = ex.data_all(check_row=checks)
+    for row in data:
+        one.diff_item(row)
 
     grupo = Gservis()
     grupo.all_Gservis()
@@ -46,8 +47,20 @@ def servico(book):
 
 
 def checks(row, data):
-    one = Servicos()
+    erros = False
+    if data["descricao"] is None:
+        print("ERROR! in line {}: empty name".format(row + 1))
+        erros = True
+    if data["gserv"] is None:
+        print("ERROR! in line {}: empty group".format(row + 1))
+        erros = True
+
     comissao = data["comissao"]
     if comissao <= 1:
         data["comissao"] = comissao * 100
+
+    if erros:
+        raise Exception
+
+    one = Servicos()
     return one.name_to_id(data)
