@@ -43,26 +43,24 @@ class Colaboradores(BaseDiff):
         return super().details(item_id)["colaboradoresCliForColsLightModel"]
 
     def name_to_id(self, data):
-        erros = False
+        erros = []
         if "profissao" in data.keys():
             try:
                 data["profissaoId"] = self.profissao.profissao_id(
                     data["profissao"])
             except ValueError as exp:
-                print(exp)
-                erros = True
+                erros.append(str(exp))
             data.pop("profissao")
 
         if "perfil" in data.keys():
             try:
                 data["perfilId"] = self.perfil.perfil_id(data["perfil"])
             except ValueError as exp:
-                print(exp)
-                erros = True
+                erros.append(str(exp))
             data.pop("perfil")
 
-        if erros:
-            raise Exception
+        if erros != []:
+            raise Exception(erros)
 
         data["ativoColaborador"] = True
         return data
