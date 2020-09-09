@@ -1,5 +1,3 @@
-import sys
-
 from oneparams.api.cards import Card
 from oneparams.excel.excel import Excel
 from oneparams.utils import card_type
@@ -24,25 +22,32 @@ def cards(book):
 
     one = Card()
 
+    print("analyzing spreadsheet")
     data_all = ex.data_all(check_row=checks)
     for row in data_all:
         one.card(row)
 
 
 def checks(row, data):
+    erros = False
     one = Card()
     data = one.name_to_id(data)
 
     if data["descricao"] is None:
-        sys.exit("ERROR! in line {}: Name cannot be null".format(row + 1))
+        print("ERROR! in line {}: Name cannot be null".format(row + 1))
+        erros = True
 
     try:
         data["debito_Credito"] = card_type(data["debito_Credito"])
     except TypeError as exp:
         if data["debito_Credito"] is not None:
-            sys.exit("ERROR! in line {}: {}".format(row + 1, exp))
+            print("ERROR! in line {}: {}".format(row + 1, exp))
+            erros = True
 
         data["debito_Credito"] = "CD"
+
+    if erros:
+        raise Exception
 
     if data["debito_Credito"] == "CD":
         data2 = {}
