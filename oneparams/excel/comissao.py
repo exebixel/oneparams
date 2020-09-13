@@ -15,36 +15,52 @@ def comissao(book):
 
     one = Commission()
 
-    # commdiff = Commdiff(book, one)
-    # commdiff.get_data()
-
     data_all = ex.data_all(check_row=checks_comm)
     for row in data_all:
         one.comissao(row)
 
-        # comm = commdiff.comm_value(i)
-        # if (i["ServicoValorComissao"] != comm and comm != -1):
-        #     i["ServicoValorComissao"] = comm
-        #     one.patch_comissao(i)
-
 
 def checks_comm(row, data):
+    erros = False
     api = Commission()
+
+    data["servId"] = api.serv.item_id({"descricao": data["servico"]})
+    if data["servId"] == 0:
+        print("ERROR!! in line {}: Service {} not found".format(
+            row + 1, data["servico"]))
+        erros = True
+
     if data["cols"] is None:
         return []
     data["cols"] = get_names(data["cols"])
 
+    colsId = []
+    for i in data["cols"]:
+        cols = {}
+        cols["name"] = i
+        try:
+            cols["id"] = api.cols.search_item_by_name(cols["name"])
+        except ValueError as exp:
+            print("ERROR!! in line {}: {}".format(row + 1, exp))
+            erros = True
+        else:
+            colsId.append(cols)
+    data["cols"] = colsId
+
     proc_data = []
     for i in data["cols"]:
         temp = {
-            "cols": i,
+            "cols": i["name"],
+            "colsId": i["id"],
             "servico": data["servico"],
+            "servId": data["servId"],
             "ServicoValorComissao": data["ServicoValorComissao"],
             "ativo": True
         }
-        temp = api.change_name_for_id(temp)
         proc_data.append(temp)
 
+    if erros:
+        raise Exception
     return proc_data
 
 
