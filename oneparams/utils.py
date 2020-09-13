@@ -30,11 +30,15 @@ def get_names(word):
     Retorna um array de strings com as letras,
     entre caracteres especiais e números
     """
+    if word is None:
+        return []
     word = deemphasize(word)
     names = re.findall(r"[a-z? *]+", word)
     for i in names:
         index = names.index(i)
         i = i.strip()
+        if i == "e":
+            continue
         names[index] = i
     return names
 
