@@ -81,7 +81,7 @@ class Commission(BaseApi):
         return data
 
     def comissao(self, data):
-        # data = self.change_name_for_id(data)
+        data = self.change_name_for_id(data)
 
         if not self.exist(data):
             print("adding {} service to professional {}".format(
