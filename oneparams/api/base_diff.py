@@ -123,10 +123,10 @@ class BaseDiff(BaseApi):
             return ids[0]
 
         if len(ids) == 0:
-            print("{} {} not found!".format(self.__item_name, nome))
+            raise ValueError("{} {} not found!".format(self.__item_name, nome))
         if len(ids) > 0:
-            print("{} {} is duplicated!".format(self.__item_name, nome))
-        sys.exit(1)
+            raise ValueError("{} {} is duplicated!".format(
+                self.__item_name, nome))
 
     def details(self, item_id):
         """
