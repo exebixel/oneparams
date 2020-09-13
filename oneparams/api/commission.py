@@ -74,10 +74,19 @@ class Commission(BaseApi):
                 })
 
     def change_name_for_id(self, data):
+        erros = []
         if "cols" in data.keys():
-            data["colsId"] = self.cols.search_item_by_name(data["cols"])
+            try:
+                data["colsId"] = self.cols.search_item_by_name(data["cols"])
+            except ValueError as exp:
+                erros.append(str(exp))
         if "servico" in data.keys():
             data["servId"] = self.serv.item_id({"descricao": data["servico"]})
+            if data["servId"] == 0:
+                erros.append("Service {} not found".format(data["servico"]))
+
+        if erros != []:
+            raise Exception(erros)
         return data
 
     def comissao(self, data):
