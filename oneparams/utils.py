@@ -30,13 +30,52 @@ def get_names(word):
     Retorna um array de strings com as letras,
     entre caracteres especiais e números
     """
+    if word is None:
+        return []
     word = deemphasize(word)
+    word = re.sub(r" e ", "/", word)
     names = re.findall(r"[a-z? *]+", word)
     for i in names:
         index = names.index(i)
         i = i.strip()
         names[index] = i
     return names
+
+
+def get_float(srtnum):
+    srtnum = str(srtnum).strip()
+    nums = re.findall(r"[0-9?.?,]+", srtnum)
+    if len(nums) == 1:
+        if "," in nums[0]:
+            nums[0] = re.sub(r",", ".", nums[0])
+        try:
+            nums = float(nums[0])
+        except ValueError:
+            raise ValueError("No possible convert number")
+        return nums
+    elif len(nums) == 0:
+        raise ValueError("Number not found")
+    else:
+        raise ValueError("Number is duplicated")
+
+
+def get_time(strtime):
+    strtime = str(strtime)
+    times = re.findall(r"(1[0-2]|0?[0-9]):([0-5][0-9])(:[0-5][0-9])?", strtime)
+    if len(times) == 1:
+        t = []
+        for i in times[0]:
+            try:
+                i = int(i)
+            except ValueError:
+                i = 0
+            t.append(i)
+        return t
+
+    elif len(times) == 0:
+        raise TypeError("Time not found")
+    else:
+        raise TypeError("Time is dupĺicated")
 
 
 def get_num(word):
@@ -59,8 +98,7 @@ def get_cel(word):
     if len(cel) == 9:
         return cel[:9]
 
-    print("invalid phone {}".format(word))
-    sys.exit()
+    raise ValueError("invalid phone {}".format(word))
 
 
 def create_email():
@@ -87,15 +125,18 @@ def card_type(card):
     card pode ser 'credito' ou 'debito'
     """
     card = deemphasize(card)
-    if (re.search("credito", card, re.IGNORECASE)
-            or re.search("^c$", card, re.IGNORECASE)):
-        return "C"
-    if (re.search("debito", card, re.IGNORECASE)
-            or re.search("^d$", card, re.IGNORECASE)):
-        return "D"
+    types = []
+    if (re.search("credito", card) or re.search("^c$", card)):
+        types.append("C")
+    if (re.search("debito", card) or re.search("^d$", card)):
+        types.append("D")
 
-    print("unrecognized card type {}".format(card))
-    sys.exit()
+    if len(types) == 1:
+        return types[0]
+    if len(types) == 2:
+        return "CD"
+
+    raise TypeError("unrecognized card type {}".format(card))
 
 
 def get_bool(value):
@@ -105,6 +146,10 @@ def get_bool(value):
     """
     if value == True or value == False:
         return value
+    if value == 1:
+        return True
+    elif value == 0:
+        return False
 
     if (string_normalize(value) == "sim" or string_normalize(value) == "s"):
         return True

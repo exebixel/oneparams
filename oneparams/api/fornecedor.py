@@ -9,9 +9,13 @@ class Fornecedor(BaseApi):
     classe de gerenciamento de fornecedores da one,
     sua principal função é criar e pesquisar fornecedores
     """
+    items = []
+    first_get = False
+
     def __init__(self):
-        self.__fornecedores = []
-        self.all_fornecedores()
+        if not Fornecedor.first_get:
+            self.all_fornecedores()
+            Fornecedor.first_get = True
 
     def all_fornecedores(self):
         """
@@ -23,8 +27,9 @@ class Fornecedor(BaseApi):
         self.status_ok(response)
 
         content = json.loads(response.content)
+        Fornecedor.items = []
         for i in content:
-            self.__fornecedores.append({
+            Fornecedor.items.append({
                 "id": i["cliForColsId"],
                 "nome": i["nomeCompleto"]
             })
@@ -35,7 +40,7 @@ class Fornecedor(BaseApi):
         o nome do fornecedor tem que ser exatamente igual,
         se não encontrar o id do fornecedor, retorna None
         """
-        for i in self.__fornecedores:
+        for i in Fornecedor.items:
             if i["nome"] == nome:
                 return i["id"]
         return None
@@ -65,7 +70,7 @@ class Fornecedor(BaseApi):
                              })
         self.status_ok(response)
         content = json.loads(response.content)
-        self.__fornecedores.append({"id": content["data"], "nome": nome})
+        Fornecedor.items.append({"id": content["data"], "nome": nome})
         return content["data"]
 
     def get_for(self, nome):

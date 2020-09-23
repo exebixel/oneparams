@@ -40,9 +40,6 @@ class BaseDiff(BaseApi):
         self.__url_inactive = url_inactive
         self.__key_active = key_active
 
-        self.items = []
-        self.get_all()
-
     def create(self, data):
         """
         Adiciona um item ao sistema
@@ -125,8 +122,11 @@ class BaseDiff(BaseApi):
         if len(ids) == 1:
             return ids[0]
 
-        print("{} {} not found!".format(self.__item_name, nome))
-        sys.exit(0)
+        if len(ids) == 0:
+            raise ValueError("{} {} not found!".format(self.__item_name, nome))
+        if len(ids) > 0:
+            raise ValueError("{} {} is duplicated!".format(
+                self.__item_name, nome))
 
     def details(self, item_id):
         """
@@ -206,10 +206,11 @@ class BaseDiff(BaseApi):
         deleted = []
 
         for item in self.items:
+            if self.__url_inactive is not None:
+                self.inactive(item)
+
             if self.delete(item):
                 deleted.append(item)
-            else:
-                self.inactive(item)
 
         for i in deleted:
             self.items.remove(i)

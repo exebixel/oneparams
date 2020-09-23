@@ -73,9 +73,24 @@ class Commission(BaseApi):
                     "servId": i["servId"]
                 })
 
+    def change_name_for_id(self, data):
+        erros = []
+        if "cols" in data.keys():
+            try:
+                data["colsId"] = self.cols.search_item_by_name(data["cols"])
+            except ValueError as exp:
+                erros.append(str(exp))
+        if "servico" in data.keys():
+            data["servId"] = self.serv.item_id({"descricao": data["servico"]})
+            if data["servId"] == 0:
+                erros.append("Service {} not found".format(data["servico"]))
+
+        if erros != []:
+            raise Exception(erros)
+        return data
+
     def comissao(self, data):
-        data["colsId"] = self.cols.search_item_by_name(data["cols"])
-        data["servId"] = self.serv.item_id({"descricao": data["servico"]})
+        data = self.change_name_for_id(data)
 
         if not self.exist(data):
             print("adding {} service to professional {}".format(
@@ -86,3 +101,12 @@ class Commission(BaseApi):
                 data["servico"], data["cols"]))
             self.delete(data)
             self.add(data)
+
+    def patch_comissao(self, data):
+        print("applying differentiated commission")
+        if "servId" in data.keys():
+            data["ServicosId"] = data["servId"]
+            data.pop("servId")
+        response = self.patch(
+            "/Comiservs/ComiservsLight/{}".format(data["colsId"]), data)
+        self.status_ok(response)

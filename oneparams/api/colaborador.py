@@ -1,13 +1,14 @@
 import json
-import re
-import sys
 
 from oneparams.api.base_diff import BaseDiff
+from oneparams.api.perfils import Perfil
 from oneparams.api.profissao import Profissao
-from oneparams.utils import deemphasize, similar
 
 
 class Colaboradores(BaseDiff):
+    items = []
+    first_get = False
+
     def __init__(self):
         super().__init__(
             key_id="colaboradorId",
@@ -18,53 +19,52 @@ class Colaboradores(BaseDiff):
             url_get_all="/CliForCols/ListaDetalhesColaboradores",
             url_get_detail="/OColaborador/DetalhesColaboradores")
 
-        self.__perfils = []
-        self.all_perfils()
         self.profissao = Profissao()
-
-    def all_perfils(self):
-        print("researching perfils")
-        response = self.get("/Perfils/ListaPerfils")
-        self.status_ok(response)
-        content = json.loads(response.content)
-
-        for i in content:
-            if not re.search("cliente", i["descricao"], re.IGNORECASE):
-                self.__perfils.append(i)
-
-    def perfil_id(self, nome):
-        nome = deemphasize(nome)
-        len_similar = []
-        for perfil in self.__perfils:
-            nome_perfil = deemphasize(perfil["descricao"])
-            len_similar.append(similar(nome, nome_perfil))
-
-        max_similar = max(len_similar)
-        if (max_similar < 0.55 or len_similar.count(max_similar) == 0):
-            print(f'Perfil {nome} not found!!')
-            sys.exit()
-        if len_similar.count(max_similar) > 1:
-            print(f'Perfil {nome} is duplicated!!')
-            sys.exit()
-
-        return self.__perfils[len_similar.index(max_similar)]["perfilsId"]
+        self.perfil = Perfil()
+        if not Colaboradores.first_get:
+            self.get_all()
+            Colaboradores.first_get = True
 
     def get_all(self):
         content = super().get_all()
+        Colaboradores.items = []
         for i in content:
-            self.items.append({
+            Colaboradores.items.append({
                 "colaboradorId": i["cliForColsId"],
                 "nomeCompleto": i["nomeCompleto"]
             })
 
+    def get_sheduler(self):
+        response = self.get("/OProfissional/ProfissionaisAgendaveis")
+        self.status_ok(response)
+        return json.loads(response.content)
+
     def details(self, item_id):
         return super().details(item_id)["colaboradoresCliForColsLightModel"]
 
-    def colaborador(self, data):
-        data["profissaoId"] = self.profissao.profissao_id(data["profissao"])
-        data.pop("profissao")
-        data["perfilId"] = self.perfil_id(data["perfil"])
-        data.pop("perfil")
-        data["ativoColaborador"] = True
+    def name_to_id(self, data):
+        erros = []
+        if "profissao" in data.keys():
+            try:
+                data["profissaoId"] = self.profissao.profissao_id(
+                    data["profissao"])
+            except ValueError as exp:
+                erros.append(str(exp))
+            data.pop("profissao")
 
+        if "perfil" in data.keys():
+            try:
+                data["perfilId"] = self.perfil.perfil_id(data["perfil"])
+            except ValueError as exp:
+                erros.append(str(exp))
+            data.pop("perfil")
+
+        if erros != []:
+            raise Exception(erros)
+
+        data["ativoColaborador"] = True
+        return data
+
+    def colaborador(self, data):
+        data = self.name_to_id(data)
         super().diff_item(data)

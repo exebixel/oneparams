@@ -7,6 +7,9 @@ class Servicos(BaseDiff):
     Gerenciamento de serviços,
     cria, atualiza, deleta e inativa serviços
     """
+    items = []
+    first_get = False
+
     def __init__(self):
         super().__init__(
             key_id="servicosId",
@@ -21,17 +24,25 @@ class Servicos(BaseDiff):
             key_active="flagAtivo")
 
         self.gservs = Gservis()
+        if not Servicos.first_get:
+            self.get_all()
+            Servicos.first_get = True
 
     def get_all(self):
-        self.items = super().get_all()
+        Servicos.items = super().get_all()
 
     def details(self, item_id):
         return super().details(item_id)["servicoLightModel"]
 
-    def diff_item(self, data):
-        data["gservId"] = self.gservs.Gservis(data["gserv"])
-        data.pop("gserv")
+    def name_to_id(self, data):
+        if "gservId" not in data.keys():
+            data["gservId"] = self.gservs.Gservis(data["gserv"])
+            data.pop("gserv")
         data["valPercComissao"] = "P"
         data["valPercCustos"] = "P"
         data["flagAtivo"] = True
+        return data
+
+    def diff_item(self, data):
+        data = self.name_to_id(data)
         super().diff_item(data)
