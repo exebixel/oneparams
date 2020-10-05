@@ -30,7 +30,7 @@ class Operadora(BaseApi):
     def create(self, nome):
         dados = {
             "descricao": nome,
-            "fornecedorId": self.__fornecedor.get_for("Padrão")
+            "fornecedorId": self.__fornecedor.get_for(nome)
         }
 
         print("creating {} card operator".format(nome))
