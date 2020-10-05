@@ -31,7 +31,8 @@ class Colaboradores(BaseDiff):
         for i in content:
             Colaboradores.items.append({
                 "colaboradorId": i["cliForColsId"],
-                "nomeCompleto": i["nomeCompleto"]
+                "nomeCompleto": i["nomeCompleto"],
+                "email": i["email"]
             })
 
     def get_sheduler(self):
@@ -41,6 +42,13 @@ class Colaboradores(BaseDiff):
 
     def details(self, item_id):
         return super().details(item_id)["colaboradoresCliForColsLightModel"]
+
+    def item_id(self, data):
+        for i in self.items:
+            if (i[self.key_name] == data[self.key_name]
+                    or i["email"] == data["email"]):
+                return i[self.key_id]
+        return 0
 
     def name_to_id(self, data):
         erros = []
