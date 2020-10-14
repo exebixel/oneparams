@@ -3,7 +3,8 @@ import argparse
 import sys
 
 import xlrd
-from oneparams.api.cards import Card
+
+from oneparams.api.cards import apiCard
 from oneparams.api.commission import Commission
 from oneparams.api.login import login
 from oneparams.api.servicos import Servicos
@@ -76,7 +77,7 @@ def one():
 
     if args.cmd == "card":
         if args.reset:
-            cd = Card()
+            cd = apiCard()
             cd.delete_all()
             cd.operadora.delete_all()
         cards(book)

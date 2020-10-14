@@ -3,7 +3,7 @@ from oneparams.api.conta import Conta
 from oneparams.api.operadora import Operadora
 
 
-class Card(BaseDiff):
+class apiCard(BaseDiff):
     items = []
     first_get = False
 
@@ -19,18 +19,18 @@ class Card(BaseDiff):
 
         self.operadora = Operadora()
         self.conta = Conta()
-        if not Card.first_get:
+        if not apiCard.first_get:
             self.get_all()
-            Card.first_get = True
+            apiCard.first_get = True
 
     def get_all(self):
-        Card.items = super().get_all()
+        apiCard.items = super().get_all()
 
     def details(self, item_id):
         return super().details(item_id)["cartoesLight"]
 
     def item_id(self, data):
-        for i in Card.items:
+        for i in apiCard.items:
             if (i["descricao"] == data["descricao"]
                     and i["debito_Credito"] == data["debito_Credito"]):
                 return i["cartoesId"]
