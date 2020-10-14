@@ -1,6 +1,6 @@
-from oneparams.api.cards import Card
+from oneparams.api.cards import apiCard
 from oneparams.excel.excel import Excel
-from oneparams.utils import card_type
+from oneparams.utils import card_type, deemphasize
 
 
 def cards(book):
@@ -20,7 +20,7 @@ def cards(book):
                   required=False,
                   default="conta corrente")
 
-    one = Card()
+    one = apiCard()
 
     print("analyzing spreadsheet")
     data_all = ex.data_all(check_row=checks)
@@ -28,9 +28,9 @@ def cards(book):
         one.card(row)
 
 
-def checks(row, data):
+def checks(row, data, previous):
     erros = False
-    one = Card()
+    one = apiCard()
     data = one.name_to_id(data)
 
     if data["descricao"] is None:
@@ -45,6 +45,15 @@ def checks(row, data):
             erros = True
 
         data["debito_Credito"] = "CD"
+
+    for prev in previous:
+        data["descricao"] = deemphasize(data["descricao"])
+        prev["data"]["descricao"] = deemphasize(prev["data"]["descricao"])
+        if (data["descricao"] == prev["data"]["descricao"]
+                and prev["data"]["debito_Credito"] in data["debito_Credito"]):
+            print("ERROR! in lines {} and {}: Card is duplicated".format(
+                row + 1, prev["row"] + 1))
+            erros = True
 
     if erros:
         raise Exception
