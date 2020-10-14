@@ -22,6 +22,7 @@ class Excel:
         self.__sh = book.sheet_by_index(sh_index)
         self.__header_row = header_row
         self.nrows = self.__sh.nrows
+        self.__previous = []
 
     def sheet_index(self, book, sheet_name):
         cont = 0
@@ -118,9 +119,17 @@ class Excel:
 
         if check_row is not None:
             try:
-                data = check_row(row, data)
+                data = check_row(row, data, self.__previous)
             except Exception:
                 erros = True
+
+        if type(data) is dict:
+            prev = {"row": row, "data": data}
+            self.__previous.append(prev)
+        elif type(data) is list:
+            for i in data:
+                prev = {"row": row, "data": i}
+                self.__previous.append(prev)
 
         if erros:
             raise Exception
