@@ -15,12 +15,13 @@ def comissao(book):
 
     one = Commission()
 
+    print("analyzing spreadsheet")
     data_all = ex.data_all(check_row=checks_comm)
     for row in data_all:
         one.comissao(row)
 
 
-def checks_comm(row, data):
+def checks_comm(row, data, previous):
     erros = False
     api = Commission()
 
@@ -34,7 +35,7 @@ def checks_comm(row, data):
         return []
     data["cols"] = get_names(data["cols"])
 
-    colsId = []
+    cols_id = []
     for i in data["cols"]:
         cols = {}
         cols["name"] = i
@@ -44,8 +45,8 @@ def checks_comm(row, data):
             print("ERROR!! in line {}: {}".format(row + 1, exp))
             erros = True
         else:
-            colsId.append(cols)
-    data["cols"] = colsId
+            cols_id.append(cols)
+    data["cols"] = cols_id
 
     proc_data = []
     for i in data["cols"]:
