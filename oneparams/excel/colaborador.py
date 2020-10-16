@@ -3,7 +3,7 @@ import sys
 from oneparams.api.app import App
 from oneparams.api.colaborador import Colaboradores
 from oneparams.excel.excel import Excel
-from oneparams.utils import get_cel
+from oneparams.utils import deemphasize, get_cel
 
 
 def colaborador(book, app_regist=False):
@@ -52,7 +52,7 @@ def colaborador(book, app_regist=False):
                     celular=row["celular"])
 
 
-def checks(row, data):
+def checks(row, data, previous):
     erros = False
 
     try:
@@ -67,6 +67,24 @@ def checks(row, data):
     if data["email"] is None:
         print("ERROR! in line {}: empty email".format(row + 1))
         erros = True
+
+    for prev in previous:
+        data["nomeCompleto"] = deemphasize(data["nomeCompleto"])
+        prev["data"]["nomeCompleto"] = deemphasize(
+            prev["data"]["nomeCompleto"])
+        if data["nomeCompleto"] == prev["data"]["nomeCompleto"]:
+            print(
+                "ERROR! in lines {} and {}: collaborator's name is duplicated".
+                format(row + 1, prev["row"] + 1))
+            erros = True
+
+        data["email"] = deemphasize(data["email"])
+        prev["data"]["email"] = deemphasize(prev["data"]["email"])
+        if data["email"] == prev["data"]["email"]:
+            print(
+                "ERROR! in lines {} and {}: collaborator's email is duplicated"
+                .format(row + 1, prev["row"] + 1))
+            erros = True
 
     one = Colaboradores()
     try:
