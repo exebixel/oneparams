@@ -1,6 +1,7 @@
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import Servicos
 from oneparams.excel.excel import Excel
+from oneparams.utils import deemphasize
 
 
 def servico(book):
@@ -46,7 +47,7 @@ def servico(book):
     grupo.clear()
 
 
-def checks(row, data):
+def checks(row, data, previous):
     erros = False
     if data["descricao"] is None:
         print("ERROR! in line {}: empty name".format(row + 1))
@@ -58,6 +59,14 @@ def checks(row, data):
     comissao = data["comissao"]
     if comissao <= 1:
         data["comissao"] = comissao * 100
+
+    for prev in previous:
+        data["descricao"] = deemphasize(data["descricao"])
+        prev["data"]["descricao"] = deemphasize(prev["data"]["descricao"])
+        if data["descricao"] == prev["data"]["descricao"]:
+            print("ERROR! in lines {} and {}: Service is duplicated".format(
+                row + 1, prev["row"] + 1))
+            erros = True
 
     if erros:
         raise Exception
