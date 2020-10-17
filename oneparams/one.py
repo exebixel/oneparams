@@ -73,11 +73,7 @@ def one():
         colaborador(book, args.app)
 
     if args.cmd == "card":
-        if args.reset:
-            cd = apiCard()
-            cd.delete_all()
-            cd.operadora.delete_all()
-        cards(book)
+        cards(book, reset=args.reset)
 
     if args.cmd == "comm":
         if args.reset:

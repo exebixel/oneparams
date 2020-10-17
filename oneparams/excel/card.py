@@ -3,7 +3,7 @@ from oneparams.excel.excel import Excel
 from oneparams.utils import card_type, deemphasize
 
 
-def cards(book):
+def cards(book, reset=False):
 
     ex = Excel(book=book, sheet_name="cart")
 
@@ -24,6 +24,11 @@ def cards(book):
 
     print("analyzing spreadsheet")
     data_all = ex.data_all(check_row=checks)
+
+    if reset:
+        one.delete_all()
+        one.operadora.delete_all()
+
     for row in data_all:
         one.card(row)
 
@@ -31,7 +36,12 @@ def cards(book):
 def checks(row, data, previous):
     erros = False
     one = apiCard()
-    data = one.name_to_id(data)
+
+    data["contasId"] = one.conta.get_id(data["contas"])
+    data.pop("contas")
+    if data["contasId"] == None:
+        print("ERROR! in line {}: Account not found".format(row + 1))
+        erros = True
 
     if data["descricao"] is None:
         print("ERROR! in line {}: Name cannot be null".format(row + 1))
