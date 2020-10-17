@@ -97,6 +97,7 @@ class Excel:
                         index_value = str(time(*index_value[:3]))
                     except TypeError as exp:
                         print("ERROR! In line {}: {}".format(row + 1, exp))
+                        erros = True
 
             elif types[i] == "string":
                 index_value = str(index_value).strip()
@@ -106,6 +107,7 @@ class Excel:
                     index_value = get_float(index_value)
                 except ValueError as exp:
                     print("ERROR! in line {}: {}".format(row + 1, exp))
+                    erros = True
 
             elif types[i] == "bool":
                 index_value = str(index_value).strip()
@@ -114,6 +116,7 @@ class Excel:
                     print(
                         "ERROR! in line {}: not possible change value to bool".
                         format(row + 1))
+                    erros = True
 
             data[keys[i]] = index_value
 
