@@ -3,8 +3,7 @@ from oneparams.excel.excel import Excel
 from oneparams.utils import get_names
 
 
-def comissao(book):
-    # Le a tabele de serviços com os profissionais que fazem os serviços
+def comissao(book, reset=False):
     ex = Excel(book, "servico")
     ex.add_column(key="servico", name="nome")
     ex.add_column(key="ServicoValorComissao",
@@ -17,6 +16,10 @@ def comissao(book):
 
     print("analyzing spreadsheet")
     data_all = ex.data_all(check_row=checks_comm)
+
+    if reset:
+        one.delete_all()
+
     for row in data_all:
         one.comissao(row)
 

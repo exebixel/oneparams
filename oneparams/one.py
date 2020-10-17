@@ -76,10 +76,7 @@ def one():
         cards(book, reset=args.reset)
 
     if args.cmd == "comm":
-        if args.reset:
-            comm = Commission()
-            comm.delete_all()
-        comissao(book)
+        comissao(book, reset=args.reset)
 
 
 def main():
