@@ -4,7 +4,7 @@ from oneparams.excel.excel import Excel
 from oneparams.utils import deemphasize
 
 
-def servico(book):
+def servico(book, reset=False):
     ex = Excel(book, "servico")
 
     ex.add_column(key="descricao", name="nome")
@@ -39,6 +39,10 @@ def servico(book):
 
     print("analyzing spreadsheet")
     data = ex.data_all(check_row=checks)
+
+    if reset:
+        one.delete_all()
+
     for row in data:
         one.diff_item(row)
 

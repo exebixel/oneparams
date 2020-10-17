@@ -67,10 +67,7 @@ def one():
               senha=args.password)
 
     if args.cmd == "serv":
-        if args.reset:
-            serv = Servicos()
-            serv.delete_all()
-        servico(book)
+        servico(book, reset=args.reset)
 
     if args.cmd == "cols":
         colaborador(book, args.app)
