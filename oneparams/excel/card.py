@@ -47,9 +47,9 @@ def checks(row, data, previous):
         data["debito_Credito"] = "CD"
 
     for prev in previous:
-        data["descricao"] = deemphasize(data["descricao"])
-        prev["data"]["descricao"] = deemphasize(prev["data"]["descricao"])
-        if (data["descricao"] == prev["data"]["descricao"]
+        descricao = deemphasize(data["descricao"])
+        prev_descricao = deemphasize(prev["data"]["descricao"])
+        if (descricao == prev_descricao
                 and prev["data"]["debito_Credito"] in data["debito_Credito"]):
             print("ERROR! in lines {} and {}: Card is duplicated".format(
                 row + 1, prev["row"] + 1))

@@ -61,9 +61,9 @@ def checks(row, data, previous):
         data["comissao"] = comissao * 100
 
     for prev in previous:
-        data["descricao"] = deemphasize(data["descricao"])
-        prev["data"]["descricao"] = deemphasize(prev["data"]["descricao"])
-        if data["descricao"] == prev["data"]["descricao"]:
+        descricao = deemphasize(data["descricao"])
+        prev_descricao = deemphasize(prev["data"]["descricao"])
+        if descricao == prev_descricao:
             print("ERROR! in lines {} and {}: Service is duplicated".format(
                 row + 1, prev["row"] + 1))
             erros = True

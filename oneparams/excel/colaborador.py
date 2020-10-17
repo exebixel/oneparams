@@ -69,18 +69,17 @@ def checks(row, data, previous):
         erros = True
 
     for prev in previous:
-        data["nomeCompleto"] = deemphasize(data["nomeCompleto"])
-        prev["data"]["nomeCompleto"] = deemphasize(
-            prev["data"]["nomeCompleto"])
-        if data["nomeCompleto"] == prev["data"]["nomeCompleto"]:
+        nome = deemphasize(data["nomeCompleto"])
+        prev_nome = deemphasize(prev["data"]["nomeCompleto"])
+        if nome == prev_nome:
             print(
                 "ERROR! in lines {} and {}: collaborator's name is duplicated".
                 format(row + 1, prev["row"] + 1))
             erros = True
 
-        data["email"] = deemphasize(data["email"])
-        prev["data"]["email"] = deemphasize(prev["data"]["email"])
-        if data["email"] == prev["data"]["email"]:
+        email = deemphasize(data["email"])
+        prev_email = deemphasize(prev["data"]["email"])
+        if email == prev_email:
             print(
                 "ERROR! in lines {} and {}: collaborator's email is duplicated"
                 .format(row + 1, prev["row"] + 1))
