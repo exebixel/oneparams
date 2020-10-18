@@ -4,10 +4,7 @@ import sys
 
 import xlrd
 
-from oneparams.api.cards import apiCard
-from oneparams.api.commission import Commission
 from oneparams.api.login import login
-from oneparams.api.servicos import Servicos
 from oneparams.args import parse_base
 from oneparams.excel.card import cards
 from oneparams.excel.colaborador import colaborador
@@ -83,7 +80,7 @@ def main():
     try:
         one()
     except KeyboardInterrupt:
-        print("Quiting...")
+        print("\nQuiting...")
 
 
 if __name__ == "__main__":
