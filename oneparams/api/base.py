@@ -7,7 +7,7 @@ import requests
 class BaseApi:
     """
     Classe base da api,
-    contem a url base, cuida do access_token
+    contem a URL base, cuida do access_token
     e do json dumps
     """
 
@@ -27,47 +27,62 @@ class BaseApi:
 
     def post(self, url, data):
         """
-        Post request, url base já inclusa
+        Post request, URL base já inclusa
         """
-        return requests.post("{}{}".format(self.api_url, url),
-                             headers=self.header,
-                             data=json.dumps(data))
+        try:
+            return requests.post("{}{}".format(self.api_url, url),
+                                 headers=self.header,
+                                 data=json.dumps(data))
+        except requests.exceptions.ConnectionError:
+            sys.exit("Connection error!!\nCheck your internet connection")
 
     def get(self, url):
         """
-        Get request, irl base já inclusa
+        Get request, URL base já inclusa
         """
-        return requests.get("{}{}".format(self.api_url, url),
-                            headers=self.header)
+        try:
+            return requests.get("{}{}".format(self.api_url, url),
+                                headers=self.header)
+        except requests.exceptions.ConnectionError:
+            sys.exit("Connection error!!\nCheck your internet connection")
 
     def delete(self, url):
         """
-        Delete request, url base já inclusa
+        Delete request, URL base já inclusa
         """
-        return requests.delete("{}{}".format(self.api_url, url),
-                               headers=self.header)
+        try:
+            return requests.delete("{}{}".format(self.api_url, url),
+                                   headers=self.header)
+        except requests.exceptions.ConnectionError:
+            sys.exit("Connection error!!\nCheck your internet connection")
 
     def put(self, url, data):
         """
-        Put request, url base já inclusa
+        Put request, URL base já inclusa
         """
-        return requests.put("{}{}".format(self.api_url, url),
-                            headers=self.header,
-                            data=json.dumps(data))
+        try:
+            return requests.put("{}{}".format(self.api_url, url),
+                                headers=self.header,
+                                data=json.dumps(data))
+        except requests.exceptions.ConnectionError:
+            sys.exit("Connection error!!\nCheck your internet connection")
 
     def patch(self, url, data):
         """
-        Patch requests, url base já inclusa
+        Patch requests, URL base já inclusa
         """
-        return requests.patch("{}{}".format(self.api_url, url),
-                              headers=self.header,
-                              data=json.dumps(data))
+        try:
+            return requests.patch("{}{}".format(self.api_url, url),
+                                  headers=self.header,
+                                  data=json.dumps(data))
+        except requests.exceptions.ConnectionError:
+            sys.exit("Connection error!!\nCheck your internet connection")
 
     def status_ok(self, response, erro_exit=True):
         """
         verifica se e requisição foi feita com sucesso (200),
         por padrão se a requisição falhou o programa é encerrado,
-        é possivel alterar isso com erro_exit=False
+        é possível alterar isso com erro_exit=False
         """
         if response.status_code != 200:
             print(f'Erro code: {response.status_code}')
