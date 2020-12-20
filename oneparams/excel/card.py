@@ -40,18 +40,31 @@ def checks(row, data, previous):
     data["contasId"] = one.conta.get_id(data["contas"])
     data.pop("contas")
     if data["contasId"] == None:
-        print("ERROR! in line {}: Account not found".format(row + 1))
+        print(
+            f'ERROR! in line {row + 1}: Card {data["descricao"]} account not found'
+        )
         erros = True
 
     if data["descricao"] is None:
         print("ERROR! in line {}: Name cannot be null".format(row + 1))
+        erros = True
+    if len(data["descricao"]) > 100:
+        print(
+            f'ERROR! in line {row + 1}: Card {data["descricao"]} name size {len(data["descricao"])} > 100'
+        )
+        erros = True
+
+    if len(data["operadora"]) > 50:
+        print(
+            f'ERROR! in line {row + 1}: Card {data["descricao"]} card operator size {len(data["operadora"])} > 50'
+        )
         erros = True
 
     try:
         data["debito_Credito"] = card_type(data["debito_Credito"])
     except TypeError as exp:
         if data["debito_Credito"] is not None:
-            print("ERROR! in line {}: {}".format(row + 1, exp))
+            print(f'ERROR! in line {row + 1}: Card {data["descricao"]} {exp}')
             erros = True
 
         data["debito_Credito"] = "CD"
@@ -61,8 +74,9 @@ def checks(row, data, previous):
         prev_descricao = deemphasize(prev["data"]["descricao"])
         if (descricao == prev_descricao
                 and prev["data"]["debito_Credito"] in data["debito_Credito"]):
-            print("ERROR! in lines {} and {}: Card is duplicated".format(
-                row + 1, prev["row"] + 1))
+            print(
+                f'ERROR! in lines {row + 1} and {prev["row"] + 1}: Card {data["descricao"]} is duplicated'
+            )
             erros = True
 
     if erros:
