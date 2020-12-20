@@ -58,14 +58,26 @@ def checks(row, data, previous):
     try:
         data["celular"] = get_cel(data["celular"])
     except ValueError as exp:
-        print("ERROR! in line {}: {}".format(row + 1, exp))
+        print(f'ERROR! in line {row + 1}: {exp}')
         erros = True
 
     if data["nomeCompleto"] is None:
-        print("ERROR! in line {}: empty name".format(row + 1))
+        print("ERROR! in line {row + 1}: empty name")
+        erros = True
+    if len(data["nomeCompleto"]) > 50:
+        print(
+            f'ERROR! in line {row + 1}: Collaborator {data["nomeCompleto"]} name size {len(data["nomeCompleto"])} > 50'
+        )
         erros = True
     if data["email"] is None:
-        print("ERROR! in line {}: empty email".format(row + 1))
+        print(
+            f'ERROR! in line {row + 1}: Collaborator {data["nomeCompleto"]} empty email'
+        )
+        erros = True
+    if len(data["email"]) > 150:
+        print(
+            f'ERROR! in line {row + 1}: Collaborator email {data["email"]} size {len(data["email"])} > 150'
+        )
         erros = True
 
     for prev in previous:
@@ -73,23 +85,23 @@ def checks(row, data, previous):
         prev_nome = deemphasize(prev["data"]["nomeCompleto"])
         if nome == prev_nome:
             print(
-                "ERROR! in lines {} and {}: collaborator's name is duplicated".
-                format(row + 1, prev["row"] + 1))
+                f'ERROR! in lines {row + 1} and {prev["row"] + 1}: collaborator\'s {data["nomeCompleto"]} name is duplicated'
+            )
             erros = True
 
         email = deemphasize(data["email"])
         prev_email = deemphasize(prev["data"]["email"])
         if email == prev_email:
             print(
-                "ERROR! in lines {} and {}: collaborator's email is duplicated"
-                .format(row + 1, prev["row"] + 1))
+                f'ERROR! in lines {row + 1} and {prev["row"] + 1}: collaborator\'s email {data["email"]} is duplicated'
+            )
             erros = True
 
     one = Colaboradores()
     try:
         data = one.name_to_id(data)
     except Exception as exp:
-        print("ERROR! in line {}: {}".format(row + 1, exp))
+        print(f'ERROR! in line {row + 1}: {exp}')
         erros = True
 
     if erros:
