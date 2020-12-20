@@ -54,10 +54,17 @@ def servico(book, reset=False):
 def checks(row, data, previous):
     erros = False
     if data["descricao"] is None:
-        print("ERROR! in line {}: empty name".format(row + 1))
+        print(f'ERROR! in line {row + 1}: empty name')
+        erros = True
+    if len(data["descricao"]) > 50:
+        print(
+            f'ERROR! in line {row + 1}: Service {data["descricao"]} name size {len(data["descricao"])}/50'
+        )
         erros = True
     if data["gserv"] is None:
-        print("ERROR! in line {}: empty group".format(row + 1))
+        print(
+            f'ERROR! in line {row + 1}: Service {data["descricao"]} have empty group'
+        )
         erros = True
 
     comissao = data["comissao"]
@@ -68,8 +75,9 @@ def checks(row, data, previous):
         descricao = deemphasize(data["descricao"])
         prev_descricao = deemphasize(prev["data"]["descricao"])
         if descricao == prev_descricao:
-            print("ERROR! in lines {} and {}: Service is duplicated".format(
-                row + 1, prev["row"] + 1))
+            print(
+                f'ERROR! in lines {row + 1} and {prev["row"] +1}: Service {data["descricao"]} is duplicated'
+            )
             erros = True
 
     if erros:
