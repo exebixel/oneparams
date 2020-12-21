@@ -21,7 +21,8 @@ class BaseDiff(BaseApi):
                  url_get_detail,
                  url_delete=None,
                  key_active=None,
-                 url_inactive=None):
+                 url_inactive=None,
+                 submodules=None):
         """
         Define todas as urls que serão usadas,
         e também as keys do nome e id
@@ -39,6 +40,8 @@ class BaseDiff(BaseApi):
         self.__url_delete = url_delete
         self.__url_inactive = url_inactive
         self.__key_active = key_active
+
+        self.__submodules = submodules
 
     def create(self, data):
         """
@@ -133,8 +136,21 @@ class BaseDiff(BaseApi):
         Retorna um dict com as informações do cadastro completo do item
         """
         response = self.get("{}/{}".format(self.__url_get_detail, item_id))
-        self.status_ok(response)
-        return json.loads(response.content)
+        self.status_ok(response) return json.loads(response.content)
+
+    def name_to_id(self, data): erros = [] for sub, func in
+    self.__submodules.items(): if f'{sub}Id' not in data.keys(): try:
+        data[f'{sub}Id'] = func.return_id(data[sub])
+                except Exception as e:
+                    erros.append(str(e))
+                else:
+                    data.pop(sub)
+        if self.__key_active is not None:
+            data[self.__key_active] = True
+
+        if erros != []:
+            raise Exception(erros)
+        return data
 
     def diff_item(self, data):
         """
@@ -144,6 +160,7 @@ class BaseDiff(BaseApi):
         se tiver dados diferentes o item sera atualizado
         """
         data[self.key_id] = self.item_id(data)
+        data = self.name_to_id(data)
 
         if data[self.key_id] == 0:
             item_id = self.create(data)
