@@ -1,4 +1,6 @@
 from oneparams.api.cards import apiCard
+from oneparams.api.conta import Conta
+from oneparams.api.operadora import Operadora
 from oneparams.excel.excel import Excel
 from oneparams.utils import card_type, deemphasize
 
@@ -14,7 +16,7 @@ def cards(book, reset=False):
                   name="cobrada",
                   default=0,
                   types="float")
-    ex.add_column(key="operadora", name="operadora", default="Padrão")
+    ex.add_column(key="operadoraCartao", name="operadora", default="Padrão")
     ex.add_column(key="contas",
                   name="conta",
                   required=False,
@@ -27,17 +29,18 @@ def cards(book, reset=False):
 
     if reset:
         one.delete_all()
-        one.operadora.delete_all()
+        operadora = Operadora()
+        operadora.delete_all()
 
     for row in data_all:
-        one.card(row)
+        one.diff_item(row)
 
 
 def checks(row, data, previous):
     erros = False
-    one = apiCard()
+    conta = Conta()
 
-    data["contasId"] = one.conta.get_id(data["contas"])
+    data["contasId"] = conta.return_id(data["contas"])
     data.pop("contas")
     if data["contasId"] == None:
         print(
@@ -54,9 +57,9 @@ def checks(row, data, previous):
         )
         erros = True
 
-    if len(data["operadora"]) > 50:
+    if len(data["operadoraCartao"]) > 50:
         print(
-            f'ERROR! in line {row + 1}: Card {data["descricao"]} card operator size {len(data["operadora"])} > 50'
+            f'ERROR! in line {row + 1}: Card {data["descricao"]} card operator size {len(data["operadoraCartao"])} > 50'
         )
         erros = True
 
