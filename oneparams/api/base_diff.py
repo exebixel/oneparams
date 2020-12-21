@@ -136,11 +136,15 @@ class BaseDiff(BaseApi):
         Retorna um dict com as informações do cadastro completo do item
         """
         response = self.get("{}/{}".format(self.__url_get_detail, item_id))
-        self.status_ok(response) return json.loads(response.content)
+        self.status_ok(response)
+        return json.loads(response.content)
 
-    def name_to_id(self, data): erros = [] for sub, func in
-    self.__submodules.items(): if f'{sub}Id' not in data.keys(): try:
-        data[f'{sub}Id'] = func.return_id(data[sub])
+    def name_to_id(self, data):
+        erros = []
+        for sub, func in self.__submodules.items():
+            if f'{sub}Id' not in data.keys():
+                try:
+                    data[f'{sub}Id'] = func.return_id(data[sub])
                 except Exception as e:
                     erros.append(str(e))
                 else:
