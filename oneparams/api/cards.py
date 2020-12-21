@@ -15,10 +15,14 @@ class apiCard(BaseDiff):
                          url_update="/OCartao/Cartoes",
                          url_get_all="/Cartoes",
                          url_get_detail="/OCartao/CartaoDetalhes",
-                         url_delete="/Cartoes")
+                         url_delete="/Cartoes",
+                         submodules={
+                             "contas": Conta(),
+                             "operadoraCartao": Operadora()
+                         })
 
-        self.operadora = Operadora()
-        self.conta = Conta()
+        # self.operadora = Operadora()
+        # self.conta = Conta()
         if not apiCard.first_get:
             self.get_all()
             apiCard.first_get = True
@@ -35,17 +39,3 @@ class apiCard(BaseDiff):
                     and i["debito_Credito"] == data["debito_Credito"]):
                 return i["cartoesId"]
         return 0
-
-    def name_to_id(self, data):
-        if "contasId" not in data.keys():
-            data["contasId"] = self.conta.get_id(data["contas"])
-            data.pop("contas")
-        if "operadoraCartaoId" not in data.keys():
-            data["operadoraCartaoId"] = self.operadora.operator(
-                data["operadora"])
-            data.pop("operadora")
-        return data
-
-    def card(self, data):
-        data = self.name_to_id(data)
-        super().diff_item(data)
