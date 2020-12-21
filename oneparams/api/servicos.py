@@ -21,9 +21,9 @@ class Servicos(BaseDiff):
             url_get_detail="/OServicos/DetalhesServicosLight",
             url_delete="/Servicos/DeleteServicos",
             url_inactive="/OServicosComis/UpdateServicosLight",
-            key_active="flagAtivo")
+            key_active="flagAtivo",
+            submodules={"gserv": Gservis()})
 
-        self.gservs = Gservis()
         if not Servicos.first_get:
             self.get_all()
             Servicos.first_get = True
@@ -35,14 +35,6 @@ class Servicos(BaseDiff):
         return super().details(item_id)["servicoLightModel"]
 
     def name_to_id(self, data):
-        if "gservId" not in data.keys():
-            data["gservId"] = self.gservs.Gservis(data["gserv"])
-            data.pop("gserv")
         data["valPercComissao"] = "P"
         data["valPercCustos"] = "P"
-        data["flagAtivo"] = True
-        return data
-
-    def diff_item(self, data):
-        data = self.name_to_id(data)
-        super().diff_item(data)
+        return super().name_to_id(data)

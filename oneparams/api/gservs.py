@@ -48,7 +48,7 @@ class Gservis(BaseApi):
         response = super().delete("/Gservs/DeleteGservs/{0}".format(gserv_id))
         self.status_ok(response)
 
-    def Gservis(self, nome):
+    def return_id(self, nome):
         for gserv in Gservis.items:
             if gserv["nome"] == nome:
                 return gserv["id"]
