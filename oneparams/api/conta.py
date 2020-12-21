@@ -20,7 +20,7 @@ class Conta(BaseApi):
 
         Conta.items = json.loads(response.content)
 
-    def get_id(self, nome):
+    def return_id(self, nome):
         for i in Conta.items:
             if re.search(nome, i["nome"], re.IGNORECASE):
                 return i["contasId"]

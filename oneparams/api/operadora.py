@@ -68,7 +68,7 @@ class Operadora(BaseApi):
         else:
             return None
 
-    def operator(self, nome):
+    def return_id(self, nome):
         op_id = self.get_id(nome)
         if op_id is None:
             op_id = self.create(nome)
