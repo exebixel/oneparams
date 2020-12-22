@@ -20,7 +20,7 @@ class Profissao(BaseApi):
         content = json.loads(response.content)
         Profissao.items = content
 
-    def profissao_id(self, nome):
+    def return_id(self, nome):
         if nome is None:
             return None
 

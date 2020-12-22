@@ -24,7 +24,7 @@ class Perfil(BaseApi):
             if not re.search("cliente", i["descricao"], re.IGNORECASE):
                 Perfil.items.append(i)
 
-    def perfil_id(self, nome):
+    def return_id(self, nome):
         nome = deemphasize(nome)
         len_similar = []
         for perfil in Perfil.items:
