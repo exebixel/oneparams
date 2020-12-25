@@ -8,6 +8,7 @@ class Servicos(BaseDiff):
     cria, atualiza, deleta e inativa serviços
     """
     items = []
+    list_details = []
     first_get = False
 
     def __init__(self):

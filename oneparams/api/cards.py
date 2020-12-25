@@ -5,6 +5,7 @@ from oneparams.api.operadora import Operadora
 
 class apiCard(BaseDiff):
     items = []
+    list_details = []
     first_get = False
 
     def __init__(self):
