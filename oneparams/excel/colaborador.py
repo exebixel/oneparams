@@ -58,8 +58,15 @@ def checks(row, data, previous):
     try:
         data["celular"] = get_cel(data["celular"])
     except ValueError as exp:
-        print(f'ERROR! in line {row + 1}: {exp}')
-        erros = True
+        if data["celular"] is None:
+            print(
+                f'WARNING! on line {row + 1}: Collaborator {data["nomeCompleto"]} has empty phone'
+            )
+        else:
+            print(
+                f'ERROR! in line {row + 1}: Collaborator {data["nomeCompleto"]} has {exp}'
+            )
+            erros = True
 
     if data["nomeCompleto"] is None:
         print("ERROR! in line {row + 1}: empty name")
@@ -69,16 +76,17 @@ def checks(row, data, previous):
             f'ERROR! in line {row + 1}: Collaborator {data["nomeCompleto"]} name size {len(data["nomeCompleto"])} > 50'
         )
         erros = True
-    if data["email"] is None:
+
+    try:
+        if len(data["email"]) > 150:
+            print(
+                f'ERROR! in line {row + 1}: Collaborator email {data["email"]} size {len(data["email"])} > 150'
+            )
+            erros = True
+    except TypeError:
         print(
-            f'ERROR! in line {row + 1}: Collaborator {data["nomeCompleto"]} empty email'
+            f'WARNING! in line {row + 1}: Collaborator {data["nomeCompleto"]} email is empty'
         )
-        erros = True
-    if len(data["email"]) > 150:
-        print(
-            f'ERROR! in line {row + 1}: Collaborator email {data["email"]} size {len(data["email"])} > 150'
-        )
-        erros = True
 
     for prev in previous:
         nome = deemphasize(data["nomeCompleto"])
@@ -89,13 +97,14 @@ def checks(row, data, previous):
             )
             erros = True
 
-        email = deemphasize(data["email"])
-        prev_email = deemphasize(prev["data"]["email"])
-        if email == prev_email:
-            print(
-                f'ERROR! in lines {row + 1} and {prev["row"] + 1}: collaborator\'s email {data["email"]} is duplicated'
-            )
-            erros = True
+        if data["email"] is not None:
+            email = deemphasize(data["email"])
+            prev_email = deemphasize(prev["data"]["email"])
+            if email == prev_email:
+                print(
+                    f'ERROR! in lines {row + 1} and {prev["row"] + 1}: collaborator\'s email {data["email"]} is duplicated'
+                )
+                erros = True
 
     one = Colaboradores()
     try:
