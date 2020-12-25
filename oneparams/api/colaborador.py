@@ -3,6 +3,7 @@ import json
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.perfils import Perfil
 from oneparams.api.profissao import Profissao
+from oneparams.utils import create_cel, create_email
 
 
 class Colaboradores(BaseDiff):
@@ -14,6 +15,7 @@ class Colaboradores(BaseDiff):
         super().__init__(
             key_id="colaboradorId",
             key_name="nomeCompleto",
+            key_active="ativoColaborador",
             item_name="collaborator",
             url_create="/OCliForColsUsuarioPerfil/CreateColaboradores",
             url_update="/OCliForColsFiliais/UpdateColaboradores",
@@ -45,6 +47,27 @@ class Colaboradores(BaseDiff):
 
     def details(self, item_id):
         return super().details(item_id)["colaboradoresCliForColsLightModel"]
+
+    def equals(self, data):
+        if data["email"] is None:
+            data.pop("email")
+        if data["celular"] is None:
+            data.pop("celular")
+        return super().equals(data)
+
+    def create(self, data):
+        if data["email"] is None:
+            data["email"] = create_email()
+        if data["celular"] is None:
+            data["celular"] = create_cel()
+        super().create(data)
+
+    def update(self, data):
+        if "email" not in data.keys():
+            data["email"] = self.details(data[self.key_id])["email"]
+        if "celular" not in data.keys():
+            data["celular"] = self.details(data[self.key_id])["celular"]
+        return super().update(data)
 
     def item_id(self, data):
         for i in self.items:
