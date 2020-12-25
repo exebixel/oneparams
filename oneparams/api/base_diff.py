@@ -141,8 +141,11 @@ class BaseDiff(BaseApi):
             except KeyError:
                 for key, value in i.items():
                     if type(value) is dict:
-                        if i[key][self.key_id] == item_id:
-                            return i
+                        try:
+                            if i[key][self.key_id] == item_id:
+                                return i
+                        except KeyError:
+                            continue
 
         response = self.get("{}/{}".format(self.__url_get_detail, item_id))
         self.status_ok(response)
