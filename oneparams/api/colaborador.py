@@ -51,7 +51,3 @@ class Colaboradores(BaseDiff):
                     or i["email"] == data["email"]):
                 return i[self.key_id]
         return 0
-
-    def colaborador(self, data):
-        data = self.name_to_id(data)
-        super().diff_item(data)

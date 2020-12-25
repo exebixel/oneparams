@@ -45,7 +45,7 @@ def colaborador(book, app_regist=False):
     data = ex.data_all(check_row=checks)
     for row in data:
 
-        one.colaborador(row)
+        one.diff_item(row)
         if app_regist:
             app.app(nome=row["nomeCompleto"],
                     email=row["email"],
