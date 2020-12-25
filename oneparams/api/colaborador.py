@@ -7,6 +7,7 @@ from oneparams.api.profissao import Profissao
 
 class Colaboradores(BaseDiff):
     items = []
+    list_details = []
     first_get = False
 
     def __init__(self):
