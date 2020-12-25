@@ -1,6 +1,5 @@
 import json
 import re
-import sys
 
 from oneparams.api.base import BaseApi
 from oneparams.utils import deemphasize
