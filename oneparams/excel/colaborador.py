@@ -45,8 +45,12 @@ def colaborador(book, app_regist=False):
     data = ex.data_all(check_row=checks)
     for row in data:
 
+        email_exist = True
+        if row["email"] is None or row["celular"] is None:
+            email_exist = False
+
         one.diff_item(row)
-        if app_regist:
+        if app_regist and email_exist:
             app.app(nome=row["nomeCompleto"],
                     email=row["email"],
                     celular=row["celular"])
