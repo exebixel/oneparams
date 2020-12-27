@@ -1,5 +1,3 @@
-import sys
-
 from oneparams.api.app import App
 from oneparams.api.colaborador import Colaboradores
 from oneparams.excel.excel import Excel
