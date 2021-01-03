@@ -16,6 +16,7 @@ class apiCard(BaseDiff):
                          url_update="/OCartao/Cartoes",
                          url_get_all="/Cartoes",
                          url_get_detail="/OCartao/CartaoDetalhes",
+                         key_detail="cartoesLight",
                          url_delete="/Cartoes",
                          submodules={
                              "contas": Conta(),
@@ -30,9 +31,6 @@ class apiCard(BaseDiff):
 
     def get_all(self):
         apiCard.items = super().get_all()
-
-    def details(self, item_id):
-        return super().details(item_id)["cartoesLight"]
 
     def item_id(self, data):
         for i in apiCard.items:

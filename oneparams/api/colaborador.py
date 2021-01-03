@@ -21,6 +21,7 @@ class Colaboradores(BaseDiff):
             url_update="/OCliForColsFiliais/UpdateColaboradores",
             url_get_all="/CliForCols/ListaDetalhesColaboradores",
             url_get_detail="/OColaborador/DetalhesColaboradores",
+            key_detail="colaboradoresCliForColsLightModel",
             submodules={
                 "profissao": Profissao(),
                 "perfil": Perfil()
@@ -44,9 +45,6 @@ class Colaboradores(BaseDiff):
         response = self.get("/OProfissional/ProfissionaisAgendaveis")
         self.status_ok(response)
         return json.loads(response.content)
-
-    def details(self, item_id):
-        return super().details(item_id)["colaboradoresCliForColsLightModel"]
 
     def equals(self, data):
         if data["email"] is None:

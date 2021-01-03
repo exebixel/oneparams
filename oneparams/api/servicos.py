@@ -20,6 +20,7 @@ class Servicos(BaseDiff):
             url_update="/OServicosComis/UpdateServicosLight",
             url_get_all="/OGservsServicos/ListaDetalhesServicosLight",
             url_get_detail="/OServicos/DetalhesServicosLight",
+            key_detail="servicoLightModel",
             url_delete="/Servicos/DeleteServicos",
             url_inactive="/OServicosComis/UpdateServicosLight",
             key_active="flagAtivo",
@@ -31,9 +32,6 @@ class Servicos(BaseDiff):
 
     def get_all(self):
         Servicos.items = super().get_all()
-
-    def details(self, item_id):
-        return super().details(item_id)["servicoLightModel"]
 
     def name_to_id(self, data):
         data["valPercComissao"] = "P"
