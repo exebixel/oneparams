@@ -186,6 +186,14 @@ class BaseDiff(BaseApi):
         elif not self.equals(data):
             self.update(data)
 
+            item = next(item for item in self.items
+                        if item[self.key_id] == data[self.key_id])
+            self.items.remove(item)
+            self.items.append(data)
+
+            self.list_details.remove(self.details(data[self.key_id]))
+            self.list_details.append(data)
+
         else:
             print("skiping {} {}".format(data[self.key_name],
                                          self.__item_name))
