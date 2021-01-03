@@ -18,6 +18,7 @@ class BaseDiff(BaseApi):
                  url_create,
                  url_get_all,
                  url_get_detail,
+                 key_detail=None,
                  url_delete=None,
                  key_active=None,
                  url_inactive=None,
@@ -35,6 +36,7 @@ class BaseDiff(BaseApi):
         self.__url_create = url_create
         self.__url_get_all = url_get_all
         self.__url_get_detail = url_get_detail
+        self.__key_detail = key_detail
 
         self.__url_delete = url_delete
         self.__url_inactive = url_inactive
@@ -135,21 +137,16 @@ class BaseDiff(BaseApi):
         Retorna um dict com as informações do cadastro completo do item
         """
         for i in self.list_details:
-            try:
-                if i[self.key_id] == item_id:
-                    return i
-            except KeyError:
-                for key, value in i.items():
-                    if type(value) is dict:
-                        try:
-                            if i[key][self.key_id] == item_id:
-                                return i
-                        except KeyError:
-                            continue
+            if i[self.key_id] == item_id:
+                return i
 
         response = self.get("{}/{}".format(self.__url_get_detail, item_id))
         self.status_ok(response)
+
         content = json.loads(response.content)
+        if self.__key_detail is not None:
+            content = content[self.__key_detail]
+
         self.list_details.append(content)
         return content
 
@@ -184,6 +181,7 @@ class BaseDiff(BaseApi):
             item_id = self.create(data)
             data[self.key_id] = item_id
             self.items.append(data)
+            self.list_details.append(data)
 
         elif not self.equals(data):
             self.update(data)
