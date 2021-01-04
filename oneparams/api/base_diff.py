@@ -255,3 +255,7 @@ class BaseDiff(BaseApi):
 
         for i in deleted:
             self.items.remove(i)
+            item = next((item for item in self.list_details
+                        if item[self.key_id] == i[self.key_id]), None)
+            if item is not None:
+                self.list_details.remove(item)
