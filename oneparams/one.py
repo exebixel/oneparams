@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-import xlrd
+import pandas as pd
 
 from oneparams.api.login import login
 from oneparams.args import parse_base
@@ -49,12 +49,12 @@ def one():
     args = parser.parse_args()
 
     try:
-        book = xlrd.open_workbook(args.worksheet)
-    except FileNotFoundError:
-        print("File not found!!")
+        book = pd.ExcelFile(args.worksheet)
+    except FileNotFoundError as exp:
+        print(exp)
         sys.exit()
-    except xlrd.biffh.XLRDError:
-        print("Unsupported file!!")
+    except ValueError as exp:
+        print(exp)
         sys.exit()
 
     one = login()
