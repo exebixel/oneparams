@@ -2,50 +2,60 @@ import re
 import sys
 from datetime import time
 
+import pandas as pd
 import xlrd
 from oneparams.utils import get_bool, get_float, get_time, string_normalize
 
 
 class Excel:
     def __init__(self, book, sheet_name, header_row=1):
+        self.column_details = []
+
         self.__keys = []
         self.__column_index = []
         self.__defaults = []
         self.__types = []
 
         self.__book = book
-        sh_index = self.sheet_index(book, sheet_name)
-        if sh_index == -1:
-            print("sheet {0} not found!".format(sheet_name))
-            sys.exit()
-        self.__sh = book.sheet_by_index(sh_index)
+
+        try:
+            excel = pd.read_excel(book,
+                                  self.sheet_name(sheet_name),
+                                  header=header_row)
+            # retirando linhas e colunas em brando do Data Frame
+            excel = excel.dropna(how="all")
+            excel.dropna(how="all", axis=1, inplace=True)
+            self.__excel = excel
+
+        except ValueError as exp:
+            sys.exit(exp)
+
         self.__header_row = header_row
-        self.nrows = self.__sh.nrows
         self.__previous = []
 
-    def sheet_index(self, book, sheet_name):
-        cont = 0
-        for names in book.sheet_names():
-            names = string_normalize(names)
-            if (re.search(sheet_name, names, re.IGNORECASE)):
-                break
-            cont += 1
-        else:
-            return -1
-        return cont
+    def sheet_name(self, search):
+        """
+        Função responsável por pesquisa a string do parâmetro 'search'
+        nas planilhas (sheets) do 'book' especificado no __init__
+        e retornar o 1º nome de planilha que encontrar na pesquisa
+        """
+        for names in self.__book.sheet_names:
+            name = string_normalize(names)
+            if re.search(search, name, re.IGNORECASE):
+                return names
+        raise ValueError(f'Sheet {search} not found!')
 
-    def column_index(self, column_name):
-        cont = 0
-        for header in range(self.__sh.ncols):
-            header_name = self.__sh.cell_value(rowx=1, colx=header)
+    def column_name(self, column_name):
+        """
+        Resquias e retorna o nome da coluna da planilha,
+        se não encontrar, retorna ValueError
+        """
+        excel = self.__excel
+        for header_name in excel.keys():
             header_name = string_normalize(header_name)
-
             if (re.search(column_name, header_name, re.IGNORECASE)):
-                break
-            cont += 1
-        else:
-            return -1
-        return cont
+                return header_name
+        raise ValueError(f'Column {column_name} not found!')
 
     def add_column(self,
                    key,
@@ -53,15 +63,32 @@ class Excel:
                    required=True,
                    default=None,
                    types="string"):
-        column_index = self.column_index(name)
-        if column_index == -1 and required:
-            print("column {} not found!!".format(name))
-            sys.exit()
+        """
+        Função responsável por adicionar as colunas que serão lidas
+        da planilha \n
+        Parâmetros: \n
+        key: nome da chave do dicionario com os dados da coluna \n
+        name: nome da coluna da planilha, não é necessário informar o
+        nome completo da coluna, apenas uma palavra para busca, se o nome da
+        coluna não foi encontrado o programa fechará \n
+        default: se a coluna não for encontrada ou o valor não foi informado
+        então será considerado o valor default \n
+        types: tipo de dado que deve ser retirado da coluna \n
+        required: define se a coluna é obrigatória na planilha
+        """
+        try:
+            column_name = self.column_name(name)
+        except ValueError as exp:
+            if required:
+                sys.exit(exp)
+            column_name = None
 
-        self.__column_index.append(column_index)
-        self.__keys.append(key)
-        self.__defaults.append(default)
-        self.__types.append(types)
+        self.column_details.append({
+            "name": column_name,
+            "key": key,
+            "default": default,
+            "type": types,
+        })
 
     def data_row(self, row, check_row=None):
         keys = self.__keys
