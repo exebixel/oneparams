@@ -25,6 +25,7 @@ class Excel:
             # retirando linhas e colunas em brando do Data Frame
             excel = excel.dropna(how="all")
             excel.dropna(how="all", axis=1, inplace=True)
+            excel = excel.where(pd.notnull(excel), None)
             self.__excel = excel
 
         except ValueError as exp:
@@ -51,10 +52,10 @@ class Excel:
         se não encontrar, retorna ValueError
         """
         excel = self.__excel
-        for header_name in excel.keys():
-            header_name = string_normalize(header_name)
-            if (re.search(column_name, header_name, re.IGNORECASE)):
-                return header_name
+        for header in excel.keys():
+            header_name = string_normalize(header)
+            if re.search(column_name, header_name, re.IGNORECASE):
+                return header
         raise ValueError(f'Column {column_name} not found!')
 
     def add_column(self,
@@ -76,19 +77,28 @@ class Excel:
         types: tipo de dado que deve ser retirado da coluna \n
         required: define se a coluna é obrigatória na planilha
         """
+        excel = self.__excel
         try:
             column_name = self.column_name(name)
         except ValueError as exp:
             if required:
                 sys.exit(exp)
-            column_name = None
+            excel[key] = default
+        else:
+            excel.rename({column_name: key}, axis='columns', inplace=True)
+            if default is not None:
+                excel[key].fillna(value=default, inplace=True)
 
         self.column_details.append({
-            "name": column_name,
             "key": key,
-            "default": default,
             "type": types,
         })
+
+    def row(self, index):
+        """
+        Retorna a linha do respectivo index passado
+        """
+        return index + self.__header_row + 2
 
     def data_row(self, row, check_row=None):
         keys = self.__keys
