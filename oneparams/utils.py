@@ -61,7 +61,7 @@ def get_float(srtnum):
 
 
 def get_time(strtime):
-    strtime = str(strtime)
+    strtime = str(strtime).strip()
     times = re.findall(r"(1[0-2]|0?[0-9]):([0-5][0-9])(:[0-5][0-9])?", strtime)
     if len(times) == 1:
         t = []
@@ -149,7 +149,12 @@ def get_bool(value):
         return value
     if value == 1:
         return True
-    elif value == 0:
+    if value == 0:
+        return False
+
+    if value == "True":
+        return True
+    if value == "False":
         return False
 
     if (string_normalize(value) == "sim" or string_normalize(value) == "s"):
