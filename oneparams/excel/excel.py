@@ -94,6 +94,16 @@ class Excel:
             "type": types,
         })
 
+    def clean_columns(self):
+        """
+        Deleta as colunas do data frame que não foram adicionadas pelo
+        'add_column'
+        """
+        self.__excel.drop(self.__excel.columns.difference(
+            map(lambda col: col["key"], self.column_details)),
+                          axis=1,
+                          inplace=True)
+
     def row(self, index):
         """
         Retorna a linha do respectivo index passado
