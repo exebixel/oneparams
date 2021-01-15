@@ -111,78 +111,61 @@ class Excel:
         return index + self.__header_row + 2
 
     def data_row(self, row, check_row=None):
-        keys = self.__keys
-        index = self.__column_index
-        default = self.__defaults
-        types = self.__types
-        sh = self.__sh
+        excel = self.__excel
 
-        data = {}
         erros = False
-        for i in range(len(self.__keys)):
-            if index[i] == -1:
-                index_value = default[i]
-                data[keys[i]] = index_value
-                continue
+        for column in self.column_details:
 
-            index_type = sh.cell_type(row, index[i])
-            index_value = sh.cell_value(row, index[i])
+            col_key = column["key"]
+            col = excel.loc[row, col_key]
 
-            if index_type == xlrd.XL_CELL_EMPTY:
-                index_value = default[i]
-
-            elif types[i] == "time":
-                if index_type == xlrd.XL_CELL_DATE:
-                    index_value = xlrd.xldate_as_tuple(index_value,
-                                                       self.__book.datemode)
-                    index_value = str(time(*index_value[3:]))
-                if index_type == xlrd.XL_CELL_TEXT:
-                    index_value = str(index_value).strip()
-                    try:
-                        index_value = get_time(index_value)
-                        index_value = str(time(*index_value[:3]))
-                    except TypeError as exp:
-                        print("ERROR! In line {}: {}".format(row + 1, exp))
-                        erros = True
-
-            elif types[i] == "string":
-                index_value = str(index_value).strip()
-
-            elif types[i] == "float":
+            if column["type"] == "time":
                 try:
-                    index_value = get_float(index_value)
-                except ValueError as exp:
-                    print("ERROR! in line {}: {}".format(row + 1, exp))
+                    index_value = get_time(col)
+                    col = str(time(*index_value[:3]))
+                except TypeError as exp:
+                    print("ERROR! In line {}: {}".format(self.row(row), exp))
                     erros = True
 
-            elif types[i] == "bool":
-                index_value = str(index_value).strip()
-                index_value = get_bool(index_value)
-                if index_value is None:
+            elif column["type"] == "string":
+                col = str(col).strip()
+
+            elif column["type"] == "float":
+                try:
+                    col = get_float(col)
+                except ValueError as exp:
+                    print("ERROR! in line {}: {}".format(self.row(row), exp))
+                    erros = True
+
+            elif column["type"] == "bool":
+                col = str(col).strip()
+                col = get_bool(col)
+                if col is None:
                     print(
                         "ERROR! in line {}: not possible change value to bool".
-                        format(row + 1))
+                        format(self.row(row)))
                     erros = True
 
-            data[keys[i]] = index_value
+            # passa o valor tratado de volta para o data frame
+            excel.loc[row, col_key] = col
 
-        if check_row is not None:
-            try:
-                data = check_row(row, data, self.__previous)
-            except Exception:
-                erros = True
+        # if check_row is not None:
+        #     try:
+        #         data = check_row(self.row(row), data, self.__previous)
+        #     except Exception:
+        #         erros = True
 
-        if type(data) is dict:
-            prev = {"row": row, "data": data}
-            self.__previous.append(prev)
-        elif type(data) is list:
-            for i in data:
-                prev = {"row": row, "data": i}
-                self.__previous.append(prev)
+        # if type(data) is dict:
+        #     prev = {"row": row, "data": data}
+        #     self.__previous.append(prev)
+        # elif type(data) is list:
+        #     for i in data:
+        #         prev = {"row": row, "data": i}
+        #         self.__previous.append(prev)
 
-        if erros:
-            raise Exception
-        return data
+        # print(excel.loc[row].to_dict())
+        # if erros:
+        #     raise Exception
 
     def data_all(self, check_row=None):
         data = []
