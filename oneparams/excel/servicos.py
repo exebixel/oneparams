@@ -48,9 +48,9 @@ def servico(book, reset=False):
                   default="P")
     ex.clean_columns()
 
-    data = ex.data_all(check_row=checks)
-
     one = Servicos()
+    data = ex.data_all(check_row=checks, check_final=check_all)
+
     if reset:
         one.delete_all()
 
@@ -87,3 +87,23 @@ def checks(row, data):
 
     one = Servicos()
     return one.name_to_id(data)
+
+
+def check_all(self, data):
+    erros = False
+    duplic = data[data.duplicated(keep=False, subset=["descricao"])]
+    for i in duplic.index:
+        for j in duplic.index:
+            if (duplic.loc[i, "descricao"] == duplic.loc[j, "descricao"]
+                    and j != i):
+                print("ERROR! in lines {} and {}: Service {} is duplicated".
+                      format(self.row(duplic.loc[i].name),
+                             self.row(duplic.loc[j].name),
+                             duplic.loc[i, 'descricao']))
+                duplic = duplic.drop(index=i)
+                erros = True
+                break
+    if erros:
+        raise Exception
+
+    return data
