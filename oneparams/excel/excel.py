@@ -173,7 +173,10 @@ class Excel:
                 erros = True
 
         if check_final is not None:
-            excel = check_final(excel)
+            try:
+                excel = check_final(self, excel)
+            except Exception:
+                erros = True
 
         if erros:
             sys.exit()
