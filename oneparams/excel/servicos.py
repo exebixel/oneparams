@@ -5,10 +5,13 @@ from oneparams.utils import deemphasize
 
 
 def servico(book, reset=False):
+    print("analyzing spreadsheet")
+
     ex = Excel(book, "servico")
 
+    ex.add_column(key="flagAtivo", name="ativo", required=False, default=True)
     ex.add_column(key="descricao", name="nome")
-    ex.add_column(key="gserv", name="grupo")
+    ex.add_column(key="gservId", name="grupo")
     ex.add_column(key="preco", name="valor", default=0, types="float")
     ex.add_column(key="comissao", name="comissao", default=0, types="float")
     ex.add_column(key="tempoExecucao",
@@ -35,11 +38,19 @@ def servico(book, reset=False):
                   required=False,
                   default=True,
                   types="bool")
-    one = Servicos()
+    ex.add_column(key="valPercComissao",
+                  name="tipo comissao",
+                  required=False,
+                  default="P")
+    ex.add_column(key="valPercCustos",
+                  name="tipo custo",
+                  required=False,
+                  default="P")
+    ex.clean_columns()
 
-    print("analyzing spreadsheet")
     data = ex.data_all(check_row=checks)
 
+    one = Servicos()
     if reset:
         one.delete_all()
 
@@ -51,7 +62,7 @@ def servico(book, reset=False):
     grupo.clear()
 
 
-def checks(row, data, previous):
+def checks(row, data):
     erros = False
     if data["descricao"] is None:
         print(f'ERROR! in line {row + 1}: empty name')
@@ -61,7 +72,7 @@ def checks(row, data, previous):
             f'ERROR! in line {row + 1}: Service {data["descricao"]} name size {len(data["descricao"])}/50'
         )
         erros = True
-    if data["gserv"] is None:
+    if data["gservId"] is None:
         print(
             f'ERROR! in line {row + 1}: Service {data["descricao"]} have empty group'
         )
@@ -70,15 +81,6 @@ def checks(row, data, previous):
     comissao = data["comissao"]
     if comissao <= 1:
         data["comissao"] = comissao * 100
-
-    for prev in previous:
-        descricao = deemphasize(data["descricao"])
-        prev_descricao = deemphasize(prev["data"]["descricao"])
-        if descricao == prev_descricao:
-            print(
-                f'ERROR! in lines {row + 1} and {prev["row"] +1}: Service {data["descricao"]} is duplicated'
-            )
-            erros = True
 
     if erros:
         raise Exception
