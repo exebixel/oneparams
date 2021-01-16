@@ -5,18 +5,20 @@ from oneparams.utils import deemphasize, get_cel
 
 
 def colaborador(book, app_regist=False):
+    print("analyzing spreadsheet")
+
     ex = Excel(book=book, sheet_name="profissiona")
 
     ex.add_column(key="nomeCompleto", name="nome")
     ex.add_column(key="email", name="email")
     ex.add_column(key="celular", name="celular")
-    ex.add_column(key="perfil", name="perfil", default="colaborador")
+    ex.add_column(key="perfilId", name="perfil", default="colaborador")
     ex.add_column(key="agendavel",
                   name="agenda",
                   required=False,
                   default=False,
                   types="bool")
-    ex.add_column(key="profissao",
+    ex.add_column(key="profissaoId",
                   name="profissao",
                   required=False,
                   default=None)
@@ -35,11 +37,11 @@ def colaborador(book, app_regist=False):
                   required=False,
                   default=True,
                   types="bool")
+    ex.clean_columns()
 
     one = Colaboradores()
     app = App()
 
-    print("analyzing spreadsheet")
     data = ex.data_all(check_row=checks)
     for row in data:
 
@@ -54,7 +56,7 @@ def colaborador(book, app_regist=False):
                     celular=row["celular"])
 
 
-def checks(row, data, previous):
+def checks(row, data):
     erros = False
 
     try:
@@ -62,57 +64,57 @@ def checks(row, data, previous):
     except ValueError as exp:
         if data["celular"] is None:
             print(
-                f'WARNING! on line {row + 1}: Collaborator {data["nomeCompleto"]} has empty phone'
+                f'WARNING! on line {row}: Collaborator {data["nomeCompleto"]} has empty phone'
             )
         else:
             print(
-                f'ERROR! in line {row + 1}: Collaborator {data["nomeCompleto"]} has {exp}'
+                f'ERROR! in line {row}: Collaborator {data["nomeCompleto"]} has {exp}'
             )
             erros = True
 
     if data["nomeCompleto"] is None:
-        print("ERROR! in line {row + 1}: empty name")
+        print("ERROR! in line {row}: empty name")
         erros = True
     if len(data["nomeCompleto"]) > 50:
         print(
-            f'ERROR! in line {row + 1}: Collaborator {data["nomeCompleto"]} name size {len(data["nomeCompleto"])} > 50'
+            f'ERROR! in line {row}: Collaborator {data["nomeCompleto"]} name size {len(data["nomeCompleto"])} > 50'
         )
         erros = True
 
     try:
         if len(data["email"]) > 150:
             print(
-                f'ERROR! in line {row + 1}: Collaborator email {data["email"]} size {len(data["email"])} > 150'
+                f'ERROR! in line {row}: Collaborator email {data["email"]} size {len(data["email"])} > 150'
             )
             erros = True
     except TypeError:
         print(
-            f'WARNING! in line {row + 1}: Collaborator {data["nomeCompleto"]} email is empty'
+            f'WARNING! in line {row}: Collaborator {data["nomeCompleto"]} email is empty'
         )
 
-    for prev in previous:
-        nome = deemphasize(data["nomeCompleto"])
-        prev_nome = deemphasize(prev["data"]["nomeCompleto"])
-        if nome == prev_nome:
-            print(
-                f'ERROR! in lines {row + 1} and {prev["row"] + 1}: collaborator\'s {data["nomeCompleto"]} name is duplicated'
-            )
-            erros = True
+    # for prev in previous:
+    #     nome = deemphasize(data["nomeCompleto"])
+    #     prev_nome = deemphasize(prev["data"]["nomeCompleto"])
+    #     if nome == prev_nome:
+    #         print(
+    #             f'ERROR! in lines {row} and {prev["row"] + 1}: collaborator\'s {data["nomeCompleto"]} name is duplicated'
+    #         )
+    #         erros = True
 
-        if data["email"] is not None:
-            email = deemphasize(data["email"])
-            prev_email = deemphasize(prev["data"]["email"])
-            if email == prev_email:
-                print(
-                    f'ERROR! in lines {row + 1} and {prev["row"] + 1}: collaborator\'s email {data["email"]} is duplicated'
-                )
-                erros = True
+    #     if data["email"] is not None:
+    #         email = deemphasize(data["email"])
+    #         prev_email = deemphasize(prev["data"]["email"])
+    #         if email == prev_email:
+    #             print(
+    #                 f'ERROR! in lines {row} and {prev["row"] + 1}: collaborator\'s email {data["email"]} is duplicated'
+    #             )
+    #             erros = True
 
     one = Colaboradores()
     try:
         data = one.name_to_id(data)
     except Exception as exp:
-        print(f'ERROR! in line {row + 1}: {exp}')
+        print(f'ERROR! in line {row}: {exp}')
         erros = True
 
     if erros:
