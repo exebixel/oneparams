@@ -24,7 +24,7 @@ class Servicos(BaseDiff):
             url_delete="/Servicos/DeleteServicos",
             url_inactive="/OServicosComis/UpdateServicosLight",
             key_active="flagAtivo",
-            submodules={"gserv": Gservis()})
+            submodules={"gservId": Gservis()})
 
         if not Servicos.first_get:
             self.get_all()
@@ -32,8 +32,3 @@ class Servicos(BaseDiff):
 
     def get_all(self):
         Servicos.items = super().get_all()
-
-    def name_to_id(self, data):
-        data["valPercComissao"] = "P"
-        data["valPercCustos"] = "P"
-        return super().name_to_id(data)
