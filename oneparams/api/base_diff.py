@@ -153,13 +153,12 @@ class BaseDiff(BaseApi):
     def name_to_id(self, data):
         erros = []
         for sub, func in self.__submodules.items():
-            if f'{sub}Id' not in data.keys():
+            if type(data[sub]) is not int:
                 try:
-                    data[f'{sub}Id'] = func.return_id(data[sub])
+                    data[sub] = func.return_id(data[sub])
                 except Exception as e:
                     erros.append(str(e))
-                else:
-                    data.pop(sub)
+
         if self.__key_active is not None:
             data[self.__key_active] = True
 
