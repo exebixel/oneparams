@@ -92,6 +92,7 @@ class Excel:
         self.column_details.append({
             "key": key,
             "type": types,
+            "default": default
         })
 
     def clean_columns(self):
@@ -118,6 +119,9 @@ class Excel:
 
             col_key = column["key"]
             col = excel.loc[row, col_key]
+
+            if col is column["default"]:
+                continue
 
             if column["type"] == "time":
                 try:
