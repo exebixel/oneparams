@@ -149,39 +149,28 @@ class Excel:
             # passa o valor tratado de volta para o data frame
             excel.loc[row, col_key] = col
 
-        # if check_row is not None:
-        #     try:
-        #         data = check_row(self.row(row), data, self.__previous)
-        #     except Exception:
-        #         erros = True
-
-        # if type(data) is dict:
-        #     prev = {"row": row, "data": data}
-        #     self.__previous.append(prev)
-        # elif type(data) is list:
-        #     for i in data:
-        #         prev = {"row": row, "data": i}
-        #         self.__previous.append(prev)
-
-        # print(excel.loc[row].to_dict())
-        # if erros:
-        #     raise Exception
-
-    def data_all(self, check_row=None):
-        data = []
-        erros = False
-        for row in range(self.__header_row + 1, self.nrows):
+        if check_row is not None:
             try:
-                data_row = self.data_row(row, check_row=check_row)
+                excel.loc[row] = check_row(self.row(row),
+                                           excel.loc[row].copy())
             except Exception:
                 erros = True
-            if not erros:
-                if type(data_row) is dict:
-                    data.append(data_row)
-                elif type(data_row) is list:
-                    for i in data_row:
-                        data.append(i)
+
+        if erros:
+            raise Exception
+
+    def data_all(self, check_row=None, check_final=None):
+        excel = self.__excel
+        erros = False
+        for row in excel.index:
+            try:
+                self.data_row(row, check_row=check_row)
+            except Exception:
+                erros = True
+
+        if check_final is not None:
+            excel = check_final(excel)
 
         if erros:
             sys.exit()
-        return data
+        return excel.to_dict('records')
