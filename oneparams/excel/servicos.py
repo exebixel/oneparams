@@ -65,16 +65,16 @@ def servico(book, reset=False):
 def checks(row, data):
     erros = False
     if data["descricao"] is None:
-        print(f'ERROR! in line {row + 1}: empty name')
+        print(f'ERROR! in line {row}: empty name')
         erros = True
     if len(data["descricao"]) > 50:
         print(
-            f'ERROR! in line {row + 1}: Service {data["descricao"]} name size {len(data["descricao"])}/50'
+            f'ERROR! in line {row}: Service {data["descricao"]} name size {len(data["descricao"])}/50'
         )
         erros = True
     if data["gservId"] is None:
         print(
-            f'ERROR! in line {row + 1}: Service {data["descricao"]} have empty group'
+            f'ERROR! in line {row}: Service {data["descricao"]} have empty group'
         )
         erros = True
 
