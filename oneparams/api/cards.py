@@ -19,12 +19,10 @@ class apiCard(BaseDiff):
                          key_detail="cartoesLight",
                          url_delete="/Cartoes",
                          submodules={
-                             "contas": Conta(),
-                             "operadoraCartao": Operadora()
+                             "contasId": Conta(),
+                             "operadoraCartaoId": Operadora()
                          })
 
-        # self.operadora = Operadora()
-        # self.conta = Conta()
         if not apiCard.first_get:
             self.get_all()
             apiCard.first_get = True
