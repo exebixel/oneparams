@@ -23,8 +23,8 @@ class Colaboradores(BaseDiff):
             url_get_detail="/OColaborador/DetalhesColaboradores",
             key_detail="colaboradoresCliForColsLightModel",
             submodules={
-                "profissao": Profissao(),
-                "perfil": Perfil()
+                "profissaoId": Profissao(),
+                "perfilId": Perfil()
             })
 
         if not Colaboradores.first_get:
