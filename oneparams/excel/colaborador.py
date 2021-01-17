@@ -42,7 +42,7 @@ def colaborador(book, app_regist=False):
     one = Colaboradores()
     app = App()
 
-    data = ex.data_all(check_row=checks)
+    data = ex.data_all(check_row=checks, check_final=check_all)
     for row in data:
 
         email_exist = True
@@ -117,6 +117,32 @@ def checks(row, data):
         print(f'ERROR! in line {row}: {exp}')
         erros = True
 
+    if erros:
+        raise Exception
+
+    return data
+
+
+def check_all(self, data):
+    erros = False
+    cols = {
+        "nomeCompleto":
+        "ERROR! in lines {} and {}: Collaborator {} is duplicated",
+        "email":
+        "ERROR! in lines {} and {}: Collaborator\'s email {} is duplicated"
+    }
+    for col, print_erro in cols.items():
+        duplic = data[data.duplicated(keep=False, subset=col)]
+        for i in duplic.index:
+            for j in duplic.index:
+                if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
+                    print(
+                        print_erro.format(self.row(duplic.loc[i].name),
+                                          self.row(duplic.loc[j].name),
+                                          duplic.loc[i, "nomeCompleto"]))
+                    duplic = duplic.drop(index=i)
+                    erros = True
+                    break
     if erros:
         raise Exception
 
