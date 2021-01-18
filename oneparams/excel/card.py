@@ -24,7 +24,7 @@ def cards(book, reset=False):
                   default="conta corrente")
     ex.clean_columns()
 
-    data_all = ex.data_all(check_row=checks)
+    data_all = ex.data_all(check_row=checks, check_final=check_all)
 
     one = apiCard()
     if reset:
@@ -92,4 +92,30 @@ def checks(row, data):
     #     data["debito_Credito"] = "C"
     #     data2["debito_Credito"] = "D"
     #     return [data, data2]
+    return data
+
+
+def check_all(self, data):
+    erros = False
+    duplic = data[data.duplicated(keep=False,
+                                  subset=["descricao", "debito_Credito"])]
+    if not duplic.empty:
+        erros = True
+        duplic.apply(lambda x: print(
+            f'ERROR! in line {self.row(x.name)}: Card {x["descricao"]} is duplicated'
+        ),
+                     axis=1)
+
+    if erros:
+        raise Exception
+
+    cd = data.loc[data["debito_Credito"] == "CD"]
+    for i, row in cd.iterrows():
+        copy = row.copy()
+        row["debito_Credito"] = "D"
+        copy["debito_Credito"] = "C"
+        data = data.append([row, copy])
+    data = data[data["debito_Credito"] != "CD"]
+    data = data.sort_index("index")
+
     return data
