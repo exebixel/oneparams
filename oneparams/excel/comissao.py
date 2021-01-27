@@ -1,21 +1,31 @@
+import pandas as pd
 from oneparams.api.commission import Commission
 from oneparams.excel.excel import Excel
 from oneparams.utils import get_names
 
 
 def comissao(book, reset=False):
+    print("analyzing spreadsheet")
+
     ex = Excel(book, "servico")
     ex.add_column(key="servico", name="nome")
+    ex.add_column(key="servId",
+                  name="servico id",
+                  required=False,
+                  types="float",
+                  default=0)
     ex.add_column(key="ServicoValorComissao",
                   name="comissao",
                   default=0,
                   types="float")
     ex.add_column(key="cols", name="profissionais")
+    ex.add_column(key="colsId", required=False, types="float", name="colsId")
+    ex.clean_columns()
+    ex.add_row_column()
 
     one = Commission()
 
-    print("analyzing spreadsheet")
-    data_all = ex.data_all(check_row=checks_comm)
+    data_all = ex.data_all(check_final=checks_comm)
 
     if reset:
         one.delete_all()
@@ -24,73 +34,53 @@ def comissao(book, reset=False):
         one.comissao(row)
 
 
-def checks_comm(row, data, previous):
-    erros = False
+erros = False
+
+
+def checks_comm(self, data):
     api = Commission()
 
-    data["servId"] = api.serv.item_id({"descricao": data["servico"]})
-    if data["servId"] == 0:
-        print("ERROR!! in line {}: Service {} not found".format(
-            row + 1, data["servico"]))
-        erros = True
+    data = data.loc[data["cols"].notnull()]
+    data = data.apply(get_serv_id, axis=1)
 
-    if data["cols"] is None:
-        return []
-    data["cols"] = get_names(data["cols"])
-
-    cols_id = []
-    for i in data["cols"]:
-        cols = {}
-        cols["name"] = i
-        try:
-            cols["id"] = api.cols.search_item_by_name(cols["name"])
-        except ValueError as exp:
-            print("ERROR!! in line {}: {}".format(row + 1, exp))
-            erros = True
-        else:
-            cols_id.append(cols)
-    data["cols"] = cols_id
-
-    proc_data = []
-    for i in data["cols"]:
-        temp = {
-            "cols": i["name"],
-            "colsId": i["id"],
-            "servico": data["servico"],
-            "servId": data["servId"],
-            "ServicoValorComissao": data["ServicoValorComissao"],
-            "ativo": True
-        }
-        proc_data.append(temp)
+    final_data = pd.DataFrame()
+    for i in data.iterrows():
+        final_data = final_data.append(cols_names_to_id(i[1]))
 
     if erros:
         raise Exception
-    return proc_data
+    return final_data
 
 
-# class Commdiff:
-#     def __init__(self, book, api):
-#         self.ex = Excel(book, "comiss")
-#         self.ex.add_column(key="servico", name="servico")
-#         self.ex.add_column(key="cols", name="profissional")
-#         self.ex.add_column(key="ServicoValorComissao",
-#                            name="comissao",
-#                            default=0)
-#         self.one = api
-#         self.comms = []
+def get_serv_id(data):
+    api = Commission()
+    data["servId"] = api.serv.item_id({"descricao": data["servico"]})
+    if data["servId"] == 0:
+        print("ERROR!! in line {}: Service {} not found".format(
+            data["row"], data["servico"]))
+        erros = True
+    return data
 
-#     def get_data(self):
-#         print("Analyzing spreadsheet")
-#         for row in range(2, self.ex.nrows):
-#             data = self.ex.data_row(row)
-#             data = self.one.change_name_for_id(data)
-#             data.pop("cols")
-#             data.pop("servico")
-#             self.comms.append(data)
 
-#     def comm_value(self, data):
-#         for i in self.comms:
-#             if (data["colsId"] == i["colsId"]
-#                     and data["servId"] == i["servId"]):
-#                 return i["ServicoValorComissao"]
-#         return -1
+def cols_names_to_id(data):
+    cols = get_names(data["cols"])
+
+    api = Commission()
+
+    ids = []
+    for i in cols:
+        try:
+            ids.append(api.cols.search_item_by_name(i))
+        except ValueError as exp:
+            print("ERROR!! in line {}: {}".format(data["row"], exp))
+            erros = True
+
+    return pd.DataFrame({
+        "servico": data["servico"],
+        "servId": data["servId"],
+        "cols": cols,
+        "colsId": ids,
+        "ServicoValorComissao": data["ServicoValorComissao"],
+        "ativo": True,
+        "row": data["row"]
+    })
