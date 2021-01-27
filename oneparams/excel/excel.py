@@ -111,6 +111,13 @@ class Excel:
         """
         return index + self.__header_row + 2
 
+    def add_row_column(self):
+        excel = self.__excel
+        rows = []
+        for i in excel.index:
+            rows.append(self.row(i))
+        excel["row"] = rows
+
     def data_row(self, row, check_row=None):
         excel = self.__excel
 
