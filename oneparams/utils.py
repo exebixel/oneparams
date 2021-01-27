@@ -94,10 +94,8 @@ def get_cel(word):
     """
     word = re.sub(r'\.0$', '', str(word))
     cel = get_num(word)
-    if len(cel) == 11:
-        return cel[:11]
-    if len(cel) == 9:
-        return cel[:9]
+    if len(cel) <= 11 and len(cel) >= 8:
+        return cel
 
     raise ValueError("invalid phone {}".format(word))
 
