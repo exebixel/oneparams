@@ -8,7 +8,7 @@ from oneparams.api.login import login
 from oneparams.args import parse_base
 from oneparams.excel.card import cards
 from oneparams.excel.colaborador import colaborador
-from oneparams.excel.comissao import comissao
+from oneparams.excel.comissao import Comissao
 from oneparams.excel.servicos import servico
 
 
@@ -73,7 +73,7 @@ def one():
         cards(book, reset=args.reset)
 
     if args.cmd == "comm":
-        comissao(book, reset=args.reset)
+        Comissao(book, reset=args.reset)
 
 
 def main():
