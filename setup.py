@@ -29,7 +29,7 @@ setuptools.setup(
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
     url="https://github.com/exebixel/oneparams",
-    install_requires=["requests", "pandas", "odspy"
+    install_requires=["requests", "pandas", "odspy",
                       "urllib3"],
     python_requires=">=3.6",
     classifiers=[
