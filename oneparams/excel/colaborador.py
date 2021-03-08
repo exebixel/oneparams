@@ -64,7 +64,7 @@ def checks(row, data):
     except ValueError as exp:
         if data["celular"] is None:
             print(
-                f'WARNING! on line {row}: Collaborator {data["nomeCompleto"]} has empty phone'
+                f'WARNING! in line {row}: Collaborator {data["nomeCompleto"]} has empty phone'
             )
         else:
             print(
@@ -92,24 +92,6 @@ def checks(row, data):
             f'WARNING! in line {row}: Collaborator {data["nomeCompleto"]} email is empty'
         )
 
-    # for prev in previous:
-    #     nome = deemphasize(data["nomeCompleto"])
-    #     prev_nome = deemphasize(prev["data"]["nomeCompleto"])
-    #     if nome == prev_nome:
-    #         print(
-    #             f'ERROR! in lines {row} and {prev["row"] + 1}: collaborator\'s {data["nomeCompleto"]} name is duplicated'
-    #         )
-    #         erros = True
-
-    #     if data["email"] is not None:
-    #         email = deemphasize(data["email"])
-    #         prev_email = deemphasize(prev["data"]["email"])
-    #         if email == prev_email:
-    #             print(
-    #                 f'ERROR! in lines {row} and {prev["row"] + 1}: collaborator\'s email {data["email"]} is duplicated'
-    #             )
-    #             erros = True
-
     one = Colaboradores()
     try:
         data = one.name_to_id(data)
@@ -133,13 +115,13 @@ def check_all(self, data):
     }
     for col, print_erro in cols.items():
         duplic = data[data.duplicated(keep=False, subset=col)]
-        for i in duplic.index:
-            for j in duplic.index:
+        for i in duplic.loc[data[col].notnull()].index:
+            for j in duplic.loc[data[col].notnull()].index:
                 if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
                     print(
                         print_erro.format(self.row(duplic.loc[i].name),
                                           self.row(duplic.loc[j].name),
-                                          duplic.loc[i, "nomeCompleto"]))
+                                          duplic.loc[i, col]))
                     duplic = duplic.drop(index=i)
                     erros = True
                     break
