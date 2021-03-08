@@ -3,7 +3,6 @@ import sys
 from datetime import time
 
 import pandas as pd
-import xlrd
 from oneparams.utils import get_bool, get_float, get_time, string_normalize
 
 
