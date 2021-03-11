@@ -1,3 +1,5 @@
 requests
 urllib3
 pandas
+xlrd
+openpyxl

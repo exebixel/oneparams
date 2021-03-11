@@ -22,14 +22,14 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['one = oneparams.one:main'],
     },
-    version="0.2.6",
+    version="0.2.7",
     description="One System Parametrizer",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
     url="https://github.com/exebixel/oneparams",
-    install_requires=["requests", "pandas", "urllib3"],
+    install_requires=["requests", "pandas", "urllib3", "xlrd", "openpyxl"],
     python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python",
