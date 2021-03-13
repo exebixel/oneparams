@@ -111,6 +111,14 @@ def create_email():
     return f'one_{rand}@onebeleza.com'
 
 
+def check_email(email):
+    if email is None:
+        return False
+    r = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
+                   flags=re.ASCII)
+    return r.search(email) != None
+
+
 def create_cel():
     """
     Cria uma string de 11 dígitos aleatórios

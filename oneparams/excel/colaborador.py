@@ -1,7 +1,7 @@
 from oneparams.api.app import App
 from oneparams.api.colaborador import Colaboradores
 from oneparams.excel.excel import Excel
-from oneparams.utils import deemphasize, get_cel
+from oneparams.utils import check_email, deemphasize, get_cel
 
 
 def colaborador(book, app_regist=False):
@@ -81,16 +81,17 @@ def checks(row, data):
         )
         erros = True
 
-    try:
+    if not check_email(data["email"]):
+        print(
+            f'ERROR! in line {row}: Collaborator email {data["email"]} not valid'
+        )
+        erros = True
+    else:
         if len(data["email"]) > 150:
             print(
                 f'ERROR! in line {row}: Collaborator email {data["email"]} size {len(data["email"])} > 150'
             )
             erros = True
-    except TypeError:
-        print(
-            f'WARNING! in line {row}: Collaborator {data["nomeCompleto"]} email is empty'
-        )
 
     one = Colaboradores()
     try:
