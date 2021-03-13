@@ -23,7 +23,7 @@ class Excel:
                                   header=header_row)
             # retirando linhas e colunas em brando do Data Frame
             excel = excel.dropna(how="all")
-            excel.dropna(how="all", axis=1, inplace=True)
+            # excel.dropna(how="all", axis=1, inplace=True)
             excel = excel.where(pd.notnull(excel), None)
             self.__excel = excel
 
