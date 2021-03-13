@@ -71,27 +71,9 @@ def checks(row, data):
 
         data["debito_Credito"] = "CD"
 
-    # for prev in previous:
-    #     descricao = deemphasize(data["descricao"])
-    #     prev_descricao = deemphasize(prev["data"]["descricao"])
-    #     if (descricao == prev_descricao
-    #             and prev["data"]["debito_Credito"] in data["debito_Credito"]):
-    #         print(
-    #             f'ERROR! in lines {row} and {prev["row"] + 1}: Card {data["descricao"]} is duplicated'
-    #         )
-    #         erros = True
-
     if erros:
         raise Exception
 
-    # if data["debito_Credito"] == "CD":
-    #     data2 = {}
-    #     for i, j in data.items():
-    #         data2[i] = j
-
-    #     data["debito_Credito"] = "C"
-    #     data2["debito_Credito"] = "D"
-    #     return [data, data2]
     return data
 
 
