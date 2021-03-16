@@ -61,7 +61,8 @@ def one():
     one.login(nome_empresa=args.empresa,
               nome_filial=args.filial,
               email=args.login,
-              senha=args.password)
+              senha=args.password,
+              empresa_id=args.empresaid)
 
     if args.cmd == "serv":
         servico(book, reset=args.reset)
