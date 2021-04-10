@@ -151,6 +151,9 @@ class BaseDiff(BaseApi):
         return content
 
     def name_to_id(self, data):
+        if self.__submodules is None:
+            return data
+
         erros = []
         for sub, func in self.__submodules.items():
             if type(data[sub]) is not int:
