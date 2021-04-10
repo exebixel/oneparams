@@ -10,6 +10,7 @@ from oneparams.excel.card import cards
 from oneparams.excel.colaborador import colaborador
 from oneparams.excel.comissao import Comissao
 from oneparams.excel.servicos import servico
+from oneparams.excel.cliente import clientes
 
 
 def one():
@@ -30,6 +31,13 @@ def one():
                       action="store_true",
                       help="Register collaborator in the app")
     cols = parse_base(cols)
+
+    clis = sub.add_parser("clis", help="manipulating clients")
+    clis.add_argument("-R",
+                      "--reset",
+                      action="store_true",
+                      help="Delete or inactivate all clients")
+    clis = parse_base(clis)
 
     card_parse = sub.add_parser("card", help="manipulating cards")
     card_parse.add_argument("-R",
@@ -70,11 +78,15 @@ def one():
     if args.cmd == "cols":
         colaborador(book, args.app)
 
+    if args.cmd == "clis":
+        clientes(book, reset=args.reset)
+
     if args.cmd == "card":
         cards(book, reset=args.reset)
 
     if args.cmd == "comm":
         Comissao(book, reset=args.reset)
+
 
 
 def main():
