@@ -109,6 +109,8 @@ class Excel:
         elif types == "bool":
             excel = excel.apply(lambda x: self.__check_bool(x, key, x.name), axis=1)
 
+        self.__excel = excel
+
         self.column_details.append({
             "key": key,
             "type": types,
@@ -143,6 +145,10 @@ class Excel:
         except TypeError as exp:
             print("ERROR! In line {}: {}".format(self.row(row), exp))
             self.__erros = True
+        else:
+            data[key] = value
+        finally:
+            return data
 
     def __check_bool(self, data, key, row):
         value = data[key]
@@ -153,6 +159,8 @@ class Excel:
                 "ERROR! in line {}: not possible change value to bool".
                 format(self.row(row)))
             self.__erros = True
+        data[key] = value
+        return data
 
     def clean_columns(self):
         """
