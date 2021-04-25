@@ -17,6 +17,13 @@ class Excel:
 
         self.__book = book
 
+        self.__erros = False
+        """
+        indica se ouve algum erro nas validações da planilha
+        se tiver erro o método data_all não deve
+        retornar dados
+        """
+
         try:
             excel = pd.read_excel(book,
                                   self.sheet_name(sheet_name),
@@ -62,7 +69,8 @@ class Excel:
                    name,
                    required=True,
                    default=None,
-                   types="string"):
+                   types="string",
+                   length=0):
         """
         Função responsável por adicionar as colunas que serão lidas
         da planilha \n
@@ -74,7 +82,8 @@ class Excel:
         default: se a coluna não for encontrada ou o valor não foi informado
         então será considerado o valor default \n
         types: tipo de dado que deve ser retirado da coluna \n
-        required: define se a coluna é obrigatória na planilha
+        required: define se a coluna é obrigatória na planilha \n
+        length: Número máximo de caracteres que o dado pode ter, padrão 0 ou seja ilimitado
         """
         excel = self.__excel
         try:
@@ -88,11 +97,62 @@ class Excel:
             if default is not None:
                 excel[key].fillna(value=default, inplace=True)
 
+        if types == "string":
+            excel = excel.apply(lambda x: self.__check_string(x, key, x.name), axis=1)
+
+        elif types == "time":
+            excel = excel.apply(lambda x: self.__check_time(x, key, x.name), axis=1)
+
+        elif types == "float":
+            excel = excel.apply(lambda x: self.__check_float(x, key, x.name), axis=1)
+
+        elif types == "bool":
+            excel = excel.apply(lambda x: self.__check_bool(x, key, x.name), axis=1)
+
         self.column_details.append({
             "key": key,
             "type": types,
             "default": default
         })
+
+    def __check_string(self, value, key, row):
+        """
+        Verificações de tipo string
+        """
+        value[key] = str(value[key]).strip()
+        return value
+
+    def __check_float(self, data, key, row):
+        """
+        Verificações de tipo float
+        """
+        value = data[key]
+        try:
+            value = get_float(value)
+            data[key] = value
+            return data
+        except ValueError as exp:
+            print("ERROR! in line {}: {}".format(self.row(row), exp))
+            self.__erros = True
+
+    def __check_time(self, data, key, row):
+        value = data[key]
+        try:
+            index_value = get_time(value)
+            value = str(time(*index_value[:3]))
+        except TypeError as exp:
+            print("ERROR! In line {}: {}".format(self.row(row), exp))
+            self.__erros = True
+
+    def __check_bool(self, data, key, row):
+        value = data[key]
+        value = str(value).strip()
+        value = get_bool(value)
+        if value is None:
+            print(
+                "ERROR! in line {}: not possible change value to bool".
+                format(self.row(row)))
+            self.__erros = True
 
     def clean_columns(self):
         """
@@ -120,70 +180,30 @@ class Excel:
     def data_row(self, row, check_row=None):
         excel = self.__excel
 
-        erros = False
-        for column in self.column_details:
-
-            col_key = column["key"]
-            col = excel.loc[row, col_key]
-
-            if col is column["default"]:
-                continue
-
-            if column["type"] == "time":
-                try:
-                    index_value = get_time(col)
-                    col = str(time(*index_value[:3]))
-                except TypeError as exp:
-                    print("ERROR! In line {}: {}".format(self.row(row), exp))
-                    erros = True
-
-            elif column["type"] == "string":
-                col = str(col).strip()
-
-            elif column["type"] == "float":
-                try:
-                    col = get_float(col)
-                except ValueError as exp:
-                    print("ERROR! in line {}: {}".format(self.row(row), exp))
-                    erros = True
-
-            elif column["type"] == "bool":
-                col = str(col).strip()
-                col = get_bool(col)
-                if col is None:
-                    print(
-                        "ERROR! in line {}: not possible change value to bool".
-                        format(self.row(row)))
-                    erros = True
-
-            # passa o valor tratado de volta para o data frame
-            excel.loc[row, col_key] = col
-
         if check_row is not None:
             try:
                 excel.loc[row] = check_row(self.row(row),
                                            excel.loc[row].copy())
             except Exception:
-                erros = True
+                self.__erros = True
 
-        if erros:
+        if self.__erros:
             raise Exception
 
     def data_all(self, check_row=None, check_final=None):
         excel = self.__excel
-        erros = False
         for row in excel.index:
             try:
                 self.data_row(row, check_row=check_row)
             except Exception:
-                erros = True
+                self.__erros = True
 
         if check_final is not None:
             try:
                 excel = check_final(self, excel)
             except Exception:
-                erros = True
+                self.__erros = True
 
-        if erros:
+        if self.__erros:
             sys.exit()
         return excel.to_dict('records')
