@@ -8,12 +8,12 @@ def clientes(book, reset=False):
 
     ex = Excel(book=book, sheet_name="client")
 
-    ex.add_column(key="ativoCliente", 
+    ex.add_column(key="ativoCliente",
                   name="ativoCliente",
                   default=True,
                   types="bool",
                   required=False)
-    ex.add_column(key="nomeCompleto", name="nome")
+    ex.add_column(key="nomeCompleto", name="nome", length=50)
     ex.add_column(key="email", name="email")
     ex.add_column(key="celular", name="celular")
     ex.add_column(key="cpf", name="cpf")

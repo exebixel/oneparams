@@ -6,18 +6,22 @@ from oneparams.utils import card_type, deemphasize
 
 
 def cards(book, reset=False):
+    one = apiCard()
     print("analyzing spreadsheet")
 
     ex = Excel(book=book, sheet_name="cart")
 
-    ex.add_column(key="descricao", name="nome")
+    ex.add_column(key="descricao", name="nome", length=100)
     ex.add_column(key="debito_Credito", name="tipo")
     ex.add_column(key="comissao", name="comissao", default=0, types="float")
     ex.add_column(key="comissaoNegociadaOperadora",
                   name="cobrada",
                   default=0,
                   types="float")
-    ex.add_column(key="operadoraCartaoId", name="operadora", default="Padrão")
+    ex.add_column(key="operadoraCartaoId",
+                  name="operadora",
+                  default="Padrão",
+                  length=50)
     ex.add_column(key="contasId",
                   name="conta",
                   required=False,
@@ -26,7 +30,6 @@ def cards(book, reset=False):
 
     data_all = ex.data_all(check_row=checks, check_final=check_all)
 
-    one = apiCard()
     if reset:
         one.delete_all()
         operadora = Operadora()
@@ -49,17 +52,6 @@ def checks(row, data):
 
     if data["descricao"] is None:
         print("ERROR! in line {}: Name cannot be null".format(row))
-        erros = True
-    if len(data["descricao"]) > 100:
-        print(
-            f'ERROR! in line {row}: Card {data["descricao"]} name size {len(data["descricao"])} > 100'
-        )
-        erros = True
-
-    if len(data["operadoraCartaoId"]) > 50:
-        print(
-            f'ERROR! in line {row}: Card {data["descricao"]} card operator size {len(data["operadoraCartaoId"])} > 50'
-        )
         erros = True
 
     try:

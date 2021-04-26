@@ -5,12 +5,13 @@ from oneparams.utils import deemphasize
 
 
 def servico(book, reset=False):
+    one = Servicos()
     print("analyzing spreadsheet")
 
     ex = Excel(book, "servico")
 
     ex.add_column(key="flagAtivo", name="ativo", required=False, default=True)
-    ex.add_column(key="descricao", name="nome")
+    ex.add_column(key="descricao", name="nome", length=50)
     ex.add_column(key="gservId", name="grupo")
     ex.add_column(key="preco", name="valor", default=0, types="float")
     ex.add_column(key="comissao", name="comissao", default=0, types="float")
@@ -48,7 +49,6 @@ def servico(book, reset=False):
                   default="P")
     ex.clean_columns()
 
-    one = Servicos()
     data = ex.data_all(check_row=checks, check_final=check_all)
 
     if reset:
@@ -66,11 +66,6 @@ def checks(row, data):
     erros = False
     if data["descricao"] is None:
         print(f'ERROR! in line {row}: empty name')
-        erros = True
-    if len(data["descricao"]) > 50:
-        print(
-            f'ERROR! in line {row}: Service {data["descricao"]} name size {len(data["descricao"])}/50'
-        )
         erros = True
     if data["gservId"] is None:
         print(
