@@ -109,6 +109,9 @@ class Excel:
         elif types == "bool":
             excel = excel.apply(lambda x: self.__check_bool(x, key, x.name), axis=1)
 
+        if length != 0 and length != None:
+            excel.apply(lambda x: self.__check_length(x, key, x.name, length), axis=1)
+
         self.__excel = excel
 
         self.column_details.append({
@@ -162,6 +165,13 @@ class Excel:
             self.__erros = True
         data[key] = value
         return data
+
+    def __check_length(self, data, key, row, length):
+        if len(data[key]) > length:
+            print(
+                f'ERROR! in line {self.row(row)}: Column {key} string {data[key]} size {len(data[key])}/{length}'
+            )
+            self.__erros = True
 
     def clean_columns(self):
         """
