@@ -132,10 +132,11 @@ class Excel:
         try:
             value = get_float(value)
             data[key] = value
-            return data
         except ValueError as exp:
             print("ERROR! in line {}: {}".format(self.row(row), exp))
             self.__erros = True
+        finally:
+            return data
 
     def __check_time(self, data, key, row):
         value = data[key]
