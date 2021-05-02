@@ -1,10 +1,19 @@
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import Servicos
 from oneparams.excel.excel import Excel
-from oneparams.utils import deemphasize
 
 
 def servico(book, reset=False):
+    """
+    Book: planilha com todos os dados \n
+    reset: True se todos os serviços do sistema
+    serão excluídos para cadastrar os serviços da planilha \n
+
+    Nessa função tem toda a descrição do json que vai ser enviado
+    para as rotas de cadastro do sistema
+
+    Return None
+    """
     one = Servicos()
     print("analyzing spreadsheet")
 
@@ -63,6 +72,17 @@ def servico(book, reset=False):
 
 
 def checks(row, data):
+    """
+    row: linha da planilha \n
+    data: dados da linha da planilha \n
+
+    verificações especificas de serviços,
+    isso linha a linha, de forma individual
+
+    return data \n
+    raise Exception: caso ocorra algum erro durante
+    as verificações \n
+    """
     erros = False
     if data["descricao"] is None:
         print(f'ERROR! in line {row}: empty name')
@@ -85,6 +105,18 @@ def checks(row, data):
 
 
 def check_all(self, data):
+    """
+    self: referencia da classe excel \n
+    data: data frame com todos os dados da planilha \n
+
+    Verificações 'globais', que necessitam de todos os
+    dados da planilha, principalmente duplicações
+
+    return data \n
+    raise Exception: caso tenha algum erro durante as
+    verificações \n
+
+    """
     erros = False
     duplic = data[data.duplicated(keep=False, subset=["descricao"])]
     for i in duplic.index:
