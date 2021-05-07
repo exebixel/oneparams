@@ -34,8 +34,8 @@ def check_types(self, data):
                             axis=1)
 
     if length not in (0, None):
-        excel.apply(lambda x: check_length(self, x, data, x.name, length),
-                    axis=1)
+        excel = excel.apply(
+            lambda x: check_length(self, x, data, x.name, length), axis=1)
 
     return excel
 
@@ -178,11 +178,18 @@ def check_length(self, values, data, row, length):
     quantidade máxima permitida (length)
     """
     key = data["key"]
-    if len(values[key]) > length:
+    if len(values[key]) > length and not config.RESOLVE_ERROS:
         print(
             f'ERROR! in line {self.row(row)}: Column {key} string {values[key]} size {len(values[key])}/{length}'
         )
         self.erros = True
+    elif len(values[key]) > length:
+        wprint(
+            f'WARNING: in line {self.row(row)}: Column {key} string {values[key]} size {len(values[key])}/{length}'
+        )
+        values[key] = values[key].strip()[:length]
+
+    return values
 
 
 def check_default(self, value, data):
