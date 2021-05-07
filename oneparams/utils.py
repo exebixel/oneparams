@@ -3,6 +3,7 @@ import re
 import string
 import unicodedata
 from difflib import SequenceMatcher
+import oneparams.config as config
 
 
 def deemphasize(word):
@@ -172,3 +173,11 @@ def get_bool(value):
 
 def similar(word, word_diff):
     return SequenceMatcher(None, word, word_diff).ratio()
+
+def eprint(text):
+    if not config.RESOLVE_ERROS:
+        print(text)
+
+def wprint(text):
+    if not config.NO_WARNING:
+        print(text)

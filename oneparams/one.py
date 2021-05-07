@@ -11,6 +11,7 @@ from oneparams.excel.colaborador import colaborador
 from oneparams.excel.comissao import Comissao
 from oneparams.excel.servicos import servico
 from oneparams.excel.cliente import clientes
+import oneparams.config as config
 
 
 def one():
@@ -37,6 +38,14 @@ def one():
                       "--reset",
                       action="store_true",
                       help="Delete or inactivate all clients")
+    clis.add_argument("-E",
+                      "--no-erros",
+                      action="store_true",
+                      help="Resolve erros (this can delete data)")
+    clis.add_argument("-W",
+                      "--no-warning",
+                      action="store_true",
+                      help="Suppress warnings")
     clis = parse_base(clis)
 
     card_parse = sub.add_parser("card", help="manipulating cards")
@@ -71,6 +80,9 @@ def one():
               email=args.login,
               senha=args.password,
               empresa_id=args.empresaid)
+
+    config.RESOLVE_ERROS = args.no_erros
+    config.NO_WARNING = args.no_warning
 
     if args.cmd == "serv":
         servico(book, reset=args.reset)
