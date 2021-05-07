@@ -1,6 +1,8 @@
+import oneparams.config as config
 from datetime import time
 
-from oneparams.utils import get_bool, get_float, get_time, string_normalize
+from oneparams.utils import get_bool, get_float, get_time
+from oneparams.utils import get_cel, wprint, check_email
 
 
 def check_types(self, data):
@@ -22,6 +24,13 @@ def check_types(self, data):
 
     elif types == "bool":
         excel = excel.apply(lambda x: check_bool(self, x, data, x.name),
+                            axis=1)
+
+    elif types == "cel":
+        excel = excel.apply(lambda x: check_cel(self, x, data, x.name), axis=1)
+
+    elif types == "email":
+        excel = excel.apply(lambda x: check_mail(self, x, data, x.name),
                             axis=1)
 
     if length not in (0, None):
@@ -110,6 +119,55 @@ def check_bool(self, values, data, row):
         print("ERROR! in line {}: not possible change value to bool".format(
             self.row(row)))
         self.erros = True
+    values[key] = value
+    return values
+
+
+def check_cel(self, values, data, row):
+    """
+    Verificações de telefone,
+    retira caracteres especiais deixando apenas números
+    caso não for valido, retorna None no campo
+    """
+    # antes de fazer a verificação do tipo,
+    # passa pela verificação padrão, se a função retornar
+    # True, continua, Falso retorna os valores sem alteração
+    if check_default(self, values, data):
+        return values
+
+    key = data["key"]
+    value = values[key]
+    try:
+        value = get_cel(value)
+    except ValueError as exp:
+        if value is None:
+            wprint(
+                f'WARNING! in line {self.row(row)}, Column {key}: empty phone')
+        elif not config.RESOLVE_ERROS:
+            print(f'ERROR! in line {self.row(row)}: {exp}')
+            self.erros = True
+        else:
+            wprint(
+                f'WARNING! in line {self.row(row)}: Column {key} phone invalid'
+            )
+            value = data["default"]
+
+    values[key] = value
+    return values
+
+
+def check_mail(self, values, data, row):
+    key = data["key"]
+    value = values[key]
+    if not check_email(value):
+        if not config.RESOLVE_ERROS:
+            print(f'ERROR! in line {self.row(row)}: Email {value} not valid')
+            self.erros = True
+        else:
+            wprint(
+                f'WARNING! in line {self.row(row)}: Email {value} not valid')
+            value = data["default"]
+
     values[key] = value
     return values
 
