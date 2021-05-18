@@ -18,6 +18,13 @@ def deemphasize(word):
     return word.lower()
 
 
+def no_space(word):
+    """
+    Remove espaços em branco de uma string
+    """
+    return re.sub(r' ', '', word)
+
+
 def string_normalize(word):
     """
     Retorna todos as letras e números de uma string
@@ -174,9 +181,11 @@ def get_bool(value):
 def similar(word, word_diff):
     return SequenceMatcher(None, word, word_diff).ratio()
 
+
 def eprint(text):
     if not config.RESOLVE_ERROS:
         print(text)
+
 
 def wprint(text):
     if not config.NO_WARNING:

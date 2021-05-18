@@ -2,7 +2,7 @@ import oneparams.config as config
 from datetime import time
 
 from oneparams.utils import get_bool, get_float, get_time
-from oneparams.utils import get_cel, wprint, check_email
+from oneparams.utils import get_cel, wprint, check_email, no_space
 
 
 def check_types(self, data):
@@ -157,8 +157,16 @@ def check_cel(self, values, data, row):
 
 
 def check_mail(self, values, data, row):
+    # antes de fazer a verificação do tipo,
+    # passa pela verificação padrão, se a função retornar
+    # True, continua, Falso retorna os valores sem alteração
+    if check_default(self, values, data):
+        return values
+
     key = data["key"]
     value = values[key]
+
+    value = no_space(value)
     if not check_email(value):
         if not config.RESOLVE_ERROS:
             print(f'ERROR! in line {self.row(row)}: Email {value} not valid')
