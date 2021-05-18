@@ -81,9 +81,6 @@ def one():
               senha=args.password,
               empresa_id=args.empresaid)
 
-    config.RESOLVE_ERROS = args.no_erros
-    config.NO_WARNING = args.no_warning
-
     if args.cmd == "serv":
         servico(book, reset=args.reset)
 
@@ -91,6 +88,8 @@ def one():
         colaborador(book, args.app)
 
     if args.cmd == "clis":
+        config.RESOLVE_ERROS = args.no_erros
+        config.NO_WARNING = args.no_warning
         clientes(book, reset=args.reset)
 
     if args.cmd == "card":
