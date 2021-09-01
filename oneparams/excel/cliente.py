@@ -1,7 +1,6 @@
 from oneparams.excel.excel import Excel
 from oneparams.api.client import Cliente
-from oneparams.utils import check_email, get_cel, wprint, eprint
-import pandas as pd
+from oneparams.utils import wprint
 import oneparams.config as config
 
 
@@ -22,7 +21,10 @@ def clientes(book, reset=False):
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="cpf", name="cpf")
     ex.add_column(key="sexo", name="sexo")
-    ex.add_column(key="aniversario", name="aniversario", default="", required=False)
+    ex.add_column(key="aniversario",
+                  name="aniversario",
+                  default="",
+                  required=False)
     ex.clean_columns()
 
     data = ex.data_all(check_row=checks, check_final=check_all)
