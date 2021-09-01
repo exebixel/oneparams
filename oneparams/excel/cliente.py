@@ -79,7 +79,14 @@ def check_all(self, data):
                         erros = True
 
                     break
+
     if erros:
         raise Exception
+
+    if config.SKIP:
+        one = Cliente()
+        print("skipping clients already registered")
+        for cols in one.items:
+            data = data.drop(data[data.nomeCompleto == cols["nomeCompleto"]].index)
 
     return data

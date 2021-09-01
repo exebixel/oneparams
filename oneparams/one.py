@@ -46,6 +46,10 @@ def one():
                       "--no-warning",
                       action="store_true",
                       help="Suppress warnings")
+    clis.add_argument("-S",
+                      "--skip",
+                      action="store_true",
+                      help="Skip items already registered")
     clis = parse_base(clis)
 
     card_parse = sub.add_parser("card", help="manipulating cards")
@@ -90,6 +94,7 @@ def one():
     if args.cmd == "clis":
         config.RESOLVE_ERROS = args.no_erros
         config.NO_WARNING = args.no_warning
+        config.SKIP = args.skip
         clientes(book, reset=args.reset)
 
     if args.cmd == "card":
@@ -97,7 +102,6 @@ def one():
 
     if args.cmd == "comm":
         Comissao(book, reset=args.reset)
-
 
 
 def main():
