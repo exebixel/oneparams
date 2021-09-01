@@ -1,6 +1,7 @@
 from oneparams.excel.excel import Excel
 from oneparams.api.client import Cliente
 from oneparams.utils import check_email, get_cel, wprint, eprint
+import pandas as pd
 import oneparams.config as config
 
 
@@ -9,7 +10,7 @@ def clientes(book, reset=False):
 
     print("analyzing spreadsheet")
 
-    ex = Excel(book=book, sheet_name="client")
+    ex = Excel(book=book, sheet_name="client", header_row=0)
 
     ex.add_column(key="ativoCliente",
                   name="ativoCliente",
@@ -21,10 +22,14 @@ def clientes(book, reset=False):
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="cpf", name="cpf")
     ex.add_column(key="sexo", name="sexo")
-    #  ex.add_column(key="aniversario", name="aniversario")
+    ex.add_column(key="aniversario", name="aniversario", default="", required=False)
     ex.clean_columns()
 
     data = ex.data_all(check_row=checks, check_final=check_all)
+
+    if reset:
+        one.delete_all()
+
     for row in data:
         one.diff_item(row)
 
@@ -45,22 +50,32 @@ def checks(row, data):
 def check_all(self, data):
     erros = False
     cols = {
-        "nomeCompleto":
-        "ERROR! in lines {} and {}: Collaborator {} is duplicated",
-        "email":
-        "ERROR! in lines {} and {}: Collaborator\'s email {} is duplicated"
+        "nomeCompleto": "DUPLICATED! in lines {} and {}: Client {}",
+        "email": "DUPLICATED! lines {} and {}: Client\'s email {}",
+        "celular": "DUPLICATED! lines {} and {}: Client's phone {}"
     }
+
     for col, print_erro in cols.items():
         duplic = data[data.duplicated(keep=False, subset=col)]
+
         for i in duplic.loc[data[col].notnull()].index:
             for j in duplic.loc[data[col].notnull()].index:
                 if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
-                    print(
-                        print_erro.format(self.row(duplic.loc[i].name),
-                                          self.row(duplic.loc[j].name),
-                                          duplic.loc[i, col]))
+                    message = print_erro.format(self.row(duplic.loc[i].name),
+                                                self.row(duplic.loc[j].name),
+                                                duplic.loc[i, col])
                     duplic = duplic.drop(index=i)
-                    erros = True
+
+                    if config.RESOLVE_ERROS:
+                        if col == "celular":
+                            data.loc[i, col] = "00000000"
+                        else:
+                            data = data.drop(index=i)
+                        wprint(message)
+                    else:
+                        print(message)
+                        erros = True
+
                     break
     if erros:
         raise Exception

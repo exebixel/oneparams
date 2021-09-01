@@ -58,7 +58,6 @@ class Cliente(BaseDiff):
                 "ativoCliente": False
             })
 
-
     def equals(self, data):
         if data["email"] is None:
             data.pop("email")
@@ -70,7 +69,7 @@ class Cliente(BaseDiff):
         if data["email"] is None:
             data["email"] = create_email()
         if data["celular"] is None:
-            data["celular"] = create_cel()
+            data["celular"] = "00000000"
         super().create(data)
 
     def update(self, data):
