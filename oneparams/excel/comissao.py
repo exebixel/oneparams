@@ -68,18 +68,11 @@ class Comissao():
 
         if not self.erros:
             return pd.DataFrame({
-                "servico":
-                data["servico"],
-                "servId":
-                data["servId"],
-                "cols":
-                cols,
-                "colsId":
-                ids,
-                "ServicoValorComissao":
-                data["ServicoValorComissao"],
-                "ativo":
-                True,
-                "row":
-                data["row"]
+                "servico": data["servico"],
+                "servId": data["servId"],
+                "cols": cols,
+                "colsId": ids,
+                "ServicoValorComissao": data["ServicoValorComissao"],
+                "ativo": True,
+                "row": data["row"]
             })
