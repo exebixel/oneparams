@@ -105,7 +105,7 @@ def get_cel(word):
     if len(cel) <= 11 and len(cel) >= 8:
         return cel
 
-    raise ValueError("invalid phone {}".format(word))
+    raise ValueError("Invalid phone {}".format(word))
 
 
 def create_email():
@@ -124,7 +124,8 @@ def check_email(email):
         return False
     r = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
                    flags=re.ASCII)
-    return r.search(email) != None
+    email = no_space(email)
+    return r.search(email) is not None
 
 
 def create_cel():

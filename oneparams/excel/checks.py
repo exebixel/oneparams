@@ -1,8 +1,9 @@
+import pandas as pd
 import oneparams.config as config
 from datetime import time
 
 from oneparams.utils import get_bool, get_float, get_time
-from oneparams.utils import get_cel, wprint, check_email, no_space
+from oneparams.utils import get_cel, wprint, check_email
 
 
 def check_types(self, data):
@@ -40,19 +41,19 @@ def check_types(self, data):
     return excel
 
 
-def check_string(self, value, data, row):
+def check_string(self, values, data, row):
     """
     Verificações de tipo string
     """
     # antes de fazer a verificação do tipo,
     # passa pela verificação padrão, se a função retornar
     # True, continua, Falso retorna os valores sem alteração
-    if check_default(self, value, data):
-        return value
+    if check_default(self, values, data):
+        return values
 
     key = data["key"]
-    value[key] = str(value[key]).strip()
-    return value
+    values[key] = str(values[key]).strip()
+    return values
 
 
 def check_float(self, values, data, row):
@@ -129,26 +130,21 @@ def check_cel(self, values, data, row):
     retira caracteres especiais deixando apenas números
     caso não for valido, retorna None no campo
     """
-    # antes de fazer a verificação do tipo,
-    # passa pela verificação padrão, se a função retornar
-    # True, continua, Falso retorna os valores sem alteração
-    if check_default(self, values, data):
-        return values
 
     key = data["key"]
     value = values[key]
     try:
         value = get_cel(value)
     except ValueError as exp:
-        if value is None:
+        if not pd.notnull(value):
             wprint(
                 f'WARNING! in line {self.row(row)}, Column {key}: empty phone')
         elif not config.RESOLVE_ERROS:
-            print(f'ERROR! in line {self.row(row)}: {exp}')
+            print(f'ERROR! in line {self.row(row)}, Column {key}: {exp}')
             self.erros = True
         else:
             wprint(
-                f'WARNING! in line {self.row(row)}: Column {key} phone invalid'
+                f'WARNING! in line {self.row(row)}: Column {key}: {exp}'
             )
             value = data["default"]
 
@@ -157,16 +153,9 @@ def check_cel(self, values, data, row):
 
 
 def check_mail(self, values, data, row):
-    # antes de fazer a verificação do tipo,
-    # passa pela verificação padrão, se a função retornar
-    # True, continua, Falso retorna os valores sem alteração
-    if check_default(self, values, data):
-        return values
-
     key = data["key"]
     value = values[key]
 
-    value = no_space(value)
     if not check_email(value):
         if not config.RESOLVE_ERROS:
             print(f'ERROR! in line {self.row(row)}: Email {value} not valid')
@@ -186,6 +175,9 @@ def check_length(self, values, data, row, length):
     quantidade máxima permitida (length)
     """
     key = data["key"]
+    if values[key] is None:
+        return values
+
     if len(values[key]) > length and not config.RESOLVE_ERROS:
         print(
             f'ERROR! in line {self.row(row)}: Column {key} string {values[key]} size {len(values[key])}/{length}'
