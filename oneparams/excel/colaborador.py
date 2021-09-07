@@ -1,7 +1,5 @@
-from oneparams.api.app import App
 from oneparams.api.colaborador import Colaboradores
 from oneparams.excel.excel import Excel
-from oneparams.utils import check_email, deemphasize, get_cel
 
 
 def colaborador(book, app_regist=False):
@@ -11,8 +9,8 @@ def colaborador(book, app_regist=False):
     ex = Excel(book=book, sheet_name="profissiona")
 
     ex.add_column(key="nomeCompleto", name="nome", length=50)
-    ex.add_column(key="email", name="email", length=50)
-    ex.add_column(key="celular", name="celular")
+    ex.add_column(key="email", name="email", types="email", length=50)
+    ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="perfilId", name="perfil", default="colaborador")
     ex.add_column(key="agendavel",
                   name="agenda",
@@ -40,7 +38,6 @@ def colaborador(book, app_regist=False):
                   types="bool")
     ex.clean_columns()
 
-
     data = ex.data_all(check_row=checks, check_final=check_all)
     for row in data:
         one.diff_item(row)
@@ -49,27 +46,8 @@ def colaborador(book, app_regist=False):
 def checks(row, data):
     erros = False
 
-    try:
-        data["celular"] = get_cel(data["celular"])
-    except ValueError as exp:
-        if data["celular"] is None:
-            print(
-                f'WARNING! in line {row}: Collaborator {data["nomeCompleto"]} has empty phone'
-            )
-        else:
-            print(
-                f'ERROR! in line {row}: Collaborator {data["nomeCompleto"]} has {exp}'
-            )
-            erros = True
-
     if data["nomeCompleto"] is None:
         print("ERROR! in line {row}: empty name")
-        erros = True
-
-    if not check_email(data["email"]):
-        print(
-            f'ERROR! in line {row}: Collaborator email {data["email"]} not valid'
-        )
         erros = True
 
     one = Colaboradores()
