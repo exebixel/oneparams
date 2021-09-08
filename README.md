@@ -12,7 +12,7 @@ Para instalar o Oneparams é necessário ter o Python com uma versão acima da 3
 
 ### Windows
 
-Para instalar o Python e o Pip no Windowns [clique aqui](https://python.org.br/instalacao-windows/).
+Para instalar o Python e o Pip no Windows [clique aqui](https://python.org.br/instalacao-windows/).
 
 ### Linux
 
@@ -25,7 +25,7 @@ Fedora:
 ```
 $ sudo yum install python3 python3-pip
 ```
-Depois só falta adicionar o diretório``~/.local/bin`` a sua variavel  ``PATH``, adicionando essa linha no seu ``~/.bashrc`` ou ``~/.zshrc``:
+Depois só falta adicionar o diretório``~/.local/bin`` a sua variável  ``PATH``, adicionando essa linha no seu ``~/.bashrc`` ou ``~/.zshrc``:
 ```
 export PATH="$PATH:$HOME/.local/bin"
 ```
@@ -53,6 +53,8 @@ O Oneparams tem 4 módulos:
 
  - `card`  para manipular os cartões
 
+ - `clis`  para manipular os clientes (modulo beta)
+
 
 Cada módulo precisa:
  -  do nome da empresa `--empresa` ou `-e`
@@ -60,9 +62,11 @@ Cada módulo precisa:
  -  da senha `--password` ou `-p`, isso se a senha for diferente da senha padrão
  -  e claro da planilha de parametrização
 
-Também existem alguns parâmetros opcionais como: 
+Também existem alguns parâmetros opcionais como:
  - `--reset` ou `-R` que serve para deletar todos os cadastros do modulo (não disponível para ` cols`)
- - `--app` ou `-a` que cria o cadastro dos colaboradores no app ONE BELEZA (disponível apenas para o `cols`)
+ - `--no-warning` ou `-W` onde você pode retirar os avisos (warnings) do Oneparams
+ - `--no-erros` ou `-E` que implementa uma forma mais simples que resolução automática de erros (disponível apenas para o `clis`)
+ - `--skip` ou `-S` que caso o nome do cadastro da planilha já exista no banco de dados do cliente, esse cadastro é "pulado" (disponível apenas para o `clis`)
 
 ### Exemplos
 
@@ -76,7 +80,7 @@ Se quiser apenas cadastrar os serviços da planilha basta tirar o `-R`, assim:
 $ one serv -l emailteste@one.com -e "teste mmtools" planilha.xlsx
 ```
 
-E alterando o modulo `serv` para `cols`, `card` ou `comm` é possível usar as outras funções do Oneparams
+E alterando o modulo `serv` para `cols`, `card`, `comm` ou `clis` é possível usar as outras funções do Oneparams
 
 
 Sobre mim
