@@ -106,8 +106,8 @@ class Excel:
             excel[key] = default
         else:
             excel.rename({column_name: key}, axis='columns', inplace=True)
-            if default is not None:
-                excel[key].fillna(value=default, inplace=True)
+            # if default is not None:
+            #     excel[key].fillna(value=default, inplace=True)
 
         self.excel = check_types(self, data)
 

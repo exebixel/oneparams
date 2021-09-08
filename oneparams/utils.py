@@ -13,6 +13,7 @@ def deemphasize(word):
     """
     if word is None:
         return word
+    word = str(word)
     nfkd = unicodedata.normalize('NFKD', word)
     word = u"".join([c for c in nfkd if not unicodedata.combining(c)])
     return word.lower()

@@ -45,13 +45,11 @@ def check_string(self, values, data, row):
     """
     Verificações de tipo string
     """
-    # antes de fazer a verificação do tipo,
-    # passa pela verificação padrão, se a função retornar
-    # True, continua, Falso retorna os valores sem alteração
+    key = data["key"]
     if check_default(self, values, data):
+        values[key] = data["default"]
         return values
 
-    key = data["key"]
     values[key] = str(values[key]).strip()
     return values
 
@@ -60,20 +58,22 @@ def check_float(self, values, data, row):
     """
     Verificações de tipo float
     """
-    # antes de fazer a verificação do tipo,
-    # passa pela verificação padrão, se a função retornar
-    # True, continua, Falso retorna os valores sem alteração
-    if check_default(self, values, data):
-        return values
-
     key = data["key"]
     value = values[key]
+
+    if check_default(self, values, data):
+        if not pd.notnull(values[key]):
+            wprint("WARNING! in line {}, Column {}: number used will be {}".format(
+                self.row(row), key, data["default"]))
+        values[key] = data["default"]
+        return values
 
     try:
         value = get_float(value)
         values[key] = value
     except ValueError as exp:
-        print("ERROR! in line {}: {}".format(self.row(row), exp))
+        print("ERROR! In line {}, Column {}: {}".format(
+            self.row(row), key, exp))
         self.erros = True
     finally:
         return values
@@ -83,16 +83,21 @@ def check_time(self, values, data, row):
     # antes de fazer a verificação do tipo,
     # passa pela verificação padrão, se a função retornar
     # True, continua, Falso retorna os valores sem alteração
+    key = data["key"]
     if check_default(self, values, data):
+        if not pd.notnull(values[key]):
+            wprint("WARNING! In line {}, Column {}: Time used will be {}".format(
+                self.row(row), key, data["default"]))
+        values[key] = data["default"]
         return values
 
-    key = data["key"]
     value = values[key]
     try:
         index_value = get_time(value)
         value = str(time(*index_value[:3]))
     except TypeError as exp:
-        print("ERROR! In line {}: {}".format(self.row(row), exp))
+        print("ERROR! In line {}, Column {}: {}".format(
+            self.row(row), key, exp))
         self.erros = True
     else:
         values[key] = value
@@ -109,10 +114,11 @@ def check_bool(self, values, data, row):
     # antes de fazer a verificação do tipo,
     # passa pela verificação padrão, se a função retornar
     # True, continua, Falso retorna os valores sem alteração
+    key = data["key"]
     if check_default(self, values, data):
+        values[key] = data["default"]
         return values
 
-    key = data["key"]
     value = values[key]
     value = str(value).strip()
     value = get_bool(value)
@@ -198,6 +204,8 @@ def check_default(self, value, data):
     se for retorna True, se não retorna False
     """
     key = data["key"]
-    if value[key] is data["default"]:
+    if not pd.notnull(value[key]):
+        return True
+    if value[key] == data["default"]:
         return True
     return False
