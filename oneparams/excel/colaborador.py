@@ -47,7 +47,7 @@ def checks(row, data):
     erros = False
 
     if data["nomeCompleto"] is None:
-        print("ERROR! in line {row}: empty name")
+        print(f"ERROR! in line {row}: empty name")
         erros = True
 
     one = Colaboradores()

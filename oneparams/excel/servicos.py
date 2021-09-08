@@ -22,7 +22,7 @@ def servico(book, reset=False):
     ex.add_column(key="flagAtivo", name="ativo", required=False, default=True)
     ex.add_column(key="descricao", name="nome", length=50)
     ex.add_column(key="gservId", name="grupo")
-    ex.add_column(key="preco", name="valor", default=0, types="float")
+    ex.add_column(key="preco", name="valor", default=1, types="float")
     ex.add_column(key="comissao", name="comissao", default=0, types="float")
     ex.add_column(key="tempoExecucao",
                   name="execucao",
