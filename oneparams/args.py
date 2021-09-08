@@ -17,5 +17,8 @@ def parse_base(parser):
                         "-p",
                         default="123456",
                         help="Access password (default = 123456)")
-
+    parser.add_argument("-W",
+                        "--no-warning",
+                        action="store_true",
+                        help="Suppress warnings")
     return parser

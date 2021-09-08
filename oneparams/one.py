@@ -42,10 +42,6 @@ def one():
                       "--no-erros",
                       action="store_true",
                       help="Resolve erros (this can delete data)")
-    clis.add_argument("-W",
-                      "--no-warning",
-                      action="store_true",
-                      help="Suppress warnings")
     clis.add_argument("-S",
                       "--skip",
                       action="store_true",
@@ -85,6 +81,8 @@ def one():
               senha=args.password,
               empresa_id=args.empresaid)
 
+    config.NO_WARNING = args.no_warning
+
     if args.cmd == "serv":
         servico(book, reset=args.reset)
 
@@ -93,7 +91,6 @@ def one():
 
     if args.cmd == "clis":
         config.RESOLVE_ERROS = args.no_erros
-        config.NO_WARNING = args.no_warning
         config.SKIP = args.skip
         clientes(book, reset=args.reset)
 
