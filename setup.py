@@ -22,7 +22,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['one = oneparams.one:main'],
     },
-    version="0.2.8",
+    version="0.2.9",
     description="One System Parametrizer",
     long_description=long_description,
     long_description_content_type="text/markdown",
