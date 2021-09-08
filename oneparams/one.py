@@ -20,20 +20,17 @@ def one():
     sub.required = True
 
     serv = sub.add_parser("serv", help="manipulating services")
+    serv = parse_base(serv)
     serv.add_argument("-R",
                       "--reset",
                       action="store_true",
                       help="Delete or inactivate all services")
-    serv = parse_base(serv)
 
     cols = sub.add_parser("cols", help="manipulating collaborators")
-    cols.add_argument("-a",
-                      "--app",
-                      action="store_true",
-                      help="Register collaborator in the app")
     cols = parse_base(cols)
 
     clis = sub.add_parser("clis", help="manipulating clients")
+    clis = parse_base(clis)
     clis.add_argument("-R",
                       "--reset",
                       action="store_true",
@@ -46,22 +43,21 @@ def one():
                       "--skip",
                       action="store_true",
                       help="Skip items already registered")
-    clis = parse_base(clis)
 
     card_parse = sub.add_parser("card", help="manipulating cards")
+    card_parse = parse_base(card_parse)
     card_parse.add_argument("-R",
                             "--reset",
                             action="store_true",
                             help="Delete or inactivate all cards")
-    card_parse = parse_base(card_parse)
 
     com_parse = sub.add_parser("comm",
                                help="Professional committee manipulation")
+    com_parse = parse_base(com_parse)
     com_parse.add_argument("-R",
                            "--reset",
                            action="store_true",
                            help="Delete all professional committee")
-    com_parse = parse_base(com_parse)
 
     args = parser.parse_args()
 
@@ -87,7 +83,7 @@ def one():
         servico(book, reset=args.reset)
 
     if args.cmd == "cols":
-        colaborador(book, args.app)
+        colaborador(book)
 
     if args.cmd == "clis":
         config.RESOLVE_ERROS = args.no_erros

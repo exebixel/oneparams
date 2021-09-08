@@ -2,7 +2,7 @@ from oneparams.api.colaborador import Colaboradores
 from oneparams.excel.excel import Excel
 
 
-def colaborador(book, app_regist=False):
+def colaborador(book):
     one = Colaboradores()
     print("analyzing spreadsheet")
 
