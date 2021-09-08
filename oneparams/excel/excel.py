@@ -32,6 +32,7 @@ class Excel:
             # retirando linhas e colunas em brando do Data Frame
             excel = excel.dropna(how="all")
             # excel.dropna(how="all", axis=1, inplace=True)
+            excel = excel.loc[:, ~excel.columns.str.contains('^Unnamed')]
             excel = excel.where(pd.notnull(excel), None)
             self.excel = excel
 
@@ -63,7 +64,7 @@ class Excel:
             header_name = string_normalize(header)
             if re.search(column_name, header_name, re.IGNORECASE):
                 return header
-        raise ValueError(f'Column {column_name} not found!')
+        raise ValueError(f'ERROR! Column {column_name} not found! Remember the Header is line {self.__header_row + 1}')
 
     def add_column(self,
                    key,
