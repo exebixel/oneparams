@@ -1,5 +1,6 @@
 import json
 import sys
+from urllib3.exceptions import InsecureRequestWarning
 
 import requests
 
@@ -14,7 +15,10 @@ class BaseApi:
     header = {'Content-Type': 'application/json'}
 
     def __init_subclass__(cls):
-        cls.api_url = "https://oneapilite.azurewebsites.net/api"
+        requests.packages.urllib3.disable_warnings(
+            category=InsecureRequestWarning)
+        cls.api_url = "https://localhost:5001/api"
+        # cls.api_url = "https://oneapilite.azurewebsites.net/api"
 
     def update_token(self, token):
         """
@@ -32,7 +36,8 @@ class BaseApi:
         try:
             return requests.post("{}{}".format(self.api_url, url),
                                  headers=self.header,
-                                 data=json.dumps(data))
+                                 data=json.dumps(data),
+                                 verify=False)
         except requests.exceptions.ConnectionError:
             sys.exit("Connection error!!\nCheck your internet connection")
 
@@ -42,7 +47,8 @@ class BaseApi:
         """
         try:
             return requests.get("{}{}".format(self.api_url, url),
-                                headers=self.header)
+                                headers=self.header,
+                                verify=False)
         except requests.exceptions.ConnectionError:
             sys.exit("Connection error!!\nCheck your internet connection")
 
@@ -52,7 +58,8 @@ class BaseApi:
         """
         try:
             return requests.delete("{}{}".format(self.api_url, url),
-                                   headers=self.header)
+                                   headers=self.header,
+                                   verify=False)
         except requests.exceptions.ConnectionError:
             sys.exit("Connection error!!\nCheck your internet connection")
 
@@ -63,7 +70,8 @@ class BaseApi:
         try:
             return requests.put("{}{}".format(self.api_url, url),
                                 headers=self.header,
-                                data=json.dumps(data))
+                                data=json.dumps(data),
+                                verify=False)
         except requests.exceptions.ConnectionError:
             sys.exit("Connection error!!\nCheck your internet connection")
 
@@ -74,7 +82,8 @@ class BaseApi:
         try:
             return requests.patch("{}{}".format(self.api_url, url),
                                   headers=self.header,
-                                  data=json.dumps(data))
+                                  data=json.dumps(data),
+                                  verify=False)
         except requests.exceptions.ConnectionError:
             sys.exit("Connection error!!\nCheck your internet connection")
 
