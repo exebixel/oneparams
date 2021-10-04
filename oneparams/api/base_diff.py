@@ -249,11 +249,10 @@ class BaseDiff(BaseApi):
         deleted = []
 
         for item in self.items:
-            if self.__url_inactive is not None:
-                self.inactive(item)
-
             if self.delete(item):
                 deleted.append(item)
+            else:
+                self.inactive(item)
 
         for i in deleted:
             self.items.remove(i)
