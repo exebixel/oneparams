@@ -11,18 +11,18 @@ class BaseDiff(BaseApi):
     verificando suas existências e diferenças
     """
     def __init__(self,
-                 key_id,
-                 key_name,
-                 item_name,
-                 url_update,
-                 url_create,
-                 url_get_all,
-                 url_get_detail,
-                 key_detail=None,
-                 url_delete=None,
-                 key_active=None,
-                 url_inactive=None,
-                 submodules=None):
+                 key_id: str,
+                 key_name: str,
+                 item_name: str,
+                 url_update: str,
+                 url_create: str,
+                 url_get_all: str,
+                 url_get_detail: str,
+                 key_detail: str = None,
+                 url_delete: str = None,
+                 key_active: str = None,
+                 url_inactive: str = None,
+                 submodules: dict = None):
         """
         Define todas as urls que serão usadas,
         e também as keys do nome e id
@@ -30,7 +30,7 @@ class BaseDiff(BaseApi):
 
         self.key_id = key_id
         self.key_name = key_name
-        self.__item_name = item_name
+        self.item_name = item_name
 
         self.__url_update = url_update
         self.__url_create = url_create
@@ -40,45 +40,79 @@ class BaseDiff(BaseApi):
 
         self.__url_delete = url_delete
         self.__url_inactive = url_inactive
-        self.__key_active = key_active
+        self.key_active = key_active
 
         self.__submodules = submodules
 
-    def create(self, data):
+    def create(self, data: dict) -> int:
         """
-        Adiciona um item ao sistema
+        Recebe um parâmetro com os dados (dict) que devem 
+        ser adicionados ao sistema,
+        executa a requisição de criação, adiciona na listagem de items 
+        e por fim retorna o id do item criado
         """
-        print("creating {} {}".format(data[self.key_name], self.__item_name))
+        print("creating {} {}".format(data[self.key_name], self.item_name))
         response = self.post(self.__url_create, data=data)
         self.status_ok(response)
 
         content = json.loads(response.content)
-        return content
+        id = self.add_item(data, content)
+        return id
 
-    def update(self, data):
+    def add_item(self, data: dict, response: dict) -> int:
+        """
+        Recebe data e response, sendo \n
+        data = dict com dados recebidos de forma externa \n
+        response = resposta da requisição de self.create() \n
+        
+        Depois que adicionar os dados a função deve retornar 
+        o id do item \n
+
+        Essa função serve basicamente para ser reescrita,
+        já que (atualmente) não existe um padrão dentro da api para retorno
+        dos dados
+        """
+        id = response["data"]
+        data[self.key_id] = id
+        self.items[id] = data
+        return id
+
+    def update(self, data: dict):
         """
         Atualiza os dados de um item já cadastrado no sistema
         """
-        print("updating {} {}".format(data[self.key_name], self.__item_name))
+        print("updating {} {}".format(data[self.key_name], self.item_name))
         response = self.put("{}/{}".format(self.__url_update,
                                            data[self.key_id]),
                             data=data)
         self.status_ok(response)
-
         content = json.loads(response.content)
-        return content
+
+        # Atualiza a lista de items
+        self.add_item(data, content)
+
+        # Deleta o item atualizado da lista de detalhes
+        # isso aqui apesar de deixar um pouco mais lento
+        # evita problemas
+        self.list_details.pop(data[self.key_id])
 
     def get_all(self):
         """
-        Retorna todos os items cadastrados no sistema
+        Retorna todos os items cadastrados no sistema \n
+        
+        Essa função deve ser sempre reescrita para 
+        enviar os dados retornados para a variavel
+        self.items,
+        infelizmente isso é necessario por não haver um 
+        padrão de retorno dos dados dentro da api
         """
-        print("researching {}".format(self.__item_name))
+        print("researching {}".format(self.item_name))
         response = self.get(self.__url_get_all)
         self.status_ok(response)
 
         return json.loads(response.content)
 
-    def equals(self, data):
+    def equals(self, data: dict) -> bool:
         """
         verifica se os dados de item são iguais aos dados
         já cadastrados no sistema
@@ -93,7 +127,7 @@ class BaseDiff(BaseApi):
             return True
         return False
 
-    def item_id(self, data):
+    def item_id(self, data) -> int:
         """
         Pesquisa um item e retorna o id dele,
         nessa pesquisa o nome tem que ser exatamente igual,
@@ -102,12 +136,12 @@ class BaseDiff(BaseApi):
         O parâmetro data é um dicionario
         data = [self.key_name: str]
         """
-        for i in self.items:
-            if i[self.key_name] == data[self.key_name]:
-                return i[self.key_id]
+        for key, item in self.items.items():
+            if item[self.key_name] == data[self.key_name]:
+                return key
         return 0
 
-    def search_item_by_name(self, nome):
+    def search_item_by_name(self, nome: dict) -> int:
         """
         Pesquisa por um nome (self.key_name) e retorna o Id (self.key_id),
         a pesquisa é feita ignorando o case das letras e os acentos,
@@ -127,30 +161,39 @@ class BaseDiff(BaseApi):
             return ids[0]
 
         if len(ids) == 0:
-            raise ValueError("{} {} not found!".format(self.__item_name, nome))
+            raise ValueError("{} {} not found!".format(self.item_name, nome))
         if len(ids) > 0:
             raise ValueError("{} {} is duplicated!".format(
-                self.__item_name, nome))
+                self.item_name, nome))
 
-    def details(self, item_id):
+    def details(self, item_id: int) -> dict:
         """
         Retorna um dict com as informações do cadastro completo do item
         """
-        for i in self.list_details:
-            if i[self.key_id] == item_id:
-                return i
+        try:
+            return self.list_details[item_id]
+        except KeyError:
+            response = self.get("{}/{}".format(self.__url_get_detail, item_id))
+            self.status_ok(response)
 
-        response = self.get("{}/{}".format(self.__url_get_detail, item_id))
-        self.status_ok(response)
+            content = json.loads(response.content)
+            if self.__key_detail is not None:
+                content = content[self.__key_detail]
 
-        content = json.loads(response.content)
-        if self.__key_detail is not None:
-            content = content[self.__key_detail]
+            self.list_details[content[self.key_id]] = content
+            return content
 
-        self.list_details.append(content)
-        return content
+    def name_to_id(self, data: dict) -> dict:
+        """
+        Recebe os dados em um dicionario, 
+        e transforma os valores dos campos especificados 
+        no dict self.submodules em ids  \n
 
-    def name_to_id(self, data):
+        Retorna um novo "data" com os valores
+        convertidos para id \n
+
+        Caso ocorra algum erro retorna uma Exception
+        """
         if self.__submodules is None:
             return data
 
@@ -162,14 +205,14 @@ class BaseDiff(BaseApi):
                 except Exception as e:
                     erros.append(str(e))
 
-        if self.__key_active is not None:
-            data[self.__key_active] = True
+        if self.key_active is not None:
+            data[self.key_active] = True
 
         if erros != []:
             raise Exception(erros)
         return data
 
-    def diff_item(self, data):
+    def diff_item(self, data: dict):
         """
         Checa se o item (data) recebido já existe,
         se não existir, checa se o item é igual ao que já esta no sistema,
@@ -180,27 +223,16 @@ class BaseDiff(BaseApi):
         data = self.name_to_id(data)
 
         if data[self.key_id] == 0:
-            item_id = self.create(data)
-            data[self.key_id] = item_id
-            self.items.append(data)
-            self.list_details.append(data)
+            self.create(data)
 
         elif not self.equals(data):
             self.update(data)
 
-            item = next(item for item in self.items
-                        if item[self.key_id] == data[self.key_id])
-            self.items.remove(item)
-            self.items.append(data)
-
-            self.list_details.remove(self.details(data[self.key_id]))
-            self.list_details.append(data)
-
         else:
             print("skiping {} {}".format(data[self.key_name],
-                                         self.__item_name))
+                                         self.item_name))
 
-    def delete(self, data):
+    def delete(self, data: dict) -> bool:
         """
         Delete um item recebido por parametro (data),
         data tem que ter:
@@ -212,34 +244,45 @@ class BaseDiff(BaseApi):
         if self.__url_delete is None:
             return False
 
-        print("deleting {} {}".format(data[self.key_name], self.__item_name))
+        print("deleting {} {}".format(data[self.key_name], self.item_name))
         response = super().delete("{}/{}".format(self.__url_delete,
                                                  data[self.key_id]))
 
         return self.status_ok(response, erro_exit=False)
 
-    def inactive(self, data):
+    def inactive(self, data: dict) -> bool:
         """
-            Inativa um item que é recebido por 'data'
-            'data' deve ter:
-            data = [
-                self.key_name: str,
-                self.key_id: int
-            ]
+        Inativa um item que é recebido por 'data'
+        'data' deve ter:
+        data = [
+            self.key_name: str,
+            self.key_id: int
+        ]
+
+        Retorna um valor boleano informando se o item 
+        foi inativado ou não
         """
         if self.__url_inactive is None:
             return False
 
         data = self.details(data[self.key_id])
-        data[self.__key_active] = False
+        if not data[self.key_active]: return True
+
+        data[self.key_active] = False
 
         print("inactivating {} {}".format(data[self.key_name],
-                                          self.__item_name))
+                                          self.item_name))
         response = self.put("{}/{}".format(self.__url_inactive,
                                            data[self.key_id]),
                             data=data)
 
-        return self.status_ok(response, erro_exit=False)
+        if not self.status_ok(response, erro_exit=False):
+            return False
+
+        # atualizo o item na lista
+        self.items[data[self.key_id]][self.key_active] = False
+
+        return True
 
     def delete_all(self):
         """
@@ -248,15 +291,14 @@ class BaseDiff(BaseApi):
         """
         deleted = []
 
-        for item in self.items:
+        for key, item in self.items.items():
             if self.delete(item):
-                deleted.append(item)
+                deleted.append(key)
             else:
                 self.inactive(item)
 
         for i in deleted:
-            self.items.remove(i)
-            item = next((item for item in self.list_details
-                        if item[self.key_id] == i[self.key_id]), None)
-            if item is not None:
-                self.list_details.remove(item)
+            self.items.pop(i)
+            try:   
+                self.list_details.pop(i)
+            except KeyError: pass
