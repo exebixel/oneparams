@@ -100,8 +100,7 @@ def checks(row, data):
     if erros:
         raise Exception
 
-    one = Servicos()
-    return one.name_to_id(data)
+    return data
 
 
 def check_all(self, data):
