@@ -7,8 +7,8 @@ class Servicos(BaseDiff):
     Gerenciamento de serviços,
     cria, atualiza, deleta e inativa serviços
     """
-    items = []
-    list_details = []
+    items = {}
+    list_details = {}
     first_get = False
 
     def __init__(self):
@@ -31,4 +31,21 @@ class Servicos(BaseDiff):
             Servicos.first_get = True
 
     def get_all(self):
-        Servicos.items = super().get_all()
+        items = super().get_all()
+        self.items = {}
+        for i in items:
+            self.items[i[self.key_id]] = {
+                self.key_id: i[self.key_id],
+                self.key_name: i[self.key_name],
+                self.key_active: i[self.key_active]
+            }
+
+    def add_item(self, data: dict, response: dict) -> int:
+        id = response[self.key_id]
+        data = {
+            self.key_id: id,
+            self.key_name: data[self.key_name],
+            self.key_active: data[self.key_active]
+        }
+        self.items[id] = data
+        return id
