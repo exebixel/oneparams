@@ -10,14 +10,15 @@ class BaseDiff(BaseApi):
     Base de suporte para adicionar e atualizar items no sistema
     verificando suas existências e diferenças
     """
+
     def __init__(self,
                  key_id: str,
                  key_name: str,
                  item_name: str,
-                 url_update: str,
-                 url_create: str,
                  url_get_all: str,
-                 url_get_detail: str,
+                 url_update: str = None,
+                 url_create: str = None,
+                 url_get_detail: str = None,
                  key_detail: str = None,
                  url_delete: str = None,
                  key_active: str = None,
@@ -51,6 +52,9 @@ class BaseDiff(BaseApi):
         executa a requisição de criação, adiciona na listagem de items 
         e por fim retorna o id do item criado
         """
+        if self.__url_create is None: 
+            return None
+
         print("creating {} {}".format(data[self.key_name], self.item_name))
         response = self.post(self.__url_create, data=data)
         self.status_ok(response)
@@ -64,7 +68,7 @@ class BaseDiff(BaseApi):
         Recebe data e response, sendo \n
         data = dict com dados recebidos de forma externa \n
         response = resposta da requisição de self.create() \n
-        
+
         Depois que adicionar os dados a função deve retornar 
         o id do item \n
 
@@ -77,10 +81,13 @@ class BaseDiff(BaseApi):
         self.items[id] = data
         return id
 
-    def update(self, data: dict):
+    def update(self, data: dict) -> None:
         """
         Atualiza os dados de um item já cadastrado no sistema
         """
+        if self.__url_update is None:
+            return None
+
         print("updating {} {}".format(data[self.key_name], self.item_name))
         response = self.put("{}/{}".format(self.__url_update,
                                            data[self.key_id]),
@@ -96,10 +103,10 @@ class BaseDiff(BaseApi):
         # evita problemas
         self.list_details.pop(data[self.key_id])
 
-    def get_all(self):
+    def get_all(self) -> dict:
         """
         Retorna todos os items cadastrados no sistema \n
-        
+
         Essa função deve ser sempre reescrita para 
         enviar os dados retornados para a variavel
         self.items,
@@ -137,7 +144,7 @@ class BaseDiff(BaseApi):
         data = [self.key_name: str]
         """
         for key, item in self.items.items():
-            if item[self.key_name] == data[self.key_name]:
+            if re.search(data[self.key_name], item[self.key_name], re.IGNORECASE):
                 return key
         return 0
 
@@ -148,7 +155,7 @@ class BaseDiff(BaseApi):
         então ISSó == iss
 
         Por segurança se for passado um nome que esteja em duplicidade
-        o programa é encerrado
+        a função retorna uma exception
         """
         nome = deemphasize(nome)
         ids = []
@@ -201,7 +208,7 @@ class BaseDiff(BaseApi):
         for sub, func in self.__submodules.items():
             if type(data[sub]) is not int:
                 try:
-                    data[sub] = func.return_id(data[sub])
+                    data[sub] = func.submodule_id(data[sub])
                 except Exception as e:
                     erros.append(str(e))
 
@@ -212,7 +219,7 @@ class BaseDiff(BaseApi):
             raise Exception(erros)
         return data
 
-    def diff_item(self, data: dict):
+    def diff_item(self, data: dict) -> None:
         """
         Checa se o item (data) recebido já existe,
         se não existir, checa se o item é igual ao que já esta no sistema,
@@ -231,6 +238,16 @@ class BaseDiff(BaseApi):
         else:
             print("skiping {} {}".format(data[self.key_name],
                                          self.item_name))
+
+    def submodule_id(self, name) -> int:
+        id = self.item_id({self.key_name: name})
+        if id == 0:
+            id = self.create({self.key_name: name})
+            if id is not None:
+                return id
+            raise ValueError(f'{self.item_name} {name} not found!')
+        return id
+            
 
     def delete(self, data: dict) -> bool:
         """
@@ -266,7 +283,8 @@ class BaseDiff(BaseApi):
             return False
 
         data = self.details(data[self.key_id])
-        if not data[self.key_active]: return True
+        if not data[self.key_active]:
+            return True
 
         data[self.key_active] = False
 
@@ -284,7 +302,7 @@ class BaseDiff(BaseApi):
 
         return True
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         """
             Deletar ou inativar (se possivel)
             todos os items em self.items
@@ -299,6 +317,7 @@ class BaseDiff(BaseApi):
 
         for i in deleted:
             self.items.pop(i)
-            try:   
+            try:
                 self.list_details.pop(i)
-            except KeyError: pass
+            except KeyError:
+                pass
