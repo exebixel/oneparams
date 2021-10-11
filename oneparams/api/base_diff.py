@@ -1,3 +1,4 @@
+import sys
 import json
 import re
 
@@ -189,6 +190,9 @@ class BaseDiff(BaseApi):
 
             self.list_details[content[self.key_id]] = content
             return content
+        
+        except AttributeError as e:
+            sys.exit(e)
 
     def name_to_id(self, data: dict) -> dict:
         """
@@ -209,14 +213,14 @@ class BaseDiff(BaseApi):
             if type(data[sub]) is not int:
                 try:
                     data[sub] = func.submodule_id(data[sub])
-                except Exception as e:
+                except ValueError as e:
                     erros.append(str(e))
 
         if self.key_active is not None:
             data[self.key_active] = True
 
         if erros != []:
-            raise Exception(erros)
+            raise ValueError(erros)
         return data
 
     def diff_item(self, data: dict) -> None:
@@ -227,7 +231,10 @@ class BaseDiff(BaseApi):
         se tiver dados diferentes o item sera atualizado
         """
         data[self.key_id] = self.item_id(data)
-        data = self.name_to_id(data)
+        try:
+            data = self.name_to_id(data)
+        except ValueError as e:
+            sys.exit("ERROR!! " + str(e))
 
         if data[self.key_id] == 0:
             self.create(data)
@@ -320,4 +327,6 @@ class BaseDiff(BaseApi):
             try:
                 self.list_details.pop(i)
             except KeyError:
+                pass
+            except AttributeError:
                 pass
