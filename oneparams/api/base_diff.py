@@ -144,8 +144,10 @@ class BaseDiff(BaseApi):
         O parâmetro data é um dicionario
         data = [self.key_name: str]
         """
+        name = deemphasize(data[self.key_name])
         for key, item in self.items.items():
-            if re.search(data[self.key_name], item[self.key_name], re.IGNORECASE):
+            item_normalized = deemphasize(item[self.key_name])
+            if item_normalized == name:
                 return key
         return 0
 
@@ -160,10 +162,10 @@ class BaseDiff(BaseApi):
         """
         nome = deemphasize(nome)
         ids = []
-        for i in self.items:
-            nome_item = deemphasize(i[self.key_name])
+        for key, item in self.items.items():
+            nome_item = deemphasize(item[self.key_name])
             if re.search(nome, nome_item):
-                ids.append(i[self.key_id])
+                ids.append(key)
 
         if len(ids) == 1:
             return ids[0]
