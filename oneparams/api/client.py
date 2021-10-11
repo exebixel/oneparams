@@ -4,7 +4,7 @@ from oneparams.api.base_diff import BaseDiff
 from oneparams.utils import create_email, string_normalize
 
 
-class Cliente(BaseDiff):
+class ApiCliente(BaseDiff):
     items = {}
     list_details = {}
     first_get = False
@@ -26,20 +26,20 @@ class Cliente(BaseDiff):
             url_inactive="/OCliForColsUsuarioFiliais/UpdateClientes"
         )
 
-        if not Cliente.first_get:
+        if not ApiCliente.first_get:
             self.get_all()
-            Cliente.first_get = True
+            ApiCliente.first_get = True
 
     def get_all(self):
         print("researching {}".format(self.item_name))
-        self.items = {}
+        ApiCliente.items = {}
 
         response = self.get(f'{self.url_get_all}/true')
         self.status_ok(response)
         content = json.loads(response.content)
 
         for i in content:
-            self.items[i["cliForColsId"]] = {
+            ApiCliente.items[i["cliForColsId"]] = {
                 self.key_id: i["cliForColsId"],
                 self.key_active: True,
                 self.key_name: i[self.key_name],
@@ -50,7 +50,7 @@ class Cliente(BaseDiff):
         content = json.loads(response.content)
 
         for i in content:
-            self.items[i["cliForColsId"]] = {
+            ApiCliente.items[i["cliForColsId"]] = {
                 self.key_id: i["cliForColsId"],
                 self.key_active: False,
                 self.key_name: i[self.key_name],

@@ -1,14 +1,14 @@
 import json
 
 from oneparams.api.base import BaseApi
-from oneparams.api.colaborador import Colaboradores
-from oneparams.api.servicos import Servicos
+from oneparams.api.colaborador import ApiColaboradores
+from oneparams.api.servicos import ApiServicos
 
 
 class Commission(BaseApi):
     def __init__(self):
-        self.cols = Colaboradores()
-        self.serv = Servicos()
+        self.cols = ApiColaboradores()
+        self.serv = ApiServicos()
         self.items = []
 
     def get_servs_in_cols(self, colsId):

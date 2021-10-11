@@ -6,7 +6,7 @@ from oneparams.api.profissao import Profissao
 from oneparams.utils import create_email
 
 
-class Colaboradores(BaseDiff):
+class ApiColaboradores(BaseDiff):
     items = {}
     list_details = {}
     first_get = False
@@ -27,15 +27,15 @@ class Colaboradores(BaseDiff):
                 "perfilId": Perfil()
             })
 
-        if not Colaboradores.first_get:
+        if not ApiColaboradores.first_get:
             self.get_all()
-            Colaboradores.first_get = True
+            ApiColaboradores.first_get = True
 
     def get_all(self):
         content = super().get_all()
-        self.items = {}
+        ApiColaboradores.items = {}
         for i in content:
-            self.items[i["cliForColsId"]] = {
+            ApiColaboradores.items[i["cliForColsId"]] = {
                 self.key_id: i["cliForColsId"],
                 self.key_active: i[self.key_active],
                 self.key_name: i[self.key_name],

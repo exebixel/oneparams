@@ -1,4 +1,4 @@
-from oneparams.api.cards import apiCard
+from oneparams.api.cards import ApiCard
 from oneparams.api.conta import Conta
 from oneparams.api.operadora import Operadora
 from oneparams.excel.excel import Excel
@@ -6,7 +6,7 @@ from oneparams.utils import card_type, deemphasize
 
 
 def cards(book, reset=False):
-    one = apiCard()
+    one = ApiCard()
     print("analyzing spreadsheet")
 
     ex = Excel(book=book, sheet_name="cart")

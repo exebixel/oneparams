@@ -1,5 +1,5 @@
 from oneparams.api.gservs import Gservis
-from oneparams.api.servicos import Servicos
+from oneparams.api.servicos import ApiServicos
 from oneparams.excel.excel import Excel
 
 
@@ -14,7 +14,7 @@ def servico(book, reset=False):
 
     Return None
     """
-    one = Servicos()
+    one = ApiServicos()
     print("analyzing spreadsheet")
 
     ex = Excel(book, "servico")
@@ -44,7 +44,7 @@ def servico(book, reset=False):
                   default=True,
                   types="bool")
     ex.add_column(key="permiteSimultaneidade",
-                  name="simultaniedade",
+                  name="simultaneidade",
                   required=False,
                   default=True,
                   types="bool")

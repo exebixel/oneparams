@@ -2,7 +2,7 @@ from oneparams.api.base_diff import BaseDiff
 from oneparams.api.gservs import Gservis
 
 
-class Servicos(BaseDiff):
+class ApiServicos(BaseDiff):
     """
     Gerenciamento de serviços,
     cria, atualiza, deleta e inativa serviços
@@ -26,13 +26,13 @@ class Servicos(BaseDiff):
             key_active="flagAtivo",
             submodules={"gservId": Gservis()})
 
-        if not Servicos.first_get:
+        if not ApiServicos.first_get:
             self.get_all()
-            Servicos.first_get = True
+            ApiServicos.first_get = True
 
     def get_all(self):
         items = super().get_all()
-        self.items = {}
+        ApiServicos.items = {}
         for i in items:
             self.items[i[self.key_id]] = {
                 self.key_id: i[self.key_id],
@@ -47,5 +47,5 @@ class Servicos(BaseDiff):
             self.key_name: data[self.key_name],
             self.key_active: data[self.key_active]
         }
-        self.items[id] = data
+        ApiServicos.items[id] = data
         return id

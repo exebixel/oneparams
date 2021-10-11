@@ -1,9 +1,9 @@
 from oneparams.api.base_diff import BaseDiff
-from oneparams.api.conta import Conta
+from oneparams.api.conta import ApiConta
 from oneparams.api.operadora import Operadora
 
 
-class apiCard(BaseDiff):
+class ApiCard(BaseDiff):
     items = {}
     list_details = {}
     first_get = False
@@ -19,19 +19,19 @@ class apiCard(BaseDiff):
                          key_detail="cartoesLight",
                          url_delete="/Cartoes",
                          submodules={
-                             "contasId": Conta(),
+                             "contasId": ApiConta(),
                              "operadoraCartaoId": Operadora()
                          })
 
-        if not apiCard.first_get:
+        if not ApiCard.first_get:
             self.get_all()
-            apiCard.first_get = True
+            ApiCard.first_get = True
 
     def get_all(self):
         items = super().get_all()
-        self.items = {}
+        ApiCard.items = {}
         for i in items:
-            self.items[i[self.key_id]] = i
+            ApiCard.items[i[self.key_id]] = i
 
     def add_item(self, data: dict, response: dict) -> int:
         id = response["data"]
@@ -44,7 +44,7 @@ class apiCard(BaseDiff):
         return id
 
     def item_id(self, data):
-        for key, item in apiCard.items.items():
+        for key, item in ApiCard.items.items():
             if (item["descricao"] == data["descricao"]
                     and item["debito_Credito"] == data["debito_Credito"]):
                 return key
