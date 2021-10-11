@@ -67,7 +67,7 @@ def servico(book, reset=False):
         one.diff_item(row)
 
     grupo = Gservis()
-    grupo.all_Gservis()
+    grupo.get_all()
     grupo.clear()
 
 
