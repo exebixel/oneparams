@@ -3,7 +3,7 @@ import json
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.perfils import Perfil
 from oneparams.api.profissao import Profissao
-from oneparams.utils import create_email
+from oneparams.utils import create_email, deemphasize
 
 
 class ApiColaboradores(BaseDiff):
@@ -82,8 +82,14 @@ class ApiColaboradores(BaseDiff):
         return super().update(data)
 
     def item_id(self, data: dict) -> int:
+        name = deemphasize(data[self.key_name])
+        email = deemphasize(data["email"])
+
         for key, item in self.items.items():
-            if (item[self.key_name] == data[self.key_name]
-                    or item["email"] == data["email"]):
+            existent_name = deemphasize(item[self.key_name])
+            existent_email = deemphasize(item["email"])
+
+            if (existent_name == name
+                    or existent_email == email):
                 return key
         return 0
