@@ -1,11 +1,11 @@
 #!/usr/bin/python
-import argparse
+import click
 import sys
 
 import pandas as pd
 
+from oneparams.reset import pw_reset
 from oneparams.api.login import login
-from oneparams.args import parse_base
 from oneparams.excel.card import cards
 from oneparams.excel.colaborador import colaborador
 from oneparams.excel.comissao import Comissao
@@ -13,96 +13,130 @@ from oneparams.excel.servicos import servico
 from oneparams.excel.cliente import clientes
 import oneparams.config as config
 
+_global_options = [
+    click.argument('worksheet', required=True, type=click.Path(exists=True)),
+    click.option('-l', '--login', 'login', required=True,
+                 type=str, help="Email address to login"),
+    click.option('-p', '--password', 'password', required=False, type=str,
+                 default='123456', help="Access password (default = 123456)"),
+    click.option('-e', '--empresa', 'empresa', required=True,
+                 type=str, help="Company name used to parametrization"),
+    click.option('-eid', '--empresa-id', 'empresa_id',
+                 required=False, type=int, default=None, help="Company id (if have some companies with same name)"),
+    click.option('-f', '--filial', 'filial', required=False,
+                 type=str, help="Branch name used to parametrization"),
+    click.option('-W', '--no-warning', 'warning', required=False,
+                 is_flag=True, default=False, help="Suppress warnings")
+]
+_reset_options = [
+    click.option('-R', '--reset', 'reset', required=False, is_flag=True,
+                 default=False, help="Delete or inactivate all services")
+]
+_error_options = [
+    click.option('-E', '--no-error', 'error', required=False, is_flag=True,
+                 default=False, help="Resolve erros (this can delete data)")
+]
+_skip_options = [
+    click.option('-S', '--skip', 'skip', required=False, is_flag=True,
+                 default=False, help='Skip items already registered')
+]
 
-def one():
-    parser = argparse.ArgumentParser(description="One system parameterizer")
-    sub = parser.add_subparsers(dest="cmd")
-    sub.required = True
 
-    serv = sub.add_parser("serv", help="manipulating services")
-    serv = parse_base(serv)
-    serv.add_argument("-R",
-                      "--reset",
-                      action="store_true",
-                      help="Delete or inactivate all services")
+def add_option(options):
+    def _add_options(func):
+        for option in reversed(options):
+            func = option(func)
+        return func
+    return _add_options
 
-    cols = sub.add_parser("cols", help="manipulating collaborators")
-    cols = parse_base(cols)
 
-    clis = sub.add_parser("clis", help="manipulating clients")
-    clis = parse_base(clis)
-    clis.add_argument("-R",
-                      "--reset",
-                      action="store_true",
-                      help="Delete or inactivate all clients")
-    clis.add_argument("-E",
-                      "--no-erros",
-                      action="store_true",
-                      help="Resolve erros (this can delete data)")
-    clis.add_argument("-S",
-                      "--skip",
-                      action="store_true",
-                      help="Skip items already registered")
-
-    card_parse = sub.add_parser("card", help="manipulating cards")
-    card_parse = parse_base(card_parse)
-    card_parse.add_argument("-R",
-                            "--reset",
-                            action="store_true",
-                            help="Delete or inactivate all cards")
-
-    com_parse = sub.add_parser("comm",
-                               help="Professional committee manipulation")
-    com_parse = parse_base(com_parse)
-    com_parse.add_argument("-R",
-                           "--reset",
-                           action="store_true",
-                           help="Delete all professional committee")
-
-    args = parser.parse_args()
-
-    try:
-        book = pd.ExcelFile(args.worksheet)
-    except FileNotFoundError as exp:
-        print(exp)
-        sys.exit()
-    except ValueError as exp:
-        print(exp)
-        sys.exit()
-
+def cli_login(kwargs):
     one = login()
-    one.login(nome_empresa=args.empresa,
-              nome_filial=args.filial,
-              email=args.login,
-              senha=args.password,
-              empresa_id=args.empresaid)
-
-    config.NO_WARNING = args.no_warning
-
-    if args.cmd == "serv":
-        servico(book, reset=args.reset)
-
-    if args.cmd == "cols":
-        colaborador(book)
-
-    if args.cmd == "clis":
-        config.RESOLVE_ERROS = args.no_erros
-        config.SKIP = args.skip
-        clientes(book, reset=args.reset)
-
-    if args.cmd == "card":
-        cards(book, reset=args.reset)
-
-    if args.cmd == "comm":
-        Comissao(book, reset=args.reset)
+    one.login(nome_empresa=kwargs['empresa'],
+              nome_filial=kwargs['filial'],
+              email=kwargs['login'],
+              senha=kwargs['password'],
+              empresa_id=kwargs['empresa_id'])
 
 
-def main():
+def cli_file(worksheet):
     try:
-        one()
-    except KeyboardInterrupt:
-        print("\nQuiting...")
+        return pd.ExcelFile(worksheet)
+    except FileNotFoundError as exp:
+        sys.exit(exp)
+    except ValueError as exp:
+        sys.exit(exp)
+
+
+def cli_config(error=False, warning=False, skip=False):
+    config.RESOLVE_ERROS = error
+    config.NO_WARNING = warning
+    config.SKIP = skip
+
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command(help="Manipulating Services")
+@add_option(_global_options)
+@add_option(_reset_options)
+def serv(**kwargs):
+    cli_login(kwargs)
+    book = cli_file(kwargs['worksheet'])
+    cli_config(warning=kwargs['warning'])
+    servico(book, reset=kwargs['reset'])
+
+
+@cli.command(help="Manipulating Collaborators")
+@add_option(_global_options)
+def cols(**kwargs):
+    cli_login(kwargs)
+    book = cli_file(kwargs['worksheet'])
+    cli_config(warning=kwargs['warning'])
+    colaborador(book)
+
+
+@cli.command(help="Manipulating Cards")
+@add_option(_global_options)
+@add_option(_reset_options)
+def card(**kwargs):
+    cli_login(kwargs)
+    book = cli_file(kwargs['worksheet'])
+    cli_config(warning=kwargs['warning'])
+    cards(book, reset=kwargs['reset'])
+
+
+@cli.command(help="Professional Committee Manipulation")
+@add_option(_global_options)
+@add_option(_reset_options)
+def comm(**kwargs):
+    cli_login(kwargs)
+    book = cli_file(kwargs['worksheet'])
+    cli_config(warning=kwargs['warning'])
+    Comissao(book, reset=kwargs['reset'])
+
+
+@cli.command(help="Manipulating Clients")
+@add_option(_global_options)
+@add_option(_reset_options)
+@add_option(_error_options)
+@add_option(_skip_options)
+def clis(**kwargs):
+    cli_login(kwargs)
+    book = cli_file(kwargs['worksheet'])
+    cli_config(error=kwargs['error'],
+               warning=kwargs['warning'],
+               skip=kwargs['skip'])
+    clientes(book, reset=kwargs['reset'])
+
+@cli.command(help="Password Reset")
+@click.argument('email', required=True, type=str)
+@click.option('-k', '--key', 'acess_key', envvar='ONE_RESET', required=True, type=str)
+def reset(email, acess_key):
+    pw_reset(email, acess_key)
 
 
 if __name__ == "__main__":
-    main()
+    cli()
