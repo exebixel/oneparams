@@ -20,7 +20,7 @@ setuptools.setup(
     name="oneparams",
     packages=setuptools.find_packages(),
     entry_points={
-        'console_scripts': ['one = oneparams.one:main'],
+        'console_scripts': ['one = oneparams.one:cli'],
     },
     version="0.2.9",
     description="One System Parametrizer",
@@ -29,7 +29,7 @@ setuptools.setup(
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
     url="https://github.com/exebixel/oneparams",
-    install_requires=["requests", "pandas", "urllib3", "xlrd", "openpyxl"],
+    install_requires=["requests", "pandas", "urllib3", "xlrd", "openpyxl", "click"],
     python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python",

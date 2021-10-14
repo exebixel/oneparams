@@ -1,75 +1,42 @@
-import json
-
-from oneparams.api.base import BaseApi
-from oneparams.api.fornecedor import Fornecedor
+from oneparams.api.base_diff import BaseDiff
+from oneparams.api.fornecedor import ApiFornecedor
 
 
-class Operadora(BaseApi):
-    items = []
+class Operadora(BaseDiff):
+    items = {}
     first_get = False
 
     def __init__(self):
+        super().__init__(
+            key_id="operadoraCartoesId", 
+            key_name="descricao", 
+            item_name="card operator",
+            url_get_all="/OperadoraCartoes",
+            url_create="/OperadoraCartoes",
+            url_update="/OperadoraCartoes",
+            url_delete="/OperadoraCartoes",
+            submodules={
+                "fornecedorId": ApiFornecedor()
+            }
+        )
         if not Operadora.first_get:
-            self.all_operators()
+            self.get_all()
             Operadora.first_get = True
-        self.__fornecedor = Fornecedor()
 
-    def all_operators(self):
-        print("researching card operators")
-        response = self.get("/OperadoraCartoes")
-        self.status_ok(response)
+    def get_all(self):
+        items = super().get_all()
+        Operadora.items = {}
+        for i in items:
+            Operadora.items[i[self.key_id]] = i
 
-        content = json.loads(response.content)
-        Operadora.items = []
-        for content in content:
-            Operadora.items.append({
-                "id": content["operadoraCartoesId"],
-                "nome": content["descricao"]
-            })
-
-    def create(self, nome):
-        dados = {
-            "descricao": nome,
-            "fornecedorId": self.__fornecedor.get_for(nome)
+    def add_item(self, data: dict, response: dict) -> int:
+        data = {
+            self.key_name: data[self.key_name],
         }
+        return super().add_item(data, response)
 
-        print("creating {} card operator".format(nome))
-        response = self.post("/OperadoraCartoes", data=dados)
-        self.status_ok(response)
-
-        content = json.loads(response.content)
-        Operadora.items.append({"id": content["data"], "nome": nome})
-        return content["data"]
-
-    def delete(self, op_id):
-        for i in Operadora.items:
-            if i["id"] == op_id:
-                nome = i["nome"]
-                break
-        else:
-            print("card operator not found!!")
-
-        print("deleting {} card operator".format(nome))
-        response = super().delete("/OperadoraCartoes/{}".format(op_id))
-        self.status_ok(response, erro_exit=False)
-
-    def delete_all(self):
-        deleted = []
-        for i in Operadora.items:
-            self.delete(i["id"])
-            deleted.append(i)
-        for i in deleted:
-            Operadora.items.remove(i)
-
-    def get_id(self, nome):
-        for i in Operadora.items:
-            if i["nome"] == nome:
-                return i["id"]
-        else:
-            return None
-
-    def return_id(self, nome):
-        op_id = self.get_id(nome)
-        if op_id is None:
-            op_id = self.create(nome)
-        return op_id
+    def create(self, data: dict) -> int:
+        if "fornecedorId" not in data:
+            data["fornecedorId"] = data[self.key_name]
+            data = self.name_to_id(data)
+        return super().create(data)

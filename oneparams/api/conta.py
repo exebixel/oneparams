@@ -1,27 +1,24 @@
-import json
-import re
-
-from oneparams.api.base import BaseApi
+from oneparams.api.base_diff import BaseDiff
 
 
-class Conta(BaseApi):
-    items = []
+class ApiConta(BaseDiff):
+    items = {}
     first_get = False
 
     def __init__(self):
-        if not Conta.first_get:
-            self.all_contas()
-            Conta.first_get = True
+        super().__init__(
+            key_id="contasId",
+            key_name="nome",
+            item_name="account",
+            url_get_all="/OContas/ListaContasDetalhes"
+        )
 
-    def all_contas(self):
-        print("researching accounts")
-        response = self.get("/OContas/ListaContasDetalhes")
-        self.status_ok(response)
+        if not ApiConta.first_get:
+            self.get_all()
+            ApiConta.first_get = True
 
-        Conta.items = json.loads(response.content)
-
-    def return_id(self, nome):
-        for i in Conta.items:
-            if re.search(nome, i["nome"], re.IGNORECASE):
-                return i["contasId"]
-        return None
+    def get_all(self):
+        items = super().get_all()
+        ApiConta.items = {}
+        for item in items:
+            ApiConta.items[item[self.key_id]] = item

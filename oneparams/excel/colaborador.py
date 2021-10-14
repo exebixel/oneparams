@@ -1,9 +1,9 @@
-from oneparams.api.colaborador import Colaboradores
+from oneparams.api.colaborador import ApiColaboradores
 from oneparams.excel.excel import Excel
 
 
 def colaborador(book):
-    one = Colaboradores()
+    one = ApiColaboradores()
     print("analyzing spreadsheet")
 
     ex = Excel(book=book, sheet_name="profissiona")
@@ -50,7 +50,7 @@ def checks(row, data):
         print(f"ERROR! in line {row}: empty name")
         erros = True
 
-    one = Colaboradores()
+    one = ApiColaboradores()
     try:
         data = one.name_to_id(data)
     except Exception as exp:

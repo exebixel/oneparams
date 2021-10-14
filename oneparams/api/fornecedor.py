@@ -1,23 +1,32 @@
 import json
 
-from oneparams.api.base import BaseApi
+from oneparams.api.base_diff import BaseDiff
 from oneparams.utils import create_cel, create_email
 
 
-class Fornecedor(BaseApi):
+class ApiFornecedor(BaseDiff):
     """
     classe de gerenciamento de fornecedores da one,
     sua principal função é criar e pesquisar fornecedores
     """
-    items = []
+    items = {}
     first_get = False
 
     def __init__(self):
-        if not Fornecedor.first_get:
-            self.all_fornecedores()
-            Fornecedor.first_get = True
+        super().__init__(
+            key_id="fornecedorId",
+            key_name="nomeCompleto",
+            key_active="ativoFornecedor",
+            item_name="supplier",
+            url_get_all="/CliForCols/ListaDetalhesFornecedores",
+            url_create="/OCliForColsUsuarioPerfil/CreateFornecedores"
+        )
 
-    def all_fornecedores(self):
+        if not ApiFornecedor.first_get:
+            self.get_all()
+            ApiFornecedor.first_get = True
+
+    def get_all(self):
         """
         Pega todos os fornecedores cadastrados no sistema,
         e preenche o atributo self.__fornecedores com nome e id
@@ -27,58 +36,25 @@ class Fornecedor(BaseApi):
         self.status_ok(response)
 
         content = json.loads(response.content)
-        Fornecedor.items = []
+        ApiFornecedor.items = {}
         for i in content:
-            Fornecedor.items.append({
-                "id": i["cliForColsId"],
-                "nome": i["nomeCompleto"]
-            })
+            ApiFornecedor.items[i["cliForColsId"]] = {
+                self.key_id: i["cliForColsId"],
+                self.key_name: i[self.key_name],
+                self.key_active: i[self.key_active],
+                "email": i["email"],
+                "celular": i["celular"]
+            }
 
-    def get_id(self, nome):
-        """
-        Retorna o id de um fornecedor,
-        o nome do fornecedor tem que ser exatamente igual,
-        se não encontrar o id do fornecedor, retorna None
-        """
-        for i in Fornecedor.items:
-            if i["nome"] == nome:
-                return i["id"]
-        return None
-
-    def create(self, nome):
-        """
-        Cria um fornecedor,
-        Dados de criação padrão:
-        data={
-            "ativoFornecedor": "true",
-            "flagCliente": "false",
-            "flagColaborador": "false",
-            "email": gerado aleatoriamente,
-            "celular": gerado aleatoriamente,
-            "nomeCompleto": nome (parâmetro)
-        }
-        """
-        print("creating {} supplier".format(nome))
-        response = self.post("/OCliForColsUsuarioPerfil/CreateFornecedores",
-                             data={
-                                 "ativoFornecedor": "true",
-                                 "flagCliente": "false",
-                                 "flagColaborador": "false",
-                                 "email": create_email(),
-                                 "celular": create_cel(),
-                                 "nomeCompleto": nome
-                             })
-        self.status_ok(response)
-        content = json.loads(response.content)
-        Fornecedor.items.append({"id": content["data"], "nome": nome})
-        return content["data"]
-
-    def get_for(self, nome):
-        """
-        Retorna o id de um fornecedor com base em seu nome,
-        se o fornecedor não existir, ele será criado
-        """
-        for_id = self.get_id(nome)
-        if for_id is None:
-            for_id = self.create(nome)
-        return for_id
+    def create(self, data: dict) -> int:
+        if self.key_active not in data:
+            data[self.key_active] = True
+        if "flagCliente" not in data:
+            data["flagCliente"] = False
+        if "flagColaborador" not in data:
+            data["flagColaborador"] = False
+        if "email" not in data:
+            data["email"] = create_email()
+        if "celular" not in data:
+            data["celular"] = create_cel()
+        return super().create(data)

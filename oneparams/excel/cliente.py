@@ -1,11 +1,11 @@
 from oneparams.excel.excel import Excel
-from oneparams.api.client import Cliente
+from oneparams.api.client import ApiCliente
 from oneparams.utils import wprint
 import oneparams.config as config
 
 
 def clientes(book, reset=False):
-    one = Cliente()
+    one = ApiCliente()
 
     print("analyzing spreadsheet")
 
@@ -84,7 +84,7 @@ def check_all(self, data):
         raise Exception
 
     if config.SKIP:
-        one = Cliente()
+        one = ApiCliente()
         print("skipping clients already registered")
         for cols in one.items:
             data = data.drop(data[data.nomeCompleto == cols["nomeCompleto"]].index)

@@ -1,12 +1,12 @@
-from oneparams.api.cards import apiCard
-from oneparams.api.conta import Conta
+from oneparams.api.cards import ApiCard
+from oneparams.api.conta import ApiConta
 from oneparams.api.operadora import Operadora
 from oneparams.excel.excel import Excel
 from oneparams.utils import card_type, deemphasize
 
 
 def cards(book, reset=False):
-    one = apiCard()
+    one = ApiCard()
     print("analyzing spreadsheet")
 
     ex = Excel(book=book, sheet_name="cart")
@@ -41,9 +41,9 @@ def cards(book, reset=False):
 
 def checks(row, data):
     erros = False
-    conta = Conta()
+    conta = ApiConta()
 
-    data["contasId"] = conta.return_id(data["contasId"])
+    data["contasId"] = conta.submodule_id(data["contasId"])
     if data["contasId"] == None:
         print(
             f'ERROR! in line {row}: Card {data["descricao"]} account not found'
