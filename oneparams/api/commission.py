@@ -63,7 +63,7 @@ class Commission(BaseApi):
 
     def delete_all(self):
         cols = self.cols.items
-        for cols in cols:
+        for key, cols in cols.items():
             data = self.get_servs_in_cols(cols["colaboradorId"])
             for i in data["servs"]:
                 print("deleting {} service in professional {}".format(
