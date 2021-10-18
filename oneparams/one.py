@@ -75,6 +75,7 @@ def cli_config(error=False, warning=False, skip=False):
 
 
 @click.group()
+@click.version_option(config.VERSION)
 def cli():
     pass
 
@@ -130,6 +131,7 @@ def clis(**kwargs):
                warning=kwargs['warning'],
                skip=kwargs['skip'])
     clientes(book, reset=kwargs['reset'])
+
 
 @cli.command(help="Password Reset")
 @click.argument('email', required=True, type=str)

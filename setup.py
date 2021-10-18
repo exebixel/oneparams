@@ -3,6 +3,8 @@ import shutil
 
 import setuptools
 
+from oneparams.config import VERSION
+
 currentDir = os.getcwd()
 distDir = f'{currentDir}/dist'
 buildDir = f'{currentDir}/build'
@@ -22,7 +24,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['one = oneparams.one:cli'],
     },
-    version="0.3.0",
+    version=VERSION,
     description="One System Parametrizer",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -32,6 +34,8 @@ setuptools.setup(
     install_requires=["requests", "pandas", "urllib3", "xlrd", "openpyxl", "click"],
     python_requires=">=3.6",
     classifiers=[
+        "Operating System :: OS Independent",
+        "Environment :: Console",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",

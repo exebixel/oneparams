@@ -4,3 +4,4 @@
 RESOLVE_ERROS = False
 NO_WARNING = False
 SKIP = False
+VERSION = "0.3.0"
