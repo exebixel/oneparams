@@ -27,9 +27,9 @@ def pw_reset(email, acess_key):
     if response.ok:
         content = json.loads(response.content)
         if content["data"] != None:
-            click.echo(f'Usuario: {content["data"]["nome"]}')
+            click.echo(f'User: {content["data"]["nome"]}')
             click.echo(f'Email: {content["data"]["email"]}')
-            click.echo("Senha: 123456")
+            click.echo("Password: 123456")
     elif response.status_code == 401:
         click.echo("ERROR: 401 Unauthorized, You do not have permission to access this module.")
     else:
