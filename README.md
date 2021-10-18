@@ -43,7 +43,7 @@ Como Usar
 
 O Oneparams precisa do módulos (o que ele vai fazer) o nome da empresa, email e senha se ela for diferente da senha padrão e claro da planilha de parametrização que sera lida
 
-O Oneparams tem 4 módulos:
+O Oneparams tem 6 módulos:
 
  - `serv`  para manipular serviços;
 
@@ -55,8 +55,10 @@ O Oneparams tem 4 módulos:
 
  - `clis`  para manipular os clientes (modulo beta)
 
+ - `reset` para resetar senhas de emails
 
-Cada módulo precisa:
+
+Cada módulo (exceto `reset`) precisa:
  -  do nome da empresa `--empresa` ou `-e`
  -  do email de login `--login` ou `-l`
  -  da senha `--password` ou `-p`, isso se a senha for diferente da senha padrão
@@ -82,6 +84,30 @@ $ one serv -l emailteste@one.com -e "teste mmtools" planilha.xlsx
 
 E alterando o modulo `serv` para `cols`, `card`, `comm` ou `clis` é possível usar as outras funções do Oneparams
 
+### reset
+
+Para utilização do modulo `reset` é necessario ter uma chave de acesso, essa chave deve ser definida como uma variavel de ambiente
+
+Para definir a variavel de ambiente:
+
+No Linux adicione a linha abaixo ao seu `~/.bashrc`:
+``` code:sh
+export ONE_RESET="<your-key>"
+```
+
+No Windows, abra o cmd como Administrator e utilize o comando abaixo:
+```
+setx ONE_RESET "<your-key>" /M
+```
+
+Depois de definida a chave de acesso, basta usar o comando abaixo para resetar a senha de um acesso
+``` code:sh
+one reset <email>
+
+one reset teste@teste.com
+```
+
+Caso tudo dê certo, o comando deve retornar o nome, email e a nova senha do usuario
 
 Sobre mim
 ---------
