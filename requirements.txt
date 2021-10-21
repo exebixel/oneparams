@@ -3,3 +3,5 @@ urllib3
 pandas
 xlrd
 openpyxl
+click
+alive-progress

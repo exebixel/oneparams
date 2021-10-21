@@ -31,7 +31,8 @@ setuptools.setup(
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
     url="https://github.com/exebixel/oneparams",
-    install_requires=["requests", "pandas", "urllib3", "xlrd", "openpyxl", "click"],
+    install_requires=["requests", "pandas", "urllib3",
+                      "xlrd", "openpyxl", "click", "alive-progress"],
     python_requires=">=3.6",
     classifiers=[
         "Operating System :: OS Independent",
