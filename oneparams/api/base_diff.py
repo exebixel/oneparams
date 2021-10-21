@@ -24,7 +24,8 @@ class BaseDiff(BaseApi):
                  url_delete: str = None,
                  key_active: str = None,
                  url_inactive: str = None,
-                 submodules: dict = None):
+                 submodules: dict = None,
+                 handle_errors: dict = {} ):
         """
         Define todas as urls que serão usadas,
         e também as keys do nome e id
@@ -45,6 +46,7 @@ class BaseDiff(BaseApi):
         self.key_active = key_active
 
         self.__submodules = submodules
+        self.__handle_error = handle_errors
 
     def create(self, data: dict) -> int:
         """
@@ -53,7 +55,7 @@ class BaseDiff(BaseApi):
         executa a requisição de criação, adiciona na listagem de items 
         e por fim retorna o id do item criado
         """
-        if self.__url_create is None: 
+        if self.__url_create is None:
             return None
 
         print("creating {} {}".format(data[self.key_name], self.item_name))
@@ -192,7 +194,7 @@ class BaseDiff(BaseApi):
 
             self.list_details[content[self.key_id]] = content
             return content
-        
+
         except AttributeError as e:
             sys.exit(e)
 
@@ -256,7 +258,6 @@ class BaseDiff(BaseApi):
                 return id
             raise ValueError(f'{self.item_name} {name} not found!')
         return id
-            
 
     def delete(self, data: dict) -> bool:
         """
@@ -276,7 +277,7 @@ class BaseDiff(BaseApi):
 
         return self.status_ok(response, erro_exit=False)
 
-    def inactive(self, data: dict) -> bool:
+    def inactive(self, item_id: int) -> bool:
         """
         Inativa um item que é recebido por 'data'
         'data' deve ter:
@@ -291,7 +292,7 @@ class BaseDiff(BaseApi):
         if self.__url_inactive is None:
             return False
 
-        data = self.details(data[self.key_id])
+        data = self.details(item_id)
         if not data[self.key_active]:
             return True
 
@@ -303,13 +304,42 @@ class BaseDiff(BaseApi):
                                            data[self.key_id]),
                             data=data)
 
-        if not self.status_ok(response, erro_exit=False):
+        if not self.status_ok(response):
             return False
 
         # atualizo o item na lista
         self.items[data[self.key_id]][self.key_active] = False
 
         return True
+
+    def delete_item(self, item_id: int) -> bool:
+        if self.__url_delete is None:
+            return False
+
+        try: 
+            item = self.items[item_id]
+        except KeyError:
+            raise KeyError(f'Id {item_id} not found!')
+
+
+        print("deleting {} {}".format(item[self.key_name], self.item_name))
+        response = super().delete("{}/{}".format(self.__url_delete,
+                                                 item_id))
+
+        if not self.status_ok(response, erro_exit=False):
+            return self.inactive(item_id)
+
+        self.items.pop(item_id)
+        try:
+            self.list_details.pop(item_id)
+        except KeyError:
+            pass
+        except AttributeError:
+            pass
+        return True
+
+
+
 
     def delete_all(self) -> None:
         """
@@ -322,7 +352,7 @@ class BaseDiff(BaseApi):
             if self.delete(item):
                 deleted.append(key)
             else:
-                self.inactive(item)
+                self.inactive(key)
 
         for i in deleted:
             self.items.pop(i)
@@ -332,3 +362,22 @@ class BaseDiff(BaseApi):
                 pass
             except AttributeError:
                 pass
+
+    def status_ok(self, response, erro_exit=True):
+        """
+        verifica se e requisição foi feita com sucesso (200),
+        por padrão se a requisição falhou o programa é encerrado,
+        é possível alterar isso com erro_exit=False
+        """
+        if not response.ok:
+            for error_key, message in self.__handle_error.items():
+                if f"b'{error_key}'" == str(response.content):
+                    print(message)
+                    break
+            else:
+                print(response.content)
+
+            if erro_exit:
+                sys.exit()
+            return False
+        return True

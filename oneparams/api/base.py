@@ -34,7 +34,7 @@ class BaseApi:
                                  headers=self.header,
                                  data=json.dumps(data))
         except requests.exceptions.ConnectionError:
-            sys.exit("Connection error!!\nCheck your internet connection")
+            sys.exit("\nConnection error!!\nCheck your internet connection")
 
     def get(self, url):
         """
@@ -44,7 +44,7 @@ class BaseApi:
             return requests.get("{}{}".format(self.api_url, url),
                                 headers=self.header)
         except requests.exceptions.ConnectionError:
-            sys.exit("Connection error!!\nCheck your internet connection")
+            sys.exit("\nConnection error!!\nCheck your internet connection")
 
     def delete(self, url):
         """
@@ -54,7 +54,7 @@ class BaseApi:
             return requests.delete("{}{}".format(self.api_url, url),
                                    headers=self.header)
         except requests.exceptions.ConnectionError:
-            sys.exit("Connection error!!\nCheck your internet connection")
+            sys.exit("\nConnection error!!\nCheck your internet connection")
 
     def put(self, url, data):
         """
@@ -65,7 +65,7 @@ class BaseApi:
                                 headers=self.header,
                                 data=json.dumps(data))
         except requests.exceptions.ConnectionError:
-            sys.exit("Connection error!!\nCheck your internet connection")
+            sys.exit("\nConnection error!!\nCheck your internet connection")
 
     def patch(self, url, data):
         """
@@ -76,7 +76,7 @@ class BaseApi:
                                   headers=self.header,
                                   data=json.dumps(data))
         except requests.exceptions.ConnectionError:
-            sys.exit("Connection error!!\nCheck your internet connection")
+            sys.exit("\nConnection error!!\nCheck your internet connection")
 
     def status_ok(self, response, erro_exit=True):
         """
@@ -84,7 +84,7 @@ class BaseApi:
         por padrão se a requisição falhou o programa é encerrado,
         é possível alterar isso com erro_exit=False
         """
-        if response.status_code != 200:
+        if not response.ok:
             print(f'Erro code: {response.status_code}')
             print(response.content)
             if erro_exit:
