@@ -24,7 +24,11 @@ class ApiServicos(BaseDiff):
             url_delete="/Servicos/DeleteServicos",
             url_inactive="/OServicosComis/UpdateServicosLight",
             key_active="flagAtivo",
-            submodules={"gservId": Gservis()})
+            submodules={"gservId": Gservis()},
+            handle_errors={
+                "API.SERVICOS.DELETE.REFERENCE": "Cant delete service..."
+            }
+        )
 
         if not ApiServicos.first_get:
             self.get_all()

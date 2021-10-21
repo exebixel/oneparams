@@ -21,7 +21,11 @@ class ApiCard(BaseDiff):
                          submodules={
                              "contasId": ApiConta(),
                              "operadoraCartaoId": Operadora()
-                         })
+                         },
+                         handle_errors={
+                             "API.CARTOES.DELETE.REFERENCE": "Cant delete card..."
+                         }
+        )
 
         if not ApiCard.first_get:
             self.get_all()
