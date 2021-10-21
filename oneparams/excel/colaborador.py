@@ -1,5 +1,7 @@
+from alive_progress import alive_bar
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.excel.excel import Excel
+from oneparams.config import config_bar
 
 
 def colaborador(book):
@@ -39,8 +41,13 @@ def colaborador(book):
     ex.clean_columns()
 
     data = ex.data_all(check_row=checks, check_final=check_all)
-    for row in data:
-        one.diff_item(row)
+    len_data = len(data)
+    
+    config_bar()
+    with alive_bar(len_data) as bar:
+        for row in data:
+            one.diff_item(row)
+            bar()
 
 
 def checks(row, data):

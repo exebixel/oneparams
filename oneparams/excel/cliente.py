@@ -1,3 +1,5 @@
+from alive_progress import alive_bar
+from oneparams.config import config_bar
 from oneparams.excel.excel import Excel
 from oneparams.api.client import ApiCliente
 from oneparams.utils import wprint
@@ -29,11 +31,20 @@ def clientes(book, reset=False):
 
     data = ex.data_all(check_row=checks, check_final=check_all)
 
+    len_data = len(data)
     if reset:
-        one.delete_all()
+        len_data += len(one.items)
 
-    for row in data:
-        one.diff_item(row)
+    config_bar()
+    with alive_bar(len_data) as bar:
+        if reset:
+            for i in list(one.items):
+                one.delete_item(i)
+                bar()
+
+        for row in data:
+            one.diff_item(row)
+            bar()
 
 
 def checks(row, data):
@@ -51,13 +62,13 @@ def checks(row, data):
 
 def check_all(self, data):
     erros = False
-    cols = {
+    clis = {
         "nomeCompleto": "DUPLICATED! in lines {} and {}: Client {}",
         "email": "DUPLICATED! lines {} and {}: Client\'s email {}",
         "celular": "DUPLICATED! lines {} and {}: Client's phone {}"
     }
 
-    for col, print_erro in cols.items():
+    for col, print_erro in clis.items():
         duplic = data[data.duplicated(keep=False, subset=col)]
 
         for i in duplic.loc[data[col].notnull()].index:
@@ -86,7 +97,7 @@ def check_all(self, data):
     if config.SKIP:
         one = ApiCliente()
         print("skipping clients already registered")
-        for cols in one.items:
-            data = data.drop(data[data.nomeCompleto == cols["nomeCompleto"]].index)
+        for key, clis in one.items.items():
+            data = data.drop(data[data.nomeCompleto == clis["nomeCompleto"]].index)
 
     return data

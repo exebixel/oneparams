@@ -1,8 +1,10 @@
+from alive_progress import alive_bar
 from oneparams.api.cards import ApiCard
 from oneparams.api.conta import ApiConta
 from oneparams.api.operadora import Operadora
+from oneparams.config import config_bar
 from oneparams.excel.excel import Excel
-from oneparams.utils import card_type, deemphasize
+from oneparams.utils import card_type
 
 
 def cards(book, reset=False):
@@ -30,13 +32,25 @@ def cards(book, reset=False):
 
     data_all = ex.data_all(check_row=checks, check_final=check_all)
 
+    operadora = Operadora()
+    len_data = len(data_all)
     if reset:
-        one.delete_all()
-        operadora = Operadora()
-        operadora.delete_all()
+        len_data += len(one.items)
+        len_data += len(operadora.items)
 
-    for row in data_all:
-        one.diff_item(row)
+    config_bar()
+    with alive_bar(len_data) as bar:
+        if reset:
+            for i in list(one.items):
+                one.delete_item(i)
+                bar()
+            for i in list(operadora.items):
+                operadora.delete_item(i)
+                bar()
+
+        for row in data_all:
+            one.diff_item(row)
+            bar()
 
 
 def checks(row, data):

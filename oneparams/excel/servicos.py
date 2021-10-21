@@ -1,3 +1,5 @@
+from alive_progress import alive_bar
+from oneparams.config import config_bar
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import ApiServicos
 from oneparams.excel.excel import Excel
@@ -60,15 +62,25 @@ def servico(book, reset=False):
 
     data = ex.data_all(check_row=checks, check_final=check_all)
 
+    len_data = len(data)
     if reset:
-        one.delete_all()
+        len_data += len(one.items)
 
-    for row in data:
-        one.diff_item(row)
+    config_bar()
+    with alive_bar(len_data) as bar:
+        if reset:
+            for i in list(one.items):
+                one.delete_item(i)
+                bar()
 
-    grupo = Gservis()
-    grupo.get_all()
-    grupo.clear()
+        for row in data:
+            one.diff_item(row)
+            bar()
+
+    with alive_bar() as bar:
+        grupo = Gservis()
+        grupo.get_all()
+        grupo.clear()
 
 
 def checks(row, data):
