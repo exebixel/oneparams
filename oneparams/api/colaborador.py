@@ -83,11 +83,11 @@ class ApiColaboradores(BaseDiff):
 
     def item_id(self, data: dict) -> int:
         name = deemphasize(data[self.key_name])
-        email = deemphasize(data["email"])
+        email = deemphasize(data["email"]).strip()
 
         for key, item in self.items.items():
             existent_name = deemphasize(item[self.key_name])
-            existent_email = deemphasize(item["email"])
+            existent_email = deemphasize(item["email"]).strip()
 
             if (existent_name == name
                     or existent_email == email):

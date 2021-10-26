@@ -1,6 +1,7 @@
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.conta import ApiConta
 from oneparams.api.operadora import Operadora
+from oneparams.utils import deemphasize
 
 
 class ApiCard(BaseDiff):
@@ -48,8 +49,10 @@ class ApiCard(BaseDiff):
         return id
 
     def item_id(self, data):
-        for key, item in ApiCard.items.items():
-            if (item["descricao"] == data["descricao"]
+        name = deemphasize(data[self.key_name])
+        for key, item in self.items.items():
+            item_normalized = deemphasize(item[self.key_name])
+            if (item_normalized == name 
                     and item["debito_Credito"] == data["debito_Credito"]):
                 return key
         return 0
