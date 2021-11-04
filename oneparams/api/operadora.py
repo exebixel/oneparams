@@ -17,6 +17,9 @@ class Operadora(BaseDiff):
             url_delete="/OperadoraCartoes",
             submodules={
                 "fornecedorId": ApiFornecedor()
+            },
+            handle_errors={
+                "API.OPERADORACARTOES.DELETE.REFERENCE": "Cant delete card operator"
             }
         )
         if not Operadora.first_get:
