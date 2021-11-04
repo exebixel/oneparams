@@ -6,7 +6,7 @@ from difflib import SequenceMatcher
 import oneparams.config as config
 
 
-def deemphasize(word):
+def deemphasize(word: str) -> str:
     """
     Retorna os caracteres da string em seu equivalente em Latin,
     em outras palavras, tira os acentos da string
@@ -19,14 +19,14 @@ def deemphasize(word):
     return word.lower()
 
 
-def no_space(word):
+def no_space(word: str) -> str:
     """
     Remove espaços em branco de uma string
     """
     return re.sub(r' ', '', word)
 
 
-def string_normalize(word):
+def string_normalize(word: str) -> str:
     """
     Retorna todos as letras e números de uma string
     """
@@ -35,7 +35,7 @@ def string_normalize(word):
     return re.sub(r'[^a-zA-Z0-9 \\]', '', word)
 
 
-def get_names(word):
+def get_names(word: str) -> list:
     """
     Retorna um array de strings com as letras,
     entre caracteres especiais e números
@@ -52,7 +52,7 @@ def get_names(word):
     return names
 
 
-def get_float(srtnum):
+def get_float(srtnum: str) -> float:
     srtnum = str(srtnum).strip()
     nums = re.findall(r"[0-9?.?,]+", srtnum)
     if len(nums) == 1:
@@ -69,7 +69,7 @@ def get_float(srtnum):
         raise ValueError("Number is duplicated")
 
 
-def get_time(strtime):
+def get_time(strtime: str) -> list:
     strtime = str(strtime).strip()
     times = re.findall(r"(1[0-2]|0?[0-9]):([0-5][0-9])(:[0-5][0-9])?", strtime)
     if len(times) == 1:
@@ -85,17 +85,17 @@ def get_time(strtime):
     elif len(times) == 0:
         raise TypeError("Time not found")
     else:
-        raise TypeError("Time is dupĺicated")
+        raise TypeError("Time is duplicated")
 
 
-def get_num(word):
+def get_num(word: str) -> str:
     """
     Retorna todos os números de uma string
     """
     return str(''.join(ele for ele in word if ele.isdigit()))
 
 
-def get_cel(word):
+def get_cel(word: str) -> str:
     """
     Retorna os números de uma string,
     verificando se existem 11 ou 9 números na string final,
@@ -109,7 +109,7 @@ def get_cel(word):
     raise ValueError("Invalid phone {}".format(word))
 
 
-def create_email():
+def create_email() -> str:
     """
     Retorna um email no padrão,
     one_<alguma_coisa>@onebeleza.com
@@ -120,7 +120,7 @@ def create_email():
     return f'one_{rand}@onebeleza.com'
 
 
-def check_email(email):
+def check_email(email: str) -> bool:
     if email is None:
         return False
     r = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
@@ -129,14 +129,14 @@ def check_email(email):
     return r.search(email) is not None
 
 
-def create_cel():
+def create_cel() -> str:
     """
     Cria uma string de 11 dígitos aleatórios
     """
     return ''.join(random.sample(string.digits * 11, 11))
 
 
-def card_type(card):
+def card_type(card: str) -> str:
     """
     Retorna 'C' ou 'D' dependendo do parâmetro (card),
     card pode ser 'credito' ou 'debito'
@@ -156,7 +156,7 @@ def card_type(card):
     raise TypeError("unrecognized card type {}".format(card))
 
 
-def get_bool(value):
+def get_bool(value: any) -> bool:
     """
     Recebe uma parâmetro (value) contendo "sim" ou "nao",
     e retorna True ou False
@@ -180,15 +180,15 @@ def get_bool(value):
     return None
 
 
-def similar(word, word_diff):
+def similar(word: str, word_diff: str) -> float:
     return SequenceMatcher(None, word, word_diff).ratio()
 
 
-def eprint(text):
+def eprint(text: str) -> None:
     if not config.RESOLVE_ERROS:
         print(text)
 
 
-def wprint(text):
+def wprint(text: str) -> None:
     if not config.NO_WARNING:
         print(text)
