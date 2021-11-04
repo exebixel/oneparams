@@ -1,5 +1,3 @@
-import json
-
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.perfils import Perfil
 from oneparams.api.profissao import Profissao
@@ -54,11 +52,6 @@ class ApiColaboradores(BaseDiff):
         }
         self.items[id] = data
         return id
-
-    def get_sheduler(self):
-        response = self.get("/OProfissional/ProfissionaisAgendaveis")
-        self.status_ok(response)
-        return json.loads(response.content)
 
     def equals(self, data: dict) -> bool:
         if data["email"] is None:
