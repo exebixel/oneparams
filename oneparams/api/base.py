@@ -12,9 +12,7 @@ class BaseApi:
     """
 
     header = {'Content-Type': 'application/json'}
-
-    def __init_subclass__(cls):
-        cls.api_url = "https://oneapilite.azurewebsites.net/api"
+    api_url = "https://oneapilite.azurewebsites.net/api"
 
     def update_token(self, token):
         """
