@@ -1,15 +1,40 @@
 import json
 
+from alive_progress import alive_bar
+from oneparams.config import config_bar
+
 from oneparams.api.base import BaseApi
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.api.servicos import ApiServicos
 
 
-class Commission(BaseApi):
+class ApiCommission(BaseApi):
+    items = {}
+
     def __init__(self):
         self.cols = ApiColaboradores()
         self.serv = ApiServicos()
-        self.items = []
+
+    def get_all(self):
+        # filtro de colaboradores ativos
+        to_get = []
+        for colsId, item in self.cols.items.items():
+            if item[self.cols.key_active] == True:
+                to_get.append(colsId)
+
+        # Gerar a estrutura local com todas as comissões
+        config_bar()
+        with alive_bar(len(to_get), title="Getting Commission Data") as bar:
+            for colsId in to_get:
+                ApiCommission.items[colsId] = self.get_servs_in_cols(colsId)
+                bar()
+
+    def len(self):
+        length = 0
+        for key in self.items.keys():
+            length += len(self.items[key])
+        return length
+
 
     def get_servs_in_cols(self, colsId):
         response = self.get(
@@ -17,61 +42,57 @@ class Commission(BaseApi):
             format(colsId), )
         self.status_ok(response)
         content = json.loads(response.content)
+
         data = {}
-        data["colsId"] = colsId
-        data["servs"] = []
         for i in content["Gservs"]:
             for i in i["Servicos"]:
-                data["servs"].append({
+                data[i["ServicosId"]] = {
                     "servId": i["ServicosId"],
-                    "serv": i["ServicosNome"],
-                    "comissao": i["ServicoValorComissao"],
-                })
+                    "colsId": colsId,
+                }
         return data
 
-    def index_cols(self, colsId):
-        index = 0
-        for i in self.items:
-            if (i["colsId"] == colsId):
-                return index
-            index += 1
-        return -1
-
     def exist(self, data):
-        index = self.index_cols(data["colsId"])
-        if index == -1:
-            item = self.get_servs_in_cols(data["colsId"])
-            self.items.append(item)
-        else:
-            item = self.items[index]
-
-        for i in item["servs"]:
-            if i["servId"] == data["servId"]:
+        try:
+            if data["servId"] in ApiCommission.items[data["colsId"]]:
                 return True
+        except KeyError:
+            servs = self.get_servs_in_cols(data["colsId"])
+            ApiCommission.items[data["colsId"]] = servs
+            if data["servId"] in servs:
+                return True
+            return False
         return False
 
-    def add(self, data):
+    def create(self, data):
+        print("adding {} service to professional {}".format(
+            self.serv.items[data["servId"]][self.serv.key_name],
+            self.cols.items[data["colsId"]][self.cols.key_name]
+        ))
+
         response = self.post("/OServicosComis/AdicionarComissao/{}".format(
             data["colsId"]),
-                             data=data["servId"])
+            data=data["servId"])
         self.status_ok(response)
 
+        if data["colsId"] not in self.items:
+            ApiCommission.items[data["colsId"]] = {}
+        ApiCommission.items[data["colsId"]][data["servId"]] = {
+            "colsId": data["colsId"],
+            "servId": data["servId"]
+        }
+
     def delete(self, data):
+        print("deleting {} service in professional {}".format(
+            self.serv.items[data["servId"]][self.serv.key_name],
+            self.cols.items[data["colsId"]][self.cols.key_name]
+        ))
+
         response = super().delete("/Comiservs/RemoverComissao/{}/{}".format(
             data["colsId"], data["servId"]))
         self.status_ok(response)
 
-    def delete_all(self):
-        cols = self.cols.items
-        for key, cols in cols.items():
-            data = self.get_servs_in_cols(cols["colaboradorId"])
-            for i in data["servs"]:
-                print("deleting {} service in professional {}".format(
-                    i["serv"], cols["nomeCompleto"]))
-                self.delete({
-                    "colsId": cols["colaboradorId"],
-                    "servId": i["servId"]
-                })
+        ApiCommission.items[data["colsId"]].pop(data["servId"])
 
     def change_name_for_id(self, data):
         erros = []
@@ -90,23 +111,10 @@ class Commission(BaseApi):
         return data
 
     def comissao(self, data):
-        data = self.change_name_for_id(data)
+        # data = self.change_name_for_id(data)
 
         if not self.exist(data):
-            print("adding {} service to professional {}".format(
-                data["servico"], data["cols"]))
-            self.add(data)
+            self.create(data)
         else:
-            print("updating {} service to professional {}".format(
-                data["servico"], data["cols"]))
             self.delete(data)
-            self.add(data)
-
-    def patch_comissao(self, data):
-        print("applying differentiated commission")
-        if "servId" in data.keys():
-            data["ServicosId"] = data["servId"]
-            data.pop("servId")
-        response = self.patch(
-            "/Comiservs/ComiservsLight/{}".format(data["colsId"]), data)
-        self.status_ok(response)
+            self.create(data)
