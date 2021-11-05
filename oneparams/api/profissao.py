@@ -20,7 +20,7 @@ class Profissao(BaseApi):
         content = json.loads(response.content)
         Profissao.items = content
 
-    def submodule_id(self, nome):
+    def submodule_id(self, nome, min_similar=0.6):
         if nome is None:
             return None
 
@@ -31,9 +31,9 @@ class Profissao(BaseApi):
             len_similar.append(similar(nome, pro))
 
         max_similar = max(len_similar)
-        if (max_similar < 0.6 or len_similar.count(max_similar) == 0):
-            raise ValueError(f'profession {nome} not found!!')
+        if (max_similar < min_similar or len_similar.count(max_similar) == 0):
+            raise ValueError(f'Profession {nome} not found!!')
         if len_similar.count(max_similar) > 1:
-            raise ValueError(f'profession {nome} is duplicated!!')
+            raise ValueError(f'Profession {nome} is duplicated!!')
 
         return Profissao.items[len_similar.index(max_similar)]["profissoesId"]
