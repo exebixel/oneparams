@@ -25,7 +25,7 @@ class BaseDiff(BaseApi):
                  key_active: str = None,
                  url_inactive: str = None,
                  submodules: dict = None,
-                 handle_errors: dict = {} ):
+                 handle_errors: dict = {}):
         """
         Define todas as urls que serão usadas,
         e também as keys do nome e id
@@ -250,7 +250,7 @@ class BaseDiff(BaseApi):
             print("skiping {} {}".format(data[self.key_name],
                                          self.item_name))
 
-    def submodule_id(self, name) -> int:
+    def submodule_id(self, name: str) -> int:
         id = self.item_id({self.key_name: name})
         if id == 0:
             id = self.create({self.key_name: name})
@@ -278,15 +278,9 @@ class BaseDiff(BaseApi):
         return self.status_ok(response, erro_exit=False)
 
     def inactive(self, item_id: int) -> bool:
-        """
-        Inativa um item que é recebido por 'data'
-        'data' deve ter:
-        data = [
-            self.key_name: str,
-            self.key_id: int
-        ]
+        """ Inativa um item cadastrado
 
-        Retorna um valor boleano informando se o item 
+        Retorna um valor boleano informando se o item
         foi inativado ou não
         """
         if self.__url_inactive is None:
@@ -313,14 +307,21 @@ class BaseDiff(BaseApi):
         return True
 
     def delete_item(self, item_id: int) -> bool:
+        """Deleta um item 
+
+        Caso não consiga deletar o item 
+        tentara inativar o item
+
+        Retorna True caso consiga deletar ou 
+        inativar o item
+        """
         if self.__url_delete is None:
             return False
 
-        try: 
+        try:
             item = self.items[item_id]
         except KeyError:
             raise KeyError(f'Id {item_id} not found!')
-
 
         print("deleting {} {}".format(item[self.key_name], self.item_name))
         response = super().delete("{}/{}".format(self.__url_delete,
@@ -338,12 +339,9 @@ class BaseDiff(BaseApi):
             pass
         return True
 
-
-
-
     def delete_all(self) -> None:
         """
-            Deletar ou inativar (se possivel)
+            Deletar ou inativar (se possível)
             todos os items em self.items
         """
         deleted = []
