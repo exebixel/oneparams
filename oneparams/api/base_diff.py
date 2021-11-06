@@ -4,6 +4,8 @@ import re
 
 from oneparams.api.base import BaseApi
 from oneparams.utils import deemphasize
+from alive_progress import alive_bar
+from oneparams.config import config_bar
 
 
 class BaseDiff(BaseApi):
@@ -121,6 +123,50 @@ class BaseDiff(BaseApi):
         self.status_ok(response)
 
         return json.loads(response.content)
+
+    def get_all_details(self, inactive: bool = False) -> None:
+        """Puxa da api os detalhamentos de todos os items
+
+        Essa função não retorna nada, apenas preenche a variavel
+        self.list_details com os dados dos items, isso é feito 
+        unicamente com o proposito de otimizar algumas pesquisas
+
+        Os detalhes podem ser acessados através da função 
+        self.details()
+
+        Argumentos:
+        inactive -- Caso seja True puxa dados de items inativos também
+        """
+        if self.__url_get_detail is None:
+            return False
+
+        if inactive:
+            all_ids = self.items
+        else:
+            all_ids = self.items_active()
+
+        config_bar()
+        with alive_bar(len(all_ids), title=f"Getting {self.item_name} details") as bar:
+            for id in all_ids:
+                self.details(id)
+                bar()
+
+    def items_active(self) -> dict:
+        """Retorna todos os items ativos"""
+        if self.key_active is None:
+            return self.items
+        return {key: item for (key, item) in self.items.items()
+                if item[self.key_active] == True}
+
+    def len(self, inactive: bool = True):
+        """Retorna a quantidade de items
+
+        Argumentos: 
+        inactive -- Caso True considera os items inativos na contagem
+        """
+        if inactive:
+            return len(self.items)
+        return len(self.items_active())
 
     def equals(self, data: dict) -> bool:
         """
