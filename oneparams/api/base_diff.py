@@ -52,9 +52,9 @@ class BaseDiff(BaseApi):
 
     def create(self, data: dict) -> int:
         """
-        Recebe um parâmetro com os dados (dict) que devem 
+        Recebe um parâmetro com os dados (dict) que devem
         ser adicionados ao sistema,
-        executa a requisição de criação, adiciona na listagem de items 
+        executa a requisição de criação, adiciona na listagem de items
         e por fim retorna o id do item criado
         """
         if self.__url_create is None:
@@ -74,7 +74,7 @@ class BaseDiff(BaseApi):
         data = dict com dados recebidos de forma externa \n
         response = resposta da requisição de self.create() \n
 
-        Depois que adicionar os dados a função deve retornar 
+        Depois que adicionar os dados a função deve retornar
         o id do item \n
 
         Essa função serve basicamente para ser reescrita,
@@ -112,10 +112,10 @@ class BaseDiff(BaseApi):
         """
         Retorna todos os items cadastrados no sistema \n
 
-        Essa função deve ser sempre reescrita para 
+        Essa função deve ser sempre reescrita para
         enviar os dados retornados para a variavel
         self.items,
-        infelizmente isso é necessario por não haver um 
+        infelizmente isso é necessário por não haver um
         padrão de retorno dos dados dentro da api
         """
         print("researching {}".format(self.item_name))
@@ -128,10 +128,10 @@ class BaseDiff(BaseApi):
         """Puxa da api os detalhamentos de todos os items
 
         Essa função não retorna nada, apenas preenche a variavel
-        self.list_details com os dados dos items, isso é feito 
+        self.list_details com os dados dos items, isso é feito
         unicamente com o proposito de otimizar algumas pesquisas
 
-        Os detalhes podem ser acessados através da função 
+        Os detalhes podem ser acessados através da função
         self.details()
 
         Argumentos:
@@ -161,7 +161,7 @@ class BaseDiff(BaseApi):
     def len(self, inactive: bool = True):
         """Retorna a quantidade de items
 
-        Argumentos: 
+        Argumentos:
         inactive -- Caso True considera os items inativos na contagem
         """
         if inactive:
@@ -199,7 +199,7 @@ class BaseDiff(BaseApi):
                 return key
         return 0
 
-    def search_item_by_name(self, nome: dict) -> int:
+    def search_item_by_name(self, nome: dict, inactive: bool = False) -> int:
         """
         Pesquisa por um nome (self.key_name) e retorna o Id (self.key_id),
         a pesquisa é feita ignorando o case das letras e os acentos,
@@ -209,18 +209,27 @@ class BaseDiff(BaseApi):
         a função retorna uma exception
         """
         nome = deemphasize(nome)
-        ids = []
-        for key, item in self.items.items():
-            nome_item = deemphasize(item[self.key_name])
-            if re.search(nome, nome_item):
-                ids.append(key)
+        name_striped = re.findall(r"[a-z]+", nome)
 
-        if len(ids) == 1:
-            return ids[0]
+        if inactive:
+            id_to_check = self.items
+        else:
+            id_to_check = self.items_active()
 
-        if len(ids) == 0:
+        for n in name_striped:
+            ids = []
+            for id in id_to_check:
+                nome_item = deemphasize(self.items[id][self.key_name])
+                if re.search(n, nome_item):
+                    ids.append(id)
+            id_to_check = ids
+
+        if len(id_to_check) == 1:
+            return id_to_check[0]
+
+        if len(id_to_check) == 0:
             raise ValueError("{} {} not found!".format(self.item_name, nome))
-        if len(ids) > 0:
+        if len(id_to_check) > 0:
             raise ValueError("{} {} is duplicated!".format(
                 self.item_name, nome))
 
@@ -246,8 +255,8 @@ class BaseDiff(BaseApi):
 
     def name_to_id(self, data: dict) -> dict:
         """
-        Recebe os dados em um dicionario, 
-        e transforma os valores dos campos especificados 
+        Recebe os dados em um dicionario,
+        e transforma os valores dos campos especificados
         no dict self.submodules em ids  \n
 
         Retorna um novo "data" com os valores
@@ -353,12 +362,12 @@ class BaseDiff(BaseApi):
         return True
 
     def delete_item(self, item_id: int) -> bool:
-        """Deleta um item 
+        """Deleta um item
 
-        Caso não consiga deletar o item 
+        Caso não consiga deletar o item
         tentara inativar o item
 
-        Retorna True caso consiga deletar ou 
+        Retorna True caso consiga deletar ou
         inativar o item
         """
         if self.__url_delete is None:
