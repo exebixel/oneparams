@@ -76,7 +76,8 @@ class Comissao():
         api_profession = Profissao()
 
         try:
-            profession_id = api_profession.submodule_id(profession_name, min_similar=0.8)
+            profession_id = api_profession.submodule_id(
+                profession_name, min_similar=0.8)
         except ValueError as exp:
             raise ValueError(exp)
 
@@ -104,7 +105,8 @@ class Comissao():
                     try:
                         ids = self.cols_with_profession_name(i)
                     except ValueError as exp:
-                        print("ERROR!! in line {}: {}".format(data["row"], exp))
+                        print("ERROR!! in line {}: Collaborator/{}".format(
+                            data["row"], exp))
                         self.erros = True
 
         if not self.erros:
