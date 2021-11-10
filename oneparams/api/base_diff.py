@@ -229,7 +229,15 @@ class BaseDiff(BaseApi):
 
         if len(id_to_check) == 0:
             raise ValueError("{} {} not found!".format(self.item_name, nome))
+
         if len(id_to_check) > 0:
+            second_ids = []
+            for id in id_to_check:
+                if nome == deemphasize(self.items[id][self.key_name]).strip():
+                    second_ids.append(id)
+            if len(second_ids) == 1:
+                return second_ids[0]
+
             raise ValueError("{} {} is duplicated!".format(
                 self.item_name, nome))
 
