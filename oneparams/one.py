@@ -22,7 +22,8 @@ _global_options = [
     click.option('-e', '--empresa', 'empresa', required=True,
                  type=str, help="Company name used to parametrization"),
     click.option('-eid', '--empresa-id', 'empresa_id',
-                 required=False, type=int, default=None, help="Company id (if have some companies with same name)"),
+                 required=False, type=int, default=0,
+                 help="Company id (if have some companies with same name)"),
     click.option('-f', '--filial', 'filial', required=False,
                  type=str, help="Branch name used to parametrization"),
     click.option('-W', '--no-warning', 'warning', required=False,
@@ -33,7 +34,7 @@ _reset_options = [
                  default=False, help="Delete or inactivate all services")
 ]
 _error_options = [
-    click.option('-E', '--no-error', 'error', required=False, is_flag=True,
+    click.option('-E', '--resolve-error', 'error', required=False, is_flag=True,
                  default=False, help="Resolve erros (this can delete data)")
 ]
 _skip_options = [
@@ -112,10 +113,12 @@ def card(**kwargs):
 @cli.command(help="Professional Committee Manipulation")
 @add_option(_global_options)
 @add_option(_reset_options)
+@add_option(_error_options)
 def comm(**kwargs):
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
-    cli_config(warning=kwargs['warning'])
+    cli_config(warning=kwargs['warning'],
+               error=kwargs['error'])
     Comissao(book, reset=kwargs['reset'])
 
 
