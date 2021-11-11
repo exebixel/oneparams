@@ -34,10 +34,6 @@ class Gservis(BaseDiff):
         return super().add_item(data, response)
 
     def clear(self):
-        deleted = []
-        for key, gserv in self.items.items():
-            if gserv["cont"] == 0:
-                self.delete(gserv)
-                deleted.append(key)
-        for i in deleted:
-            self.items.pop(i)
+        for key in list(self.items):
+            if self.items[key]["cont"] == 0:
+                self.delete(key)
