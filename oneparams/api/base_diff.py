@@ -322,24 +322,6 @@ class BaseDiff(BaseApi):
             raise ValueError(f'{self.item_name} {name} not found!')
         return id
 
-    def delete(self, data: dict) -> bool:
-        """
-        Delete um item recebido por parametro (data),
-        data tem que ter:
-        data = [
-            self.key_name: str,
-            self.key_id: int
-        ]
-        """
-        if self.__url_delete is None:
-            return False
-
-        print("deleting {} {}".format(data[self.key_name], self.item_name))
-        response = super().delete("{}/{}".format(self.__url_delete,
-                                                 data[self.key_id]))
-
-        return self.status_ok(response, erro_exit=False)
-
     def inactive(self, item_id: int) -> bool:
         """ Inativa um item cadastrado
 
@@ -369,7 +351,7 @@ class BaseDiff(BaseApi):
 
         return True
 
-    def delete_item(self, item_id: int) -> bool:
+    def delete(self, item_id: int) -> bool:
         """Deleta um item
 
         Caso não consiga deletar o item
@@ -401,28 +383,6 @@ class BaseDiff(BaseApi):
         except AttributeError:
             pass
         return True
-
-    def delete_all(self) -> None:
-        """
-            Deletar ou inativar (se possível)
-            todos os items em self.items
-        """
-        deleted = []
-
-        for key, item in self.items.items():
-            if self.delete(item):
-                deleted.append(key)
-            else:
-                self.inactive(key)
-
-        for i in deleted:
-            self.items.pop(i)
-            try:
-                self.list_details.pop(i)
-            except KeyError:
-                pass
-            except AttributeError:
-                pass
 
     def status_ok(self, response, erro_exit=True):
         """

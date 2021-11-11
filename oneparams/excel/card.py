@@ -42,10 +42,10 @@ def cards(book, reset=False):
     with alive_bar(len_data) as bar:
         if reset:
             for i in list(one.items):
-                one.delete_item(i)
+                one.delete(i)
                 bar()
             for i in list(operadora.items):
-                operadora.delete_item(i)
+                operadora.delete(i)
                 bar()
 
         for row in data_all:
