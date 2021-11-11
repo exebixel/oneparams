@@ -24,9 +24,11 @@ class ApiCard(BaseDiff):
                              "operadoraCartaoId": Operadora()
                          },
                          handle_errors={
-                             "API.CARTOES.DELETE.REFERENCE": "Cant delete card..."
-                         }
-        )
+                             "API.CARTOES.DELETE.REFERENCE":
+                             "Cant delete card...",
+                             "API.OCARTAO.CARTAODETALHES.FORNECEDOR.NOTFOUND":
+                             "ERROR! Card Operator does not have a supplier"
+                         })
 
         if not ApiCard.first_get:
             self.get_all()
@@ -52,7 +54,8 @@ class ApiCard(BaseDiff):
         name = deemphasize(data[self.key_name])
         for key, item in self.items.items():
             item_normalized = deemphasize(item[self.key_name])
-            if (item_normalized == name 
+            if (item_normalized == name
                     and item["debito_Credito"] == data["debito_Credito"]):
                 return key
         return 0
+
