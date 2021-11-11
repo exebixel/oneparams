@@ -1,7 +1,7 @@
 import json
 
 from oneparams.api.base_diff import BaseDiff
-from oneparams.utils import create_email, string_normalize
+from oneparams.utils import create_email, deemphasize
 
 
 class ApiCliente(BaseDiff):
@@ -87,10 +87,14 @@ class ApiCliente(BaseDiff):
         return super().update(data)
 
     def item_id(self, data):
-        name = string_normalize(data[self.key_name]).strip()
+        name = data[self.key_name]
+        email = deemphasize(data["email"])
+
         for key, item in self.items.items():
-            existent_name = string_normalize(item[self.key_name]).strip()
+            existent_name = item[self.key_name]
+            existent_email = deemphasize(item["email"]).strip()
+
             if (existent_name == name
-                    or item["email"] == data["email"]):
+                    or existent_email == email):
                 return key
         return 0
