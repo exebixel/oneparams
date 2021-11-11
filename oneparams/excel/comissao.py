@@ -103,7 +103,7 @@ class Comissao():
                     self.erros = True
                 else:
                     try:
-                        ids = self.cols_with_profession_name(i)
+                        ids.extend(self.cols_with_profession_name(i))
                     except ValueError as exp:
                         print("ERROR!! in line {}: Collaborator/{}".format(
                             data["row"], exp))
