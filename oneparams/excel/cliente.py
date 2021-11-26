@@ -25,7 +25,8 @@ def clientes(book, reset=False):
     ex.add_column(key="sexo", name="sexo")
     ex.add_column(key="aniversario",
                   name="aniversario",
-                  default="",
+                  types="date",
+                  default=None,
                   required=False)
     ex.clean_columns()
 

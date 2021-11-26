@@ -2,6 +2,7 @@ import random
 import re
 import string
 import unicodedata
+from datetime import datetime
 from difflib import SequenceMatcher
 import oneparams.config as config
 
@@ -86,6 +87,28 @@ def get_time(strtime: str) -> list:
         raise TypeError("Time not found")
     else:
         raise TypeError("Time is duplicated")
+
+
+def get_date(strdate: str) -> datetime:
+    strdate = str(strdate).strip()
+    formats = [
+        "%Y-%m-%d 00:00:00",
+        "%Y-%m-%d",
+        "%Y/%m/%d",
+        "%d/%m/%Y",
+        "%d-%m-%Y",
+    ]
+
+    date = None
+    for i in formats:
+        try:
+            date = datetime.strptime(strdate, i)
+            break
+        except ValueError:
+            continue
+    else:
+        raise ValueError("Date not found")
+    return date
 
 
 def get_num(word: str) -> str:

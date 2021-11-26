@@ -1,8 +1,8 @@
 import pandas as pd
 import oneparams.config as config
-from datetime import time
+from datetime import time, datetime
 
-from oneparams.utils import get_bool, get_float, get_time
+from oneparams.utils import get_bool, get_float, get_time, get_date
 from oneparams.utils import get_cel, wprint, check_email
 
 
@@ -17,6 +17,10 @@ def check_types(self, data):
 
     elif types == "time":
         excel = excel.apply(lambda x: check_time(self, x, data, x.name),
+                            axis=1)
+
+    elif types == "date":
+        excel = excel.apply(lambda x: check_date(self, x, data, x.name),
                             axis=1)
 
     elif types == "float":
@@ -102,6 +106,32 @@ def check_time(self, values, data, row):
     else:
         values[key] = value
 
+    return values
+
+
+def check_date(self, values, data, row):
+    key = data["key"]
+    if check_default(self, values, data):
+        values[key] = data["default"]
+        return values
+
+    value = values[key]
+    try:
+        date = get_date(value)
+        value = datetime.strftime(date, "%Y-%m-%dT00:00:00")
+    except ValueError as exp:
+        if not config.RESOLVE_ERROS:
+            print("ERROR! In line {}, Column {}: {}".format(
+                self.row(row), key, exp
+            ))
+            self.erros = True
+        else:
+            wprint("WARNING! In line {}, Column {}: {}".format(
+                self.row(row), key, exp
+            ))
+            value = data["default"]
+
+    values[key] = value
     return values
 
 
