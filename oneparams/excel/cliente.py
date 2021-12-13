@@ -1,3 +1,4 @@
+import re
 from alive_progress import alive_bar
 from oneparams.config import config_bar
 from oneparams.excel.excel import Excel
@@ -28,6 +29,16 @@ def clientes(book, reset=False):
                   types="date",
                   default=None,
                   required=False)
+
+    ex.add_column(key="cep", name="cep", length=50)
+    ex.add_column(key="endereco", name="endereco", length=50)
+    ex.add_column(key="bairro", name="bairro", length=40)
+    ex.add_column(key="complemento", name="complemento", length=50)
+    ex.add_column(key="numeroEndereco",
+                  name="numero",
+                  default="",
+                  types="float")
+
     ex.clean_columns()
 
     data = ex.data_all(check_row=checks, check_final=check_all)
@@ -54,6 +65,8 @@ def checks(row, data):
     if data["nomeCompleto"] is None:
         print("ERROR! in line {row}: empty name")
         erros = True
+
+    data["numeroEndereco"] = re.sub(r'\.0$', '', str(data["numeroEndereco"]))
 
     if erros:
         raise Exception
@@ -99,6 +112,7 @@ def check_all(self, data):
         one = ApiCliente()
         print("skipping clients already registered")
         for key, clis in one.items.items():
-            data = data.drop(data[data.nomeCompleto == clis["nomeCompleto"]].index)
+            data = data.drop(
+                data[data.nomeCompleto == clis["nomeCompleto"]].index)
 
     return data
