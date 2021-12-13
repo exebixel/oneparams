@@ -19,7 +19,7 @@ class ApiCommission(BaseApi):
         # filtro de colaboradores ativos
         to_get = []
         for colsId, item in self.cols.items.items():
-            if item[self.cols.key_active] == True:
+            if item[self.cols.key_active]:
                 to_get.append(colsId)
 
         # Gerar a estrutura local com todas as comissões
@@ -34,7 +34,6 @@ class ApiCommission(BaseApi):
         for key in self.items.keys():
             length += len(self.items[key])
         return length
-
 
     def get_servs_in_cols(self, colsId):
         response = self.get(
