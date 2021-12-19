@@ -18,7 +18,7 @@ class BaseDiff(BaseApi):
                  key_id: str,
                  key_name: str,
                  item_name: str,
-                 url_get_all: str,
+                 url_get_all: str = None,
                  url_update: str = None,
                  url_create: str = None,
                  url_get_detail: str = None,
@@ -47,7 +47,7 @@ class BaseDiff(BaseApi):
         self.__url_inactive = url_inactive
         self.key_active = key_active
 
-        self.__submodules = submodules
+        self.submodules = submodules
         self.__handle_error = handle_errors
 
     def create(self, data: dict) -> int:
@@ -118,6 +118,10 @@ class BaseDiff(BaseApi):
         infelizmente isso é necessário por não haver um
         padrão de retorno dos dados dentro da api
         """
+        if self.__url_get_all is None:
+            raise Exception(
+                "self.__url_get_all not defined, cannot get items!")
+
         print("researching {}".format(self.item_name))
         response = self.get(self.__url_get_all)
         self.status_ok(response)
@@ -146,7 +150,8 @@ class BaseDiff(BaseApi):
             all_ids = self.items_active()
 
         config_bar()
-        with alive_bar(len(all_ids), title=f"Getting {self.item_name} details") as bar:
+        with alive_bar(len(all_ids),
+                       title=f"Getting {self.item_name} details") as bar:
             for id in all_ids:
                 self.details(id)
                 bar()
@@ -155,8 +160,11 @@ class BaseDiff(BaseApi):
         """Retorna todos os items ativos"""
         if self.key_active is None:
             return self.items
-        return {key: item for (key, item) in self.items.items()
-                if item[self.key_active] == True}
+        return {
+            key: item
+            for (key, item) in self.items.items()
+            if item[self.key_active]
+        }
 
     def len(self, inactive: bool = True):
         """Retorna a quantidade de items
@@ -272,11 +280,11 @@ class BaseDiff(BaseApi):
 
         Caso ocorra algum erro retorna uma Exception
         """
-        if self.__submodules is None:
+        if self.submodules is None:
             return data
 
         erros = []
-        for sub, func in self.__submodules.items():
+        for sub, func in self.submodules.items():
             if type(data[sub]) is not int:
                 try:
                     data[sub] = func.submodule_id(data[sub])
@@ -310,8 +318,7 @@ class BaseDiff(BaseApi):
             self.update(data)
 
         else:
-            print("skiping {} {}".format(data[self.key_name],
-                                         self.item_name))
+            print("skiping {} {}".format(data[self.key_name], self.item_name))
 
     def submodule_id(self, name: str) -> int:
         id = self.item_id({self.key_name: name})
@@ -337,8 +344,7 @@ class BaseDiff(BaseApi):
 
         data[self.key_active] = False
 
-        print("inactivating {} {}".format(data[self.key_name],
-                                          self.item_name))
+        print("inactivating {} {}".format(data[self.key_name], self.item_name))
         response = self.put("{}/{}".format(self.__url_inactive,
                                            data[self.key_id]),
                             data=data)
@@ -369,8 +375,7 @@ class BaseDiff(BaseApi):
             raise KeyError(f'Id {item_id} not found!')
 
         print("deleting {} {}".format(item[self.key_name], self.item_name))
-        response = super().delete("{}/{}".format(self.__url_delete,
-                                                 item_id))
+        response = super().delete("{}/{}".format(self.__url_delete, item_id))
 
         if not self.status_ok(response, erro_exit=False):
             return self.inactive(item_id)
