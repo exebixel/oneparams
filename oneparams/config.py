@@ -10,4 +10,4 @@ VERSION = "0.3.2"
 
 
 def config_bar():
-    config_handler.set_global(stats=False, enrich_print=False)
+    config_handler.set_global(stats=False, enrich_print=False, spinner=None)
