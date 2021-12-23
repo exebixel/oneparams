@@ -1,6 +1,9 @@
 import json
 
+import pandas as pd
+
 from oneparams.api.base_diff import BaseDiff
+from oneparams.api.cidade import ApiCidade
 from oneparams.utils import create_email, deemphasize
 
 
@@ -23,7 +26,10 @@ class ApiCliente(BaseDiff):
             url_get_detail="/OCliente/Detalhesclientes",
             key_detail="clientesCliForColsLightModel",
             url_delete="/OCliForColsUsuario/DeleteCliente",
-            url_inactive="/OCliForColsUsuarioFiliais/UpdateClientes"
+            url_inactive="/OCliForColsUsuarioFiliais/UpdateClientes",
+            submodules={
+                "cidadeId": ApiCidade()
+            }
         )
 
         if not ApiCliente.first_get:
@@ -68,7 +74,7 @@ class ApiCliente(BaseDiff):
     def equals(self, data: dict) -> None:
         if data["email"] is None:
             data.pop("email")
-        if data["celular"] is None:
+        if not pd.notnull(data["celular"]):
             data.pop("celular")
         return super().equals(data)
 
@@ -98,3 +104,32 @@ class ApiCliente(BaseDiff):
                     or existent_email == email):
                 return key
         return 0
+
+    def name_to_id(self, data: dict) -> dict:
+        """
+        Recebe os dados em um dicionario,
+        e transforma os valores dos campos especificados
+        no dict self.submodules em ids  \n
+
+        Retorna um novo "data" com os valores
+        convertidos para id \n
+
+        Caso ocorra algum erro retorna uma Exception
+        """
+        if self.submodules is None:
+            return data
+
+        if type(data["cidadeId"]) is int:
+            return data
+
+        try:
+            city = self.submodules["cidadeId"].submodule_id(
+                city=data["cidadeId"],
+                state=data["estadoId"]
+            )
+            data["estadoId"] = city["estadosId"]
+            data["cidadeId"] = city["cidadesId"]
+        except ValueError as e:
+            raise ValueError(str(e))
+
+        return data
