@@ -184,7 +184,7 @@ def get_bool(value: any) -> bool:
     Recebe uma parâmetro (value) contendo "sim" ou "nao",
     e retorna True ou False
     """
-    if value == True or value == False:
+    if type(value) is bool:
         return value
     if value == 1:
         return True

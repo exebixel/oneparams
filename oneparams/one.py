@@ -34,8 +34,9 @@ _reset_options = [
                  default=False, help="Delete or inactivate all services")
 ]
 _error_options = [
-    click.option('-E', '--resolve-error', 'error', required=False, is_flag=True,
-                 default=False, help="Resolve erros (this can delete data)")
+    click.option('-E', '--resolve-error', 'error',
+                 required=False, is_flag=True, default=False,
+                 help="Resolve erros (this can delete data)")
 ]
 _skip_options = [
     click.option('-S', '--skip', 'skip', required=False, is_flag=True,
@@ -138,7 +139,8 @@ def clis(**kwargs):
 
 @cli.command(help="Password Reset")
 @click.argument('email', required=True, type=str)
-@click.option('-k', '--key', 'acess_key', envvar='ONE_RESET', required=True, type=str)
+@click.option('-k', '--key', 'acess_key',
+              envvar='ONE_RESET', required=True, type=str)
 def reset(email, acess_key):
     pw_reset(email, acess_key)
 

@@ -309,7 +309,8 @@ class BaseDiff(BaseApi):
         try:
             data = self.name_to_id(data)
         except ValueError as e:
-            sys.exit("ERROR!! " + str(e))
+            print("ERROR!! " + str(e))
+            sys.exit(1)
 
         if data[self.key_id] == 0:
             self.create(data)

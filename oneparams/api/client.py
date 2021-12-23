@@ -30,7 +30,7 @@ class ApiCliente(BaseDiff):
             self.get_all()
             ApiCliente.first_get = True
 
-    def get_all(self):
+    def get_all(self) -> None:
         print("researching {}".format(self.item_name))
         ApiCliente.items = {}
 
@@ -65,28 +65,28 @@ class ApiCliente(BaseDiff):
         }
         return super().add_item(data, response)
 
-    def equals(self, data):
+    def equals(self, data: dict) -> None:
         if data["email"] is None:
             data.pop("email")
         if data["celular"] is None:
             data.pop("celular")
         return super().equals(data)
 
-    def create(self, data):
+    def create(self, data: dict) -> None:
         if data["email"] is None:
             data["email"] = create_email()
         if data["celular"] is None:
             data["celular"] = "00000000"
         super().create(data)
 
-    def update(self, data):
+    def update(self, data: dict) -> None:
         if "email" not in data.keys():
             data["email"] = self.details(data[self.key_id])["email"]
         if "celular" not in data.keys():
             data["celular"] = self.details(data[self.key_id])["celular"]
         return super().update(data)
 
-    def item_id(self, data):
+    def item_id(self, data: dict) -> None:
         name = data[self.key_name]
         email = deemphasize(data["email"])
 
