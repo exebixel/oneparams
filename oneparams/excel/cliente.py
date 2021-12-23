@@ -38,6 +38,8 @@ def clientes(book, reset=False):
                   name="numero",
                   default="",
                   types="float")
+    ex.add_column(key="cidadeId", name="cidade")
+    ex.add_column(key="estadoId", name="estado")
 
     ex.clean_columns()
 
@@ -67,6 +69,18 @@ def checks(row, data):
         erros = True
 
     data["numeroEndereco"] = re.sub(r'\.0$', '', str(data["numeroEndereco"]))
+
+    try:
+        api = ApiCliente()
+        data = api.name_to_id(data)
+    except ValueError as e:
+        if not config.RESOLVE_ERROS:
+            print(f"ERROR! in line {row}: {e}")
+            erros = True
+        else:
+            wprint(f"WARNING! in line {row}: {e}")
+            data["cidadeId"] = None
+            data["estadoId"] = None
 
     if erros:
         raise Exception
