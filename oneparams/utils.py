@@ -215,3 +215,48 @@ def eprint(text: str) -> None:
 def wprint(text: str) -> None:
     if not config.NO_WARNING:
         print(text)
+
+
+def state_to_uf(state_name: str) -> str:
+    """ Retorna o UF do estado
+    """
+
+    state_name = str(state_name)
+
+    # é importante que o UF esteja em MAIUSCULO
+    # # e o estado minusculo e sem acentos
+    states = {
+        'AC': 'acre',
+        'AL': 'alagoas',
+        'AP': 'amapa',
+        'AM': 'amazonas',
+        'BA': 'bahia',
+        'CE': 'ceara',
+        'DF': 'distrito federal',
+        'ES': 'espirito santo',
+        'GO': 'goias',
+        'MA': 'maranhao',
+        'MT': 'mato grosso',
+        'MS': 'mato grosso do sul',
+        'MG': 'minas gerais',
+        'PA': 'para',
+        'PB': 'paraiba',
+        'PR': 'parana',
+        'PE': 'pernambuco',
+        'PI': 'piaui',
+        'RJ': 'rio de janeiro',
+        'RN': 'rio grande do norte',
+        'RS': 'rio grande do sul',
+        'RO': 'rondonia',
+        'RR': 'roraima',
+        'SC': 'santa catarina',
+        'SP': 'sao paulo',
+        'SE': 'sergipe',
+        'TO': 'tocantins'
+    }
+    for uf, state in states.items():
+        if (state == string_normalize(state_name) or
+                string_normalize(uf) == string_normalize(state_name)):
+            return uf
+
+    raise ValueError(f"State {state_name} not found!")
