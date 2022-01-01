@@ -1,5 +1,6 @@
 import re
 import sys
+from typing import Callable
 
 import pandas as pd
 
@@ -8,14 +9,12 @@ from oneparams.excel.checks import check_types
 
 
 class Excel:
-    def __init__(self, book, sheet_name, header_row=1):
+    def __init__(self,
+                 book: pd.DataFrame,
+                 sheet_name: str,
+                 header_row: int = 1):
+
         self.column_details = []
-
-        self.__keys = []
-        self.__column_index = []
-        self.__defaults = []
-        self.__types = []
-
         self.__book = book
 
         self.erros = False
@@ -40,9 +39,8 @@ class Excel:
             sys.exit(exp)
 
         self.__header_row = header_row
-        self.__previous = []
 
-    def sheet_name(self, search):
+    def sheet_name(self, search: str) -> str:
         """
         Função responsável por pesquisa a string do parâmetro 'search'
         nas planilhas (sheets) do 'book' especificado no __init__
@@ -54,7 +52,7 @@ class Excel:
                 return names
         raise ValueError(f'Sheet {search} not found!')
 
-    def column_name(self, column_name):
+    def column_name(self, column_name: str) -> str:
         """
         Resquias e retorna o nome da coluna da planilha,
         se não encontrar, retorna ValueError
@@ -64,15 +62,16 @@ class Excel:
             header_name = string_normalize(header)
             if re.search(column_name, header_name, re.IGNORECASE):
                 return header
-        raise ValueError(f'ERROR! Column {column_name} not found! Remember the Header is line {self.__header_row + 1}')
+        raise ValueError(
+            f'ERROR! Column {column_name} not found! Remember the Header is line {self.__header_row + 1}')
 
     def add_column(self,
-                   key,
-                   name,
-                   required=True,
-                   default=None,
-                   types="string",
-                   length=0):
+                   key: str,
+                   name: str,
+                   required: bool = True,
+                   default: any = None,
+                   types: str = "string",
+                   length: int = 0):
         """
         Função responsável por adicionar as colunas que serão lidas
         da planilha \n
@@ -107,8 +106,6 @@ class Excel:
             excel[key] = default
         else:
             excel.rename({column_name: key}, axis='columns', inplace=True)
-            # if default is not None:
-            #     excel[key].fillna(value=default, inplace=True)
 
         self.excel = check_types(self, data)
 
@@ -125,10 +122,10 @@ class Excel:
         """
         self.excel.drop(self.excel.columns.difference(
             map(lambda col: col["key"], self.column_details)),
-                        axis=1,
-                        inplace=True)
+            axis=1,
+            inplace=True)
 
-    def row(self, index):
+    def row(self, index: int):
         """
         Retorna a linha do respectivo index passado
         """
@@ -141,7 +138,7 @@ class Excel:
             rows.append(self.row(i))
         excel["row"] = rows
 
-    def data_row(self, row, check_row=None):
+    def data_row(self, row: int, check_row: Callable = None) -> None:
         excel = self.excel
 
         if check_row is not None:
@@ -154,7 +151,9 @@ class Excel:
         if self.erros:
             raise Exception
 
-    def data_all(self, check_row=None, check_final=None):
+    def data_all(self,
+                 check_row: Callable = None,
+                 check_final: Callable = None) -> dict:
         excel = self.excel
         for row in excel.index:
             try:
