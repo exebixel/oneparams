@@ -20,7 +20,7 @@ class ApiCliente(BaseDiff):
             key_name="nomeCompleto",
             key_active="ativoCliente",
             item_name="client",
-            url_create="/OCliForColsUsuarioPerfil/CreateClientes",
+            url_create="/OCliForColsUsuarioPerfil/CreateClientesOneParams",
             url_update="/OCliForColsUsuarioFiliais/UpdateClientes",
             url_get_all=self.url_get_all,
             url_get_detail="/OCliente/Detalhesclientes",
