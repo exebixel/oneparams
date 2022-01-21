@@ -217,6 +217,18 @@ def wprint(text: str) -> None:
         print(text)
 
 
+def print_error(text: str) -> None:
+    if not config.RESOLVE_ERROS:
+        print("ERROR! " + text)
+    elif not config.NO_WARNING:
+        print("WARNING! " + text)
+
+
+def print_warning(text: str) -> None:
+    if not config.NO_WARNING:
+        print("WARNING! " + text)
+
+
 def state_to_uf(state_name: str) -> str:
     """ Retorna o UF do estado
     """
