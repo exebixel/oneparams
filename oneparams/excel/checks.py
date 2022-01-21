@@ -1,241 +1,162 @@
+from typing import Callable
 import pandas as pd
 import oneparams.config as config
 from datetime import time, datetime
 
 from oneparams.utils import get_bool, get_float, get_time, get_date
-from oneparams.utils import get_cel, wprint, check_email
+from oneparams.utils import print_error, print_warning
+from oneparams.utils import get_cel, check_email
 
 
-def check_types(self, data):
-    excel = self.excel
-    types = data["types"]
-    length = data["length"]
+class CheckTypes():
 
-    if types == "string":
-        excel = excel.apply(lambda x: check_string(self, x, data, x.name),
-                            axis=1)
+    def get_type_function(self, type: str) -> Callable:
+        return getattr(self, f'check_{type}')
 
-    elif types == "time":
-        excel = excel.apply(lambda x: check_time(self, x, data, x.name),
-                            axis=1)
+    def check_string(self, values: any, key: str, default: any, row: int):
+        """
+        Verificações de tipo string
+        """
+        if self.check_default(values, default):
+            return default
 
-    elif types == "date":
-        excel = excel.apply(lambda x: check_date(self, x, data, x.name),
-                            axis=1)
+        return str(values).strip()
 
-    elif types == "float":
-        excel = excel.apply(lambda x: check_float(self, x, data, x.name),
-                            axis=1)
+    def check_float(self, values: any, key: str, default: any, row: int):
+        """
+        Verificações de tipo float
+        """
+        if self.check_default(values, default):
+            if not pd.notnull(values):
+                print_warning("in line {}, Column {}: number used will be {}".format(
+                    row, key, default))
+            return default
 
-    elif types == "bool":
-        excel = excel.apply(lambda x: check_bool(self, x, data, x.name),
-                            axis=1)
-
-    elif types == "cel":
-        excel = excel.apply(lambda x: check_cel(self, x, data, x.name), axis=1)
-
-    elif types == "email":
-        excel = excel.apply(lambda x: check_mail(self, x, data, x.name),
-                            axis=1)
-
-    if length not in (0, None):
-        excel = excel.apply(
-            lambda x: check_length(self, x, data, x.name, length), axis=1)
-
-    return excel
-
-
-def check_string(self, values, data, row):
-    """
-    Verificações de tipo string
-    """
-    key = data["key"]
-    if check_default(self, values, data):
-        values[key] = data["default"]
-        return values
-
-    values[key] = str(values[key]).strip()
-    return values
-
-
-def check_float(self, values, data, row):
-    """
-    Verificações de tipo float
-    """
-    key = data["key"]
-    value = values[key]
-
-    if check_default(self, values, data):
-        if not pd.notnull(values[key]):
-            wprint("WARNING! in line {}, Column {}: number used will be {}".format(
-                self.row(row), key, data["default"]))
-        values[key] = data["default"]
-        return values
-
-    try:
-        value = get_float(value)
-        values[key] = value
-    except ValueError as exp:
-        print("ERROR! In line {}, Column {}: {}".format(
-            self.row(row), key, exp))
-        self.erros = True
-    finally:
-        return values
-
-
-def check_time(self, values, data, row):
-    # antes de fazer a verificação do tipo,
-    # passa pela verificação padrão, se a função retornar
-    # True, continua, Falso retorna os valores sem alteração
-    key = data["key"]
-    if check_default(self, values, data):
-        if not pd.notnull(values[key]):
-            wprint("WARNING! In line {}, Column {}: Time used will be {}".format(
-                self.row(row), key, data["default"]))
-        values[key] = data["default"]
-        return values
-
-    value = values[key]
-    try:
-        index_value = get_time(value)
-        value = str(time(*index_value[:3]))
-    except TypeError as exp:
-        print("ERROR! In line {}, Column {}: {}".format(
-            self.row(row), key, exp))
-        self.erros = True
-    else:
-        values[key] = value
-
-    return values
-
-
-def check_date(self, values, data, row):
-    key = data["key"]
-    if check_default(self, values, data):
-        values[key] = data["default"]
-        return values
-
-    value = values[key]
-    try:
-        date = get_date(value)
-        value = datetime.strftime(date, "%Y-%m-%dT00:00:00")
-    except ValueError as exp:
-        if not config.RESOLVE_ERROS:
+        try:
+            values = get_float(values)
+        except ValueError as exp:
             print("ERROR! In line {}, Column {}: {}".format(
-                self.row(row), key, exp
-            ))
-            self.erros = True
+                row, key, exp))
+            raise Exception
+        finally:
+            return values
+
+    def check_time(self, values: any, key: str, default: any, row: int):
+        # antes de fazer a verificação do tipo,
+        # passa pela verificação padrão, se a função retornar
+        # True, continua, Falso retorna os valores sem alteração
+        if self.check_default(values, default):
+            if not pd.notnull(values):
+                print_warning(
+                    f"In line {row}, Column {key}: Time used will be {default}")
+            return default
+
+        value = values
+        try:
+            index_value = get_time(value)
+            value = str(time(*index_value[:3]))
+        except TypeError as exp:
+            print("ERROR! In line {}, Column {}: {}".format(
+                row, key, exp))
+            raise Exception
         else:
-            wprint("WARNING! In line {}, Column {}: {}".format(
-                self.row(row), key, exp
-            ))
-            value = data["default"]
+            values = value
 
-    values[key] = value
-    return values
-
-
-def check_bool(self, values, data, row):
-    """
-    Verifica se o valor pode ser convertido em booleano
-    retorna os mesmo valores com as devidas alterações,
-    se der algum problema coloca True em self.erros da class Excel
-    """
-    # antes de fazer a verificação do tipo,
-    # passa pela verificação padrão, se a função retornar
-    # True, continua, Falso retorna os valores sem alteração
-    key = data["key"]
-    if check_default(self, values, data):
-        values[key] = data["default"]
         return values
 
-    value = values[key]
-    value = str(value).strip()
-    value = get_bool(value)
-    if value is None:
-        print("ERROR! in line {}: not possible change value to bool".format(
-            self.row(row)))
-        self.erros = True
-    values[key] = value
-    return values
+    def check_date(self, value: any, key: str, default: any, row: int):
+        if self.check_default(value, default):
+            return default
 
+        try:
+            date = get_date(value)
+            value = datetime.strftime(date, "%Y-%m-%dT00:00:00")
+        except ValueError as exp:
+            print_error(f"in line {row}, Column {key}: {exp}")
+            if not config.RESOLVE_ERROS:
+                raise Exception
+            else:
+                value = default
 
-def check_cel(self, values, data, row):
-    """
-    Verificações de telefone,
-    retira caracteres especiais deixando apenas números
-    caso não for valido, retorna None no campo
-    """
+        return value
 
-    key = data["key"]
-    value = values[key]
-    try:
-        value = get_cel(value)
-    except ValueError as exp:
-        if not pd.notnull(value):
-            wprint(
-                f'WARNING! in line {self.row(row)}, Column {key}: empty phone')
-        elif not config.RESOLVE_ERROS:
-            print(f'ERROR! in line {self.row(row)}, Column {key}: {exp}')
-            self.erros = True
-        else:
-            wprint(
-                f'WARNING! in line {self.row(row)}: Column {key}: {exp}'
-            )
-            value = data["default"]
+    def check_bool(self, value: any, key: str, default: any, row: int):
+        """
+        Verifica se o valor pode ser convertido em booleano
+        retorna os mesmo valores com as devidas alterações,
+        se der algum problema coloca True em self.erros da class Excel
+        """
+        # antes de fazer a verificação do tipo,
+        # passa pela verificação padrão, se a função retornar
+        # True, continua, Falso retorna os valores sem alteração
+        if self.check_default(value, default):
+            return default
 
-    values[key] = value
-    return values
+        value = str(value).strip()
+        value = get_bool(value)
+        if value is None:
+            print(
+                f"ERROR! in line {row}, Column {key}: not possible change value to bool")
+            raise Exception
+        return value
 
+    def check_cel(self, value: any, key: str, default: any, row: int):
+        """
+        Verificações de telefone,
+        retira caracteres especiais deixando apenas números
+        caso não for valido, retorna None no campo
+        """
 
-def check_mail(self, values, data, row):
-    key = data["key"]
-    value = values[key]
+        try:
+            value = get_cel(value)
+        except ValueError as exp:
+            if not pd.notnull(value):
+                print_warning(
+                    f'in line {row}, Column {key}: empty phone')
+            else:
+                print_error(f"in line {row}, Column {key}: {exp}")
+                if config.RESOLVE_ERROS:
+                    raise Exception
+                else:
+                    value = default
 
-    if not check_email(value):
-        if not config.RESOLVE_ERROS:
-            print(f'ERROR! in line {self.row(row)}: Email {value} not valid')
-            self.erros = True
-        else:
-            wprint(
-                f'WARNING! in line {self.row(row)}: Email {value} not valid')
-            value = data["default"]
+        return value
 
-    values[key] = value
-    return values
+    def check_email(self, value: any, key: str, default: any, row: int):
+        if not check_email(value):
+            print_error(f"in line {row}: Email {value} is not valid")
+            if not config.RESOLVE_ERROS:
+                raise Exception
+            else:
+                return default
 
+        return value
 
-def check_length(self, values, data, row, length):
-    """
-    Verifica se o tamanho do texto é menor que a
-    quantidade máxima permitida (length)
-    """
-    key = data["key"]
-    if values[key] is None:
-        return values
+    def check_length(self, value: any, key: str, row: int, length: int):
+        """
+        Verifica se o tamanho do texto é menor que a
+        quantidade máxima permitida (length)
+        """
+        if value is None:
+            return value
 
-    if len(values[key]) > length and not config.RESOLVE_ERROS:
-        print(
-            f'ERROR! in line {self.row(row)}: Column {key} string {values[key]} size {len(values[key])}/{length}'
-        )
-        self.erros = True
-    elif len(values[key]) > length:
-        wprint(
-            f'WARNING: in line {self.row(row)}: Column {key} string {values[key]} size {len(values[key])}/{length}'
-        )
-        values[key] = values[key].strip()[:length]
+        if len(str(value)) > length:
+            print_error(
+                f"in line {row}, Column {key}: {value} size {len(str(value))}/{length}")
+            if config.RESOLVE_ERROS:
+                value = value.strip()[:length]
+            else:
+                raise Exception
 
-    return values
+        return value
 
-
-def check_default(self, value, data):
-    """
-    Verifica se o valor é igual ao valor padrão,
-    se for retorna True, se não retorna False
-    """
-    key = data["key"]
-    if not pd.notnull(value[key]):
-        return True
-    if value[key] == data["default"]:
-        return True
-    return False
+    def check_default(self, value: int, default: any):
+        """
+        Verifica se o valor é igual ao valor padrão,
+        se for retorna True, se não retorna False
+        """
+        if pd.isnull(value):
+            return True
+        if value == default:
+            return True
+        return False
