@@ -5,7 +5,7 @@ from typing import Callable
 import pandas as pd
 
 from oneparams.utils import string_normalize
-from oneparams.excel.checks import check_types
+from oneparams.excel.checks import CheckTypes
 
 
 class Excel:
@@ -30,8 +30,8 @@ class Excel:
                                   header=header_row)
             # retirando linhas e colunas em brando do Data Frame
             excel = excel.dropna(how="all")
-            # excel.dropna(how="all", axis=1, inplace=True)
             excel = excel.loc[:, ~excel.columns.str.contains('^Unnamed')]
+            excel = excel.astype(object)
             excel = excel.where(pd.notnull(excel), None)
             self.excel = excel
 
@@ -39,6 +39,8 @@ class Excel:
             sys.exit(exp)
 
         self.__header_row = header_row
+
+        self.checks = CheckTypes()
 
     def sheet_name(self, search: str) -> str:
         """
@@ -50,7 +52,7 @@ class Excel:
             name = string_normalize(names)
             if re.search(search, name, re.IGNORECASE):
                 return names
-        raise ValueError(f'Sheet {search} not found!')
+        raise ValueError(f'ERROR! Sheet {search} not found!')
 
     def column_name(self, column_name: str) -> str:
         """
@@ -71,7 +73,8 @@ class Excel:
                    required: bool = True,
                    default: any = None,
                    types: str = "string",
-                   length: int = 0):
+                   length: int = 0,
+                   custom_function: Callable = None):
         """
         Função responsável por adicionar as colunas que serão lidas
         da planilha \n
@@ -89,15 +92,6 @@ class Excel:
         """
         excel = self.excel
 
-        data = {
-            "key": key,
-            "name": name,
-            "required": required,
-            "default": default,
-            "types": types,
-            "length": length
-        }
-
         try:
             column_name = self.column_name(name)
         except ValueError as exp:
@@ -107,13 +101,67 @@ class Excel:
         else:
             excel.rename({column_name: key}, axis='columns', inplace=True)
 
-        self.excel = check_types(self, data)
+        self.check_column(key=key, type=types, default=default,
+                          length=length, custom_function=custom_function)
 
         self.column_details.append({
             "key": key,
             "type": types,
             "default": default
         })
+
+    def check_column(self,
+                     key: str,
+                     type: str,
+                     default: any,
+                     length: int = 0,
+                     custom_function: Callable = None):
+        excel = self.excel
+
+        for index, data in excel.iterrows():
+            erros = self.check_value(value=data[key],
+                                     key=key, type=type, default=default,
+                                     index=index, length=length,
+                                     custom_function=custom_function)
+
+            if erros and not self.erros:
+                self.erros = erros
+
+    def check_value(self,
+                    value: any,
+                    key: str,
+                    type: str,
+                    index: int,
+                    default: any = None,
+                    length: int = 0,
+                    custom_function: Callable = None) -> bool:
+        excel = self.excel
+        erros = False
+
+        check_function = self.checks.get_type_function(type=type)
+        try:
+            excel.at[index, key] = check_function(
+                value, key=key, default=default, row=self.row(index))
+        except Exception:
+            erros = True
+
+        if length not in (0, None):
+            try:
+                excel.at[index, key] = self.checks.check_length(
+                    value, key=key, row=self.row(index), length=length)
+            except Exception:
+                erros = True
+
+        if custom_function is not None:
+            try:
+                excel.at[index, key] = custom_function(
+                    value=value, key=key,
+                    default=default,
+                    row=self.row(index))
+            except Exception:
+                erros = True
+
+        return erros
 
     def clean_columns(self):
         """
@@ -125,7 +173,7 @@ class Excel:
             axis=1,
             inplace=True)
 
-    def row(self, index: int):
+    def row(self, index: int) -> int:
         """
         Retorna a linha do respectivo index passado
         """
@@ -168,5 +216,7 @@ class Excel:
                 self.erros = True
 
         if self.erros:
-            sys.exit()
+            sys.exit(1)
+
+        excel = excel.where(pd.notnull(excel), None)
         return excel.to_dict('records')
