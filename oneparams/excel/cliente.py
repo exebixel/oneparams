@@ -1,9 +1,10 @@
 import re
+import pandas as pd
 from alive_progress import alive_bar
 from oneparams.config import config_bar
 from oneparams.excel.excel import Excel
 from oneparams.api.client import ApiCliente
-from oneparams.utils import wprint
+from oneparams.utils import print_error, wprint
 import oneparams.config as config
 
 
@@ -19,7 +20,8 @@ def clientes(book, reset=False):
                   default=True,
                   types="bool",
                   required=False)
-    ex.add_column(key="nomeCompleto", name="nome", length=50)
+    ex.add_column(key="nomeCompleto", name="nome", length=50,
+                  custom_function=check_nome_completo)
     ex.add_column(key="email", name="email", types="email")
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="cpf", name="cpf")
@@ -29,15 +31,13 @@ def clientes(book, reset=False):
                   types="date",
                   default=None,
                   required=False)
-
     ex.add_column(key="cep", name="cep", length=50)
     ex.add_column(key="endereco", name="endereco", length=50)
     ex.add_column(key="bairro", name="bairro", length=40)
     ex.add_column(key="complemento", name="complemento", length=50)
     ex.add_column(key="numeroEndereco",
                   name="numero",
-                  default="",
-                  types="float")
+                  custom_function=check_numero_endereco)
     ex.add_column(key="cidadeId", name="cidade")
     ex.add_column(key="estadoId", name="estado")
 
@@ -62,38 +62,54 @@ def clientes(book, reset=False):
 
 
 def checks(row, data):
-    erros = False
-
-    if data["nomeCompleto"] is None:
-        print("ERROR! in line {row}: empty name")
-        erros = True
-
-    data["numeroEndereco"] = re.sub(r'\.0$', '', str(data["numeroEndereco"]))
-
     try:
         api = ApiCliente()
         data = api.name_to_id(data)
     except ValueError as e:
+        print_error(f"in line {row}: {e}")
+        data["cidadeId"] = None
+        data["estadoId"] = None
         if not config.RESOLVE_ERROS:
-            print(f"ERROR! in line {row}: {e}")
-            erros = True
-        else:
-            wprint(f"WARNING! in line {row}: {e}")
-            data["cidadeId"] = None
-            data["estadoId"] = None
-
-    if erros:
-        raise Exception
+            raise Exception
 
     return data
+
+
+def check_nome_completo(value: any, key: str, row: int, default: any = None):
+    if pd.isnull(value):
+        print_error(f"in line {row}, Column {key}: empty name")
+        raise Exception
+    return value
+
+
+def check_numero_endereco(value: any, key: str, row: int, default: any = None):
+    if pd.isnull(value):
+        return default
+
+    value = re.sub(r'\.0$', '', str(value))
+    if not value.isdecimal():
+        print_error(f"in line {row}, column {key}: is not a number")
+        if not config.RESOLVE_ERROS:
+            raise Exception
+        return default
+
+    if len(value) > 4:
+        print_error(
+            f"in line {row}, Column {key}: {value} size {len(value)}/4")
+        if not config.RESOLVE_ERROS:
+            raise Exception
+        return default
+
+    return value
 
 
 def check_all(self, data):
     erros = False
     clis = {
         "nomeCompleto": "DUPLICATED! in lines {} and {}: Client {}",
-        "email": "DUPLICATED! lines {} and {}: Client\'s email {}",
-        "celular": "DUPLICATED! lines {} and {}: Client's phone {}"
+        "email": "DUPLICATED! lines {} and {}: Client's email {}",
+        "celular": "DUPLICATED! lines {} and {}: Client's phone {}",
+        "cpf": "DUPLICATED! lines {} and {}: Client's CPF {}"
     }
 
     for col, print_erro in clis.items():
