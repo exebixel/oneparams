@@ -15,7 +15,7 @@ class ApiCidade(SubModuleApi):
     def item_id(self, data: dict) -> int:
         name = deemphasize(data[self.key_name])
         try:
-            uf = state_to_uf(data["siglaEstado"])
+            uf_state = state_to_uf(data["siglaEstado"])
         except ValueError:
             return 0
 
@@ -23,7 +23,7 @@ class ApiCidade(SubModuleApi):
             for key, item in self.items.items():
                 item_normalized = deemphasize(item[self.key_name])
                 if (item_normalized == name
-                        and uf == item["siglaEstado"]):
+                        and uf_state == item["siglaEstado"]):
                     return key
         except KeyError:
             return 0
@@ -31,36 +31,27 @@ class ApiCidade(SubModuleApi):
 
     def submodule_id(self, city: str, state: str) -> dict:
         if city is None:
-            return {
-                self.key_id: None,
-                "estadosId": None
-            }
+            return {self.key_id: None, "estadosId": None}
 
         try:
             state = state_to_uf(state)
-        except ValueError as e:
-            raise ValueError(str(e))
+        except ValueError as exp:
+            raise ValueError(str(exp)) from exp
 
-        id = self.item_id({
-            self.key_name: city,
-            "siglaEstado": state
-        })
-        if id != 0:
+        item_id = self.item_id({self.key_name: city, "siglaEstado": state})
+        if item_id != 0:
             return {
-                self.key_id: id,
-                "estadosId": self.items[id]["estadosId"]
+                self.key_id: item_id,
+                "estadosId": self.items[item_id]["estadosId"]
             }
 
         # pesquisa na api
         self.search(city)
-        id = self.item_id({
-            self.key_name: city,
-            "siglaEstado": state
-        })
-        if id != 0:
+        item_id = self.item_id({self.key_name: city, "siglaEstado": state})
+        if item_id != 0:
             return {
-                self.key_id: id,
-                "estadosId": self.items[id]["estadosId"]
+                self.key_id: item_id,
+                "estadosId": self.items[item_id]["estadosId"]
             }
 
         raise ValueError(f"{self.item_name} {city} not found!")

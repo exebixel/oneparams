@@ -4,7 +4,8 @@ import string
 import unicodedata
 from datetime import datetime
 from difflib import SequenceMatcher
-import oneparams.config as config
+
+from oneparams import config
 
 
 def deemphasize(word: str) -> str:
@@ -16,7 +17,7 @@ def deemphasize(word: str) -> str:
         return word
     word = str(word)
     nfkd = unicodedata.normalize('NFKD', word)
-    word = u"".join([c for c in nfkd if not unicodedata.combining(c)])
+    word = "".join([c for c in nfkd if not unicodedata.combining(c)])
     return word.lower()
 
 
@@ -54,6 +55,12 @@ def get_names(word: str) -> list:
 
 
 def get_float(srtnum: str) -> float:
+    """ Retorna o número de uma string
+
+    Caso a string tenha mais de um número,
+    sejá separado por espaço ou algum outro caraptere,
+    retorna ValueError
+    """
     srtnum = str(srtnum).strip()
     nums = re.findall(r"[0-9?.?,]+", srtnum)
     if len(nums) == 1:
@@ -61,35 +68,42 @@ def get_float(srtnum: str) -> float:
             nums[0] = re.sub(r",", ".", nums[0])
         try:
             nums = float(nums[0])
-        except ValueError:
-            raise ValueError("No possible convert number")
+        except ValueError as exp:
+            raise ValueError("No possible convert number") from exp
         return nums
-    elif len(nums) == 0:
+
+    if len(nums) == 0:
         raise ValueError("Number not found")
-    else:
-        raise ValueError("Number is duplicated")
+    raise ValueError("Number is duplicated")
 
 
 def get_time(strtime: str) -> list:
+    """ Retorna uma lista com as posições de
+    home, minuto e segundo da string passada por parametro
+
+    Caso não consiga encontrar um horario valido na string,
+    retorna uma Exception
+    """
     strtime = str(strtime).strip()
     times = re.findall(r"(1[0-2]|0?[0-9]):([0-5][0-9])(:[0-5][0-9])?", strtime)
     if len(times) == 1:
-        t = []
+        time_list = []
         for i in times[0]:
             try:
                 i = int(i)
             except ValueError:
                 i = 0
-            t.append(i)
-        return t
+            time_list.append(i)
+        return time_list
 
-    elif len(times) == 0:
+    if len(times) == 0:
         raise TypeError("Time not found")
-    else:
-        raise TypeError("Time is duplicated")
+    raise TypeError("Time is duplicated")
 
 
 def get_date(strdate: str) -> datetime:
+    """ Transforma uma string em datetime
+    """
     strdate = str(strdate).strip()
     formats = [
         "%Y-%m-%d 00:00:00",
@@ -129,7 +143,7 @@ def get_cel(word: str) -> str:
     if len(cel) <= 11 and len(cel) >= 8:
         return cel
 
-    raise ValueError("Invalid phone {}".format(word))
+    raise ValueError(f"Invalid phone {word}")
 
 
 def create_email() -> str:
@@ -144,17 +158,18 @@ def create_email() -> str:
 
 
 def check_email(email: str) -> bool:
+    """ Verifica se um email é valido
+    """
     if email is None:
         return False
-    r = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
-                   flags=re.ASCII)
+    regex = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
+                       flags=re.ASCII)
     email = no_space(email)
-    return r.search(email) is not None
+    return regex.search(email) is not None
 
 
 def create_cel() -> str:
-    """
-    Cria uma string de 11 dígitos aleatórios
+    """ Cria uma string de 11 dígitos aleatórios
     """
     return ''.join(random.sample(string.digits * 11, 11))
 
@@ -176,7 +191,7 @@ def card_type(card: str) -> str:
     if len(types) == 2:
         return "CD"
 
-    raise TypeError("unrecognized card type {}".format(card))
+    raise TypeError(f"unrecognized card type {card}")
 
 
 def get_bool(value: any) -> bool:
@@ -184,40 +199,48 @@ def get_bool(value: any) -> bool:
     Recebe uma parâmetro (value) contendo "sim" ou "nao",
     e retorna True ou False
     """
-    if type(value) is bool:
+    if isinstance(value, bool):
         return value
+
     if value == 1:
         return True
     if value == 0:
         return False
 
-    if value == "True":
+    if (string_normalize(value) == "sim" or string_normalize(value) == "s"
+            or value == "True"):
         return True
-    if value == "False":
-        return False
-
-    if (string_normalize(value) == "sim" or string_normalize(value) == "s"):
-        return True
-    if (string_normalize(value) == "nao" or string_normalize(value) == "n"):
+    if (string_normalize(value) == "nao" or string_normalize(value) == "n"
+            or value == "False"):
         return False
     return None
 
 
 def similar(word: str, word_diff: str) -> float:
+    """ Retorna um número entre 0 e 1 que mostra o quão
+    similar são as duas strings
+    """
     return SequenceMatcher(None, word, word_diff).ratio()
 
 
 def eprint(text: str) -> None:
+    """ printa o texto passado caso a opção RESOLVE_ERROS for false
+    """
     if not config.RESOLVE_ERROS:
         print(text)
 
 
 def wprint(text: str) -> None:
+    """ printa o texto passado caso a opção NO_WARNING for false
+    """
     if not config.NO_WARNING:
         print(text)
 
 
 def print_error(text: str) -> None:
+    """ Caso a opção de RESOLVE_ERROS for false, printa um erro,
+    se não caso a opção NO_WARNING for false, printa um warning
+    """
     if not config.RESOLVE_ERROS:
         print("ERROR! " + text)
     elif not config.NO_WARNING:
@@ -225,6 +248,8 @@ def print_error(text: str) -> None:
 
 
 def print_warning(text: str) -> None:
+    """ Printa um warning
+    """
     if not config.NO_WARNING:
         print("WARNING! " + text)
 
@@ -266,9 +291,9 @@ def state_to_uf(state_name: str) -> str:
         'SE': 'sergipe',
         'TO': 'tocantins'
     }
-    for uf, state in states.items():
-        if (state == string_normalize(state_name) or
-                string_normalize(uf) == string_normalize(state_name)):
-            return uf
+    for uf_state, state in states.items():
+        if (state == string_normalize(state_name)
+                or string_normalize(uf_state) == string_normalize(state_name)):
+            return uf_state
 
     raise ValueError(f"State {state_name} not found!")

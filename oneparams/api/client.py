@@ -1,7 +1,6 @@
 import json
 
 import pandas as pd
-
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.cidade import ApiCidade
 from oneparams.utils import create_email, deemphasize
@@ -27,17 +26,14 @@ class ApiCliente(BaseDiff):
             key_detail="clientesCliForColsLightModel",
             url_delete="/OCliForColsUsuario/DeleteCliente",
             url_inactive="/OCliForColsUsuarioFiliais/UpdateClientes",
-            submodules={
-                "cidadeId": ApiCidade()
-            }
-        )
+            submodules={"cidadeId": ApiCidade()})
 
         if not ApiCliente.first_get:
             self.get_all()
             ApiCliente.first_get = True
 
     def get_all(self) -> None:
-        print("researching {}".format(self.item_name))
+        print(f"researching {self.item_name}")
         ApiCliente.items = {}
 
         response = self.get(f'{self.url_get_all}/true')
@@ -74,14 +70,14 @@ class ApiCliente(BaseDiff):
     def equals(self, data: dict) -> None:
         if data["email"] is None:
             data.pop("email")
-        if not pd.notnull(data["celular"]):
+        if pd.isnull(data["celular"]):
             data.pop("celular")
         return super().equals(data)
 
     def create(self, data: dict) -> None:
-        if data["email"] is None:
+        if pd.isnull(data["celular"]):
             data["email"] = create_email()
-        if data["celular"] is None:
+        if pd.isnull(data["celular"]):
             data["celular"] = "00000000"
         super().create(data)
 
@@ -100,8 +96,7 @@ class ApiCliente(BaseDiff):
             existent_name = item[self.key_name]
             existent_email = deemphasize(item["email"]).strip()
 
-            if (existent_name == name
-                    or existent_email == email):
+            if (existent_name == name or existent_email == email):
                 return key
         return 0
 
@@ -119,17 +114,15 @@ class ApiCliente(BaseDiff):
         if self.submodules is None:
             return data
 
-        if type(data["cidadeId"]) is int:
+        if isinstance(data["cidadeId"], int):
             return data
 
         try:
             city = self.submodules["cidadeId"].submodule_id(
-                city=data["cidadeId"],
-                state=data["estadoId"]
-            )
+                city=data["cidadeId"], state=data["estadoId"])
             data["estadoId"] = city["estadosId"]
             data["cidadeId"] = city["cidadesId"]
-        except ValueError as e:
-            raise ValueError(str(e))
+        except ValueError as exp:
+            raise ValueError(str(exp)) from exp
 
         return data

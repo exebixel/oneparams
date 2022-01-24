@@ -27,8 +27,7 @@ class ApiServicos(BaseDiff):
             submodules={"gservId": Gservis()},
             handle_errors={
                 "API.SERVICOS.DELETE.REFERENCE": "Cant delete service..."
-            }
-        )
+            })
 
         if not ApiServicos.first_get:
             self.get_all()
@@ -45,11 +44,11 @@ class ApiServicos(BaseDiff):
             }
 
     def add_item(self, data: dict, response: dict) -> int:
-        id = response[self.key_id]
+        item_id = response[self.key_id]
         data = {
-            self.key_id: id,
+            self.key_id: item_id,
             self.key_name: data[self.key_name],
             self.key_active: data[self.key_active]
         }
-        ApiServicos.items[id] = data
-        return id
+        ApiServicos.items[item_id] = data
+        return item_id

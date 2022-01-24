@@ -12,12 +12,10 @@ class SubModuleApi(BaseDiff):
                  url_search: str,
                  url_create: str = None) -> None:
 
-        super().__init__(
-            key_id=key_id,
-            key_name=key_name,
-            item_name=item_name,
-            url_create=url_create
-        )
+        super().__init__(key_id=key_id,
+                         key_name=key_name,
+                         item_name=item_name,
+                         url_create=url_create)
 
         self.__url_search = url_search
 
@@ -31,8 +29,7 @@ class SubModuleApi(BaseDiff):
         self.items, alem de retornar os dados em uma lista
         """
         name = quote(name)
-        response = self.get("{}?{}={}".format(self.__url_search, self.key_name,
-                                              name))
+        response = self.get(f"{self.__url_search}?{self.key_name}={name}")
         self.status_ok(response)
 
         content = json.loads(response.content)
@@ -41,8 +38,8 @@ class SubModuleApi(BaseDiff):
         return content
 
     def add_item(self, data: dict, response: dict) -> int:
-        id = response[self.key_id]
-        self.items[id] = data
+        item_id = response[self.key_id]
+        self.items[item_id] = data
 
     def submodule_id(self, name: str) -> int:
         """ Tenta retornar um id referente ao argamunto passado
@@ -54,19 +51,19 @@ class SubModuleApi(BaseDiff):
         caso não encontre nada, tenta criar o item,
         caso não consiga retorna exception com item não encontrado
         """
-        id = self.item_id(name)
-        if id != 0:
-            return id
+        item_id = self.item_id(name)
+        if item_id != 0:
+            return item_id
 
         # pesquisa na api
         self.search(name)
-        id = self.item_id(name)
-        if id != 0:
-            return id
+        item_id = self.item_id(name)
+        if item_id != 0:
+            return item_id
 
         # cria o item
-        id = self.create({self.key_name: name})
-        if id is not None:
-            return id
+        item_id = self.create({self.key_name: name})
+        if item_id is not None:
+            return item_id
 
         raise ValueError(f"{self.item_name} {name} not found!")

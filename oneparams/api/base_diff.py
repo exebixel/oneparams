@@ -27,7 +27,7 @@ class BaseDiff(BaseApi):
                  key_active: str = None,
                  url_inactive: str = None,
                  submodules: dict = None,
-                 handle_errors: dict = {}):
+                 handle_errors: dict = None):
         """
         Define todas as urls que serão usadas,
         e também as keys do nome e id
@@ -60,13 +60,13 @@ class BaseDiff(BaseApi):
         if self.__url_create is None:
             return None
 
-        print("creating {} {}".format(data[self.key_name], self.item_name))
+        print(f"creating {self.key_name} {self.item_name}")
         response = self.post(self.__url_create, data=data)
         self.status_ok(response)
 
         content = json.loads(response.content)
-        id = self.add_item(data, content)
-        return id
+        item_id = self.add_item(data, content)
+        return item_id
 
     def add_item(self, data: dict, response: dict) -> int:
         """
@@ -81,21 +81,20 @@ class BaseDiff(BaseApi):
         já que (atualmente) não existe um padrão dentro da api para retorno
         dos dados
         """
-        id = response["data"]
-        data[self.key_id] = id
-        self.items[id] = data
-        return id
+        item_id = response["data"]
+        data[self.key_id] = item_id
+        self.items[item_id] = data
+        return item_id
 
-    def update(self, data: dict) -> None:
+    def update(self, data: dict):
         """
         Atualiza os dados de um item já cadastrado no sistema
         """
         if self.__url_update is None:
             return None
 
-        print("updating {} {}".format(data[self.key_name], self.item_name))
-        response = self.put("{}/{}".format(self.__url_update,
-                                           data[self.key_id]),
+        print(f"updating {data[self.key_name]} {self.item_name}")
+        response = self.put(f"{self.__url_update}/{data[self.key_id]}",
                             data=data)
         self.status_ok(response)
         content = json.loads(response.content)
@@ -107,6 +106,8 @@ class BaseDiff(BaseApi):
         # isso aqui apesar de deixar um pouco mais lento
         # evita problemas
         self.list_details.pop(data[self.key_id])
+
+        return True
 
     def get_all(self) -> dict:
         """
@@ -122,7 +123,7 @@ class BaseDiff(BaseApi):
             raise Exception(
                 "self.__url_get_all not defined, cannot get items!")
 
-        print("researching {}".format(self.item_name))
+        print(f"researching {self.item_name}")
         response = self.get(self.__url_get_all)
         self.status_ok(response)
 
@@ -151,10 +152,12 @@ class BaseDiff(BaseApi):
 
         config_bar()
         with alive_bar(len(all_ids),
-                       title=f"Getting {self.item_name} details") as bar:
-            for id in all_ids:
-                self.details(id)
-                bar()
+                       title=f"Getting {self.item_name} details") as pbar:
+            for item_id in all_ids:
+                self.details(item_id)
+                pbar()
+
+        return True
 
     def items_active(self) -> dict:
         """Retorna todos os items ativos"""
@@ -162,8 +165,7 @@ class BaseDiff(BaseApi):
             return self.items
         return {
             key: item
-            for (key, item) in self.items.items()
-            if item[self.key_active]
+            for (key, item) in self.items.items() if item[self.key_active]
         }
 
     def len(self, inactive: bool = True):
@@ -226,28 +228,27 @@ class BaseDiff(BaseApi):
 
         for n in name_striped:
             ids = []
-            for id in id_to_check:
-                nome_item = deemphasize(self.items[id][self.key_name])
+            for item_id in id_to_check:
+                nome_item = deemphasize(self.items[item_id][self.key_name])
                 if re.search(n, nome_item):
-                    ids.append(id)
+                    ids.append(item_id)
             id_to_check = ids
 
         if len(id_to_check) == 1:
             return id_to_check[0]
 
-        if len(id_to_check) == 0:
-            raise ValueError("{} {} not found!".format(self.item_name, nome))
-
         if len(id_to_check) > 0:
             second_ids = []
-            for id in id_to_check:
-                if nome == deemphasize(self.items[id][self.key_name]).strip():
-                    second_ids.append(id)
+            for item_id in id_to_check:
+                if nome == deemphasize(
+                        self.items[item_id][self.key_name]).strip():
+                    second_ids.append(item_id)
             if len(second_ids) == 1:
                 return second_ids[0]
 
-            raise ValueError("{} {} is duplicated!".format(
-                self.item_name, nome))
+            raise ValueError(f"{self.item_name} {nome} is duplicated!")
+
+        raise ValueError(f"{self.item_name} {nome} not found!")
 
     def details(self, item_id: int) -> dict:
         """
@@ -256,7 +257,7 @@ class BaseDiff(BaseApi):
         try:
             return self.list_details[item_id]
         except KeyError:
-            response = self.get("{}/{}".format(self.__url_get_detail, item_id))
+            response = self.get(f"{self.__url_get_detail}/{item_id}")
             self.status_ok(response)
 
             content = json.loads(response.content)
@@ -266,8 +267,8 @@ class BaseDiff(BaseApi):
             self.list_details[content[self.key_id]] = content
             return content
 
-        except AttributeError as e:
-            sys.exit(e)
+        except AttributeError as exp:
+            sys.exit(exp)
 
     def name_to_id(self, data: dict) -> dict:
         """
@@ -285,16 +286,16 @@ class BaseDiff(BaseApi):
 
         erros = []
         for sub, func in self.submodules.items():
-            if type(data[sub]) is not int:
+            if not isinstance(data[sub], int):
                 try:
                     data[sub] = func.submodule_id(data[sub])
-                except ValueError as e:
-                    erros.append(str(e))
+                except ValueError as exp:
+                    erros.append(str(exp))
 
         if self.key_active is not None:
             data[self.key_active] = True
 
-        if erros != []:
+        if erros:
             raise ValueError(erros)
         return data
 
@@ -308,8 +309,8 @@ class BaseDiff(BaseApi):
         data[self.key_id] = self.item_id(data)
         try:
             data = self.name_to_id(data)
-        except ValueError as e:
-            print("ERROR!! " + str(e))
+        except ValueError as exp:
+            print("ERROR!! " + str(exp))
             sys.exit(1)
 
         if data[self.key_id] == 0:
@@ -319,16 +320,16 @@ class BaseDiff(BaseApi):
             self.update(data)
 
         else:
-            print("skiping {} {}".format(data[self.key_name], self.item_name))
+            print(f"skiping {data[self.key_name]} {self.item_name}")
 
     def submodule_id(self, name: str) -> int:
-        id = self.item_id({self.key_name: name})
-        if id == 0:
-            id = self.create({self.key_name: name})
-            if id is not None:
-                return id
+        item_id = self.item_id({self.key_name: name})
+        if item_id == 0:
+            item_id = self.create({self.key_name: name})
+            if item_id is not None:
+                return item_id
             raise ValueError(f'{self.item_name} {name} not found!')
-        return id
+        return item_id
 
     def inactive(self, item_id: int) -> bool:
         """ Inativa um item cadastrado
@@ -345,9 +346,8 @@ class BaseDiff(BaseApi):
 
         data[self.key_active] = False
 
-        print("inactivating {} {}".format(data[self.key_name], self.item_name))
-        response = self.put("{}/{}".format(self.__url_inactive,
-                                           data[self.key_id]),
+        print(f"inactivating {data[self.key_name]} {self.item_name}")
+        response = self.put(f"{self.__url_inactive}/{data[self.key_id]}",
                             data=data)
 
         if not self.status_ok(response):
@@ -372,11 +372,11 @@ class BaseDiff(BaseApi):
 
         try:
             item = self.items[item_id]
-        except KeyError:
-            raise KeyError(f'Id {item_id} not found!')
+        except KeyError as exp:
+            raise KeyError(f'Id {item_id} not found!') from exp
 
-        print("deleting {} {}".format(item[self.key_name], self.item_name))
-        response = super().delete("{}/{}".format(self.__url_delete, item_id))
+        print(f"deleting {item[self.key_name]} {self.item_name}")
+        response = super().delete(f"{self.__url_delete}/{item_id}")
 
         if not self.status_ok(response, erro_exit=False):
             return self.inactive(item_id)
@@ -397,14 +397,15 @@ class BaseDiff(BaseApi):
         é possível alterar isso com erro_exit=False
         """
         if not response.ok:
-            for error_key, message in self.__handle_error.items():
-                if f"b'{error_key}'" == str(response.content):
-                    print(message)
-                    break
-            else:
-                print(response.content)
+            if self.__handle_error is not None:
+                for error_key, message in self.__handle_error.items():
+                    if f"b'{error_key}'" == str(response.content):
+                        print(message)
+                        break
+                else:
+                    print(response.content)
 
             if erro_exit:
-                sys.exit()
+                sys.exit(1)
             return False
         return True
