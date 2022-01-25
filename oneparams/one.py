@@ -99,7 +99,7 @@ def add_option(options):
     return _add_options
 
 
-def cli_login(kwargs):
+def cli_login(kwargs: dict):
     """ Executa login na API
     """
     one = login()
@@ -110,7 +110,7 @@ def cli_login(kwargs):
               empresa_id=kwargs['empresa_id'])
 
 
-def cli_file(worksheet: str) -> pd.DataFrame:
+def cli_file(worksheet: str) -> pd.ExcelFile:
     """ Verifica se o arquivo é valido
     """
     try:
@@ -121,7 +121,7 @@ def cli_file(worksheet: str) -> pd.DataFrame:
         sys.exit(exp)
 
 
-def cli_config(error=False, warning=False, skip=False):
+def cli_config(error: bool = False, warning: bool = False, skip: bool = False):
     """ Setta as variaveis de configuração
     """
     config.RESOLVE_ERROS = error
@@ -209,7 +209,7 @@ def clis(**kwargs):
               envvar='ONE_RESET',
               required=True,
               type=str)
-def reset(email, acess_key):
+def reset(email: str, acess_key: str):
     """ Chama a função do modulo de resete de senha """
     pw_reset(email, acess_key)
 
