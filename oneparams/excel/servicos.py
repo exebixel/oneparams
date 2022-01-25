@@ -1,11 +1,12 @@
+from pandas import DataFrame, ExcelFile
 from alive_progress import alive_bar
-from oneparams.config import config_bar
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import ApiServicos
+from oneparams.config import CheckException, config_bar
 from oneparams.excel.excel import Excel
 
 
-def servico(book, reset=False):
+def servico(book: ExcelFile, reset=False):
     """
     Book: planilha com todos os dados \n
     reset: True se todos os serviços do sistema
@@ -22,8 +23,14 @@ def servico(book, reset=False):
     ex = Excel(book, "servico")
 
     ex.add_column(key="flagAtivo", name="ativo", required=False, default=True)
-    ex.add_column(key="descricao", name="nome", length=50)
-    ex.add_column(key="gservId", name="grupo")
+    ex.add_column(key="descricao",
+                  name="nome",
+                  length=50,
+                  custom_function_after=check_descricao)
+    ex.add_column(key="gservId",
+                  name="grupo",
+                  length=50,
+                  custom_function_after=check_descricao)
     ex.add_column(key="preco", name="valor", default=1, types="float")
     ex.add_column(key="comissao", name="comissao", default=0, types="float")
     ex.add_column(key="tempoExecucao",
@@ -60,62 +67,43 @@ def servico(book, reset=False):
                   default="P")
     ex.clean_columns()
 
-    data = ex.data_all(check_row=checks, check_final=check_all)
+    data = ex.data_all(check_final=check_all)
 
     len_data = len(data)
     if reset:
         len_data += len(one.items)
 
     config_bar()
-    with alive_bar(len_data) as bar:
+    with alive_bar(len_data) as pbar:
         if reset:
             for i in list(one.items):
                 one.delete(i)
-                bar()
+                pbar()
 
         for row in data:
             one.diff_item(row)
-            bar()
+            pbar()
 
-    with alive_bar() as bar:
+    with alive_bar() as pbar:
         grupo = Gservis()
         grupo.get_all()
         grupo.clear()
 
 
-def checks(row, data):
-    """
-    row: linha da planilha \n
-    data: dados da linha da planilha \n
-
-    verificações especificas de serviços,
-    isso linha a linha, de forma individual
-
-    return data \n
-    raise Exception: caso ocorra algum erro durante
-    as verificações \n
-    """
-    erros = False
-    if data["descricao"] is None:
-        print(f'ERROR! in line {row}: empty name')
-        erros = True
-    if data["gservId"] is None:
-        print(
-            f'ERROR! in line {row}: Service {data["descricao"]} have empty group'
-        )
-        erros = True
-
-    comissao = data["comissao"]
-    if comissao <= 1:
-        data["comissao"] = comissao * 100
-
-    if erros:
-        raise Exception
-
-    return data
+def check_descricao(value: any, key: str, row: int, default: any) -> any:
+    if value is None:
+        print(f"ERROR! in line {row}, Column {key}, empty value")
+        raise CheckException
+    return value
 
 
-def check_all(self, data):
+def check_comissao(value: any, key: str, row: int, default: any) -> any:
+    if value <= 1:
+        value = value * 100
+    return value
+
+
+def check_all(self: Excel, data: DataFrame) -> DataFrame:
     """
     self: referencia da classe excel \n
     data: data frame com todos os dados da planilha \n
@@ -142,6 +130,6 @@ def check_all(self, data):
                 erros = True
                 break
     if erros:
-        raise Exception
+        raise CheckException
 
     return data

@@ -1,16 +1,20 @@
+import pandas as pd
 from alive_progress import alive_bar
 from oneparams.api.colaborador import ApiColaboradores
+from oneparams.config import CheckException, config_bar
 from oneparams.excel.excel import Excel
-from oneparams.config import config_bar
 
 
-def colaborador(book):
+def colaborador(book: pd.ExcelFile):
     one = ApiColaboradores()
     print("analyzing spreadsheet")
 
     ex = Excel(book=book, sheet_name="profissiona")
 
-    ex.add_column(key="nomeCompleto", name="nome", length=50)
+    ex.add_column(key="nomeCompleto",
+                  name="nome",
+                  length=50,
+                  custom_function_after=checks_nome_completo)
     ex.add_column(key="email", name="email", types="email", length=50)
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="perfilId", name="perfil", default="colaborador")
@@ -42,35 +46,37 @@ def colaborador(book):
 
     data = ex.data_all(check_row=checks, check_final=check_all)
     len_data = len(data)
-    
+
     config_bar()
-    with alive_bar(len_data) as bar:
+    with alive_bar(len_data) as pbar:
         for row in data:
             one.diff_item(row)
-            bar()
+            pbar()
 
 
-def checks(row, data):
-    erros = False
+def checks_nome_completo(value: any,
+                         key: str,
+                         row: int,
+                         default: any = None) -> str:
+    if value is None:
+        print(f"ERROR! in line {row}, Column {key}: empty name")
+        raise CheckException
+    return value
 
-    if data["nomeCompleto"] is None:
-        print(f"ERROR! in line {row}: empty name")
-        erros = True
 
+def checks(row: int, data: dict) -> dict:
     one = ApiColaboradores()
     try:
         data = one.name_to_id(data)
-    except Exception as exp:
-        print(f'ERROR! in line {row}: {exp}')
-        erros = True
-
-    if erros:
-        raise Exception
+    except ValueError as exp:
+        for i in exp.args:
+            print(f'ERROR! in line {row}: {i}')
+        raise CheckException from exp
 
     return data
 
 
-def check_all(self, data):
+def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
     erros = False
     cols = {
         "nomeCompleto":
@@ -91,6 +97,6 @@ def check_all(self, data):
                     erros = True
                     break
     if erros:
-        raise Exception
+        raise CheckException
 
     return data

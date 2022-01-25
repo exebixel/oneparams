@@ -1,14 +1,15 @@
 import re
+
 import pandas as pd
 from alive_progress import alive_bar
-from oneparams.config import config_bar
-from oneparams.excel.excel import Excel
+from oneparams import config
 from oneparams.api.client import ApiCliente
+from oneparams.config import CheckException, config_bar
+from oneparams.excel.excel import Excel
 from oneparams.utils import print_error, wprint
-import oneparams.config as config
 
 
-def clientes(book, reset=False):
+def clientes(book: pd.ExcelFile, reset: bool = False):
     one = ApiCliente()
 
     print("analyzing spreadsheet")
@@ -20,9 +21,11 @@ def clientes(book, reset=False):
                   default=True,
                   types="bool",
                   required=False)
-    ex.add_column(key="nomeCompleto", name="nome", length=50,
-                  custom_function=check_nome_completo)
-    ex.add_column(key="email", name="email", types="email")
+    ex.add_column(key="nomeCompleto",
+                  name="nome",
+                  length=50,
+                  custom_function_after=check_nome_completo)
+    ex.add_column(key="email", name="email", types="email", length=50)
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="cpf", name="cpf")
     ex.add_column(key="sexo", name="sexo")
@@ -37,7 +40,7 @@ def clientes(book, reset=False):
     ex.add_column(key="complemento", name="complemento", length=50)
     ex.add_column(key="numeroEndereco",
                   name="numero",
-                  custom_function=check_numero_endereco)
+                  custom_function_after=check_numero_endereco)
     ex.add_column(key="cidadeId", name="cidade")
     ex.add_column(key="estadoId", name="estado")
 
@@ -50,39 +53,45 @@ def clientes(book, reset=False):
         len_data += len(one.items)
 
     config_bar()
-    with alive_bar(len_data) as bar:
+    with alive_bar(len_data) as pbar:
         if reset:
             for i in list(one.items):
                 one.delete(i)
-                bar()
+                pbar()
 
         for row in data:
             one.diff_item(row)
-            bar()
+            pbar()
 
 
-def checks(row, data):
+def checks(row: int, data: dict) -> dict:
     try:
         api = ApiCliente()
         data = api.name_to_id(data)
-    except ValueError as e:
-        print_error(f"in line {row}: {e}")
+    except ValueError as exp:
+        print_error(f"in line {row}: {exp}")
         data["cidadeId"] = None
         data["estadoId"] = None
         if not config.RESOLVE_ERROS:
-            raise Exception
+            raise CheckException from exp
 
     return data
 
 
-def check_nome_completo(value: any, key: str, row: int, default: any = None):
+def check_nome_completo(value: any,
+                        key: str,
+                        row: int,
+                        default: any = None) -> any:
     if pd.isnull(value):
-        print_error(f"in line {row}, Column {key}: empty name")
-        raise Exception
+        print_error(f"in line {row}, Column {key}: Empty name")
+        raise CheckException
     return value
 
 
-def check_numero_endereco(value: any, key: str, row: int, default: any = None):
+def check_numero_endereco(value: any,
+                          key: str,
+                          row: int,
+                          default: any = None) -> any:
     if pd.isnull(value):
         return default
 
@@ -90,20 +99,20 @@ def check_numero_endereco(value: any, key: str, row: int, default: any = None):
     if not value.isdecimal():
         print_error(f"in line {row}, column {key}: is not a number")
         if not config.RESOLVE_ERROS:
-            raise Exception
+            raise CheckException
         return default
 
     if len(value) > 4:
         print_error(
             f"in line {row}, Column {key}: {value} size {len(value)}/4")
         if not config.RESOLVE_ERROS:
-            raise Exception
+            raise CheckException
         return default
 
     return value
 
 
-def check_all(self, data):
+def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
     erros = False
     clis = {
         "nomeCompleto": "DUPLICATED! in lines {} and {}: Client {}",
@@ -115,6 +124,7 @@ def check_all(self, data):
     for col, print_erro in clis.items():
         duplic = data[data.duplicated(keep=False, subset=col)]
 
+        # Verfica duplicidades no DataFrame
         for i in duplic.loc[data[col].notnull()].index:
             for j in duplic.loc[data[col].notnull()].index:
                 if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
@@ -136,12 +146,13 @@ def check_all(self, data):
                     break
 
     if erros:
-        raise Exception
+        raise CheckException
 
     if config.SKIP:
         one = ApiCliente()
         print("skipping clients already registered")
         for key, clis in one.items.items():
+            # Exclui items já cadastrados no sistema do DataFrame
             data = data.drop(
                 data[data.nomeCompleto == clis["nomeCompleto"]].index)
 

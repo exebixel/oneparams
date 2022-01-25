@@ -1,6 +1,6 @@
-import oneparams.config as config
 import pandas as pd
 from alive_progress import alive_bar
+from oneparams import config
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.api.commission import ApiCommission
 from oneparams.api.profissao import Profissao
@@ -9,14 +9,15 @@ from oneparams.utils import get_names
 
 
 class Comissao():
-    def __init__(self, book, reset=False):
+
+    def __init__(self, book: pd.ExcelFile, reset: bool = False):
         self.erros = False
         if config.RESOLVE_ERROS:
             one = ApiCommission()
             one.cols.get_all_details()
         self.comissao(book=book, reset=reset)
 
-    def comissao(self, book, reset=False):
+    def comissao(self, book: pd.ExcelFile, reset: bool = False):
         print("analyzing spreadsheet")
 
         ex = Excel(book, "servico")
@@ -36,18 +37,19 @@ class Comissao():
             len_data += one.len()
 
         config.config_bar()
-        with alive_bar(len_data) as bar:
+        with alive_bar(len_data) as pbar:
             if reset:
                 for cols in list(one.items):
                     for serv in list(one.items[cols]):
                         one.delete(one.items[cols][serv])
-                        bar()
+                        pbar()
 
             for row in data_all:
                 one.comissao(row)
-                bar()
+                pbar()
 
-    def checks_comm(self, self_excel, data: pd.DataFrame) -> pd.DataFrame:
+    def checks_comm(self, self_excel: Excel,
+                    data: pd.DataFrame) -> pd.DataFrame:
         # retira linhas que não tenham colaboradores
         data = data.loc[data["colsId"].notnull()]
         # transforma o nome do serviço em id
@@ -58,28 +60,28 @@ class Comissao():
             final_data = final_data.append(self.cols_names_to_id(i[1]))
 
         if self.erros:
-            raise Exception
+            raise config.CheckException
         return final_data
 
     def get_serv_id(self, data):
         api = ApiCommission()
-        id = api.serv.item_id(
-            {api.serv.key_name: data["servId"]})
-        if id == 0:
-            print("ERROR!! in line {}: Service {} not found".format(
-                data["row"], data["servId"]))
+        item_id = api.serv.item_id({api.serv.key_name: data["servId"]})
+        if item_id == 0:
+            print(
+                f"ERROR!! in line {data['row']}: Service {data['servId']} not found"
+            )
             self.erros = True
-        data["servId"] = id
+        data["servId"] = item_id
         return data
 
     def cols_with_profession_name(self, profession_name: str) -> list:
         api_profession = Profissao()
 
         try:
-            profession_id = api_profession.submodule_id(
-                profession_name, min_similar=0.8)
+            profession_id = api_profession.submodule_id(profession_name,
+                                                        min_similar=0.8)
         except ValueError as exp:
-            raise ValueError(exp)
+            raise ValueError(exp) from exp
 
         cols = ApiColaboradores()
         ids = []
@@ -99,14 +101,15 @@ class Comissao():
                 ids.append(api.cols.search_item_by_name(i))
             except ValueError as exp:
                 if not config.RESOLVE_ERROS:
-                    print("ERROR!! in line {}: {}".format(data["row"], exp))
+                    print(f"ERROR! in line {data['row']}: {exp}")
                     self.erros = True
                 else:
                     try:
                         ids.extend(self.cols_with_profession_name(i))
                     except ValueError as exp:
-                        print("ERROR!! in line {}: Collaborator/{}".format(
-                            data["row"], exp))
+                        print(
+                            f"ERROR! in line {data['row']}: Collaborator/{exp}"
+                        )
                         self.erros = True
 
         if not self.erros:
@@ -115,3 +118,4 @@ class Comissao():
                 "colsId": ids,
                 "row": data["row"]
             })
+        return None
