@@ -42,16 +42,16 @@ class ApiColaboradores(BaseDiff):
             }
 
     def add_item(self, data: dict, response: dict) -> int:
-        id = response["data"][self.key_id]
+        item_id = response["data"][self.key_id]
         data = {
-            self.key_id: id,
+            self.key_id: item_id,
             self.key_active: data[self.key_active],
             self.key_name: data[self.key_name],
             "email": data["email"],
             "celular": data["celular"]
         }
-        self.items[id] = data
-        return id
+        self.items[item_id] = data
+        return item_id
 
     def equals(self, data: dict) -> bool:
         if data["email"] is None:
@@ -76,7 +76,7 @@ class ApiColaboradores(BaseDiff):
 
     def item_id(self, data: dict) -> int:
         name = deemphasize(data[self.key_name])
-        email = deemphasize(data["email"]).strip()
+        email = deemphasize(data["email"])
 
         for key, item in self.items.items():
             existent_name = deemphasize(item[self.key_name])

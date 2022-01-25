@@ -6,7 +6,7 @@ import click
 import requests
 
 
-def pw_reset(email, acess_key):
+def pw_reset(email: str, acess_key: str) -> None:
 
     regex = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
                        flags=re.ASCII)

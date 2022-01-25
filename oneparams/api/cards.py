@@ -41,14 +41,14 @@ class ApiCard(BaseDiff):
             ApiCard.items[i[self.key_id]] = i
 
     def add_item(self, data: dict, response: dict) -> int:
-        id = response["data"]
+        item_id = response["data"]
         data = {
-            self.key_id: id,
+            self.key_id: item_id,
             self.key_name: data[self.key_name],
             "debito_Credito": data["debito_Credito"]
         }
-        self.items[id] = data
-        return id
+        self.items[item_id] = data
+        return item_id
 
     def item_id(self, data):
         name = deemphasize(data[self.key_name])
@@ -58,4 +58,3 @@ class ApiCard(BaseDiff):
                     and item["debito_Credito"] == data["debito_Credito"]):
                 return key
         return 0
-

@@ -397,9 +397,7 @@ class BaseDiff(BaseApi, ABC):
         self.items.pop(item_id)
         try:
             self.list_details.pop(item_id)
-        except KeyError:
-            pass
-        except AttributeError:
+        except (KeyError, AttributeError, NotImplementedError):
             pass
         return True
 

@@ -84,8 +84,8 @@ class BaseApi:
         """
         if not response.ok:
             print(f'Erro code: {response.status_code}')
-            print(response.content)
+            print(response.text)
             if erro_exit:
-                sys.exit()
+                sys.exit(1)
             return False
         return True

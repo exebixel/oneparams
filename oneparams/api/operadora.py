@@ -7,21 +7,18 @@ class Operadora(BaseDiff):
     first_get = False
 
     def __init__(self):
-        super().__init__(
-            key_id="operadoraCartoesId", 
-            key_name="descricao", 
-            item_name="card operator",
-            url_get_all="/OperadoraCartoes",
-            url_create="/OperadoraCartoes",
-            url_update="/OperadoraCartoes",
-            url_delete="/OperadoraCartoes",
-            submodules={
-                "fornecedorId": ApiFornecedor()
-            },
-            handle_errors={
-                "API.OPERADORACARTOES.DELETE.REFERENCE": "Cant delete card operator"
-            }
-        )
+        super().__init__(key_id="operadoraCartoesId",
+                         key_name="descricao",
+                         item_name="card operator",
+                         url_get_all="/OperadoraCartoes",
+                         url_create="/OperadoraCartoes",
+                         url_update="/OperadoraCartoes",
+                         url_delete="/OperadoraCartoes",
+                         submodules={"fornecedorId": ApiFornecedor()},
+                         handle_errors={
+                             "API.OPERADORACARTOES.DELETE.REFERENCE":
+                             "Cant delete card operator..."
+                         })
         if not Operadora.first_get:
             self.get_all()
             Operadora.first_get = True
