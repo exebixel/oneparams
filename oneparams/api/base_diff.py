@@ -1,19 +1,21 @@
-import sys
+from abc import ABC, abstractmethod
 import json
 import re
+import sys
 
-from oneparams.api.base import BaseApi
-from oneparams.utils import deemphasize
 from alive_progress import alive_bar
+from oneparams.api.base import BaseApi
 from oneparams.config import config_bar
+from oneparams.utils import deemphasize
 
 
-class BaseDiff(BaseApi):
+class BaseDiff(BaseApi, ABC):
     """
     Base de suporte para adicionar e atualizar items no sistema
     verificando suas existências e diferenças
     """
 
+    @abstractmethod
     def __init__(self,
                  key_id: str,
                  key_name: str,
@@ -50,6 +52,17 @@ class BaseDiff(BaseApi):
         self.submodules = submodules
         self.__handle_error = handle_errors
 
+    @property
+    @abstractmethod
+    def items(self):
+        """ Propriedade que vai guardar todos os items cadastrados no sistema
+        """
+        raise NotImplementedError("items has not implemented")
+
+    @property
+    def list_details(self):
+        raise NotImplementedError("list_details has not implemented")
+
     def create(self, data: dict) -> int:
         """
         Recebe um parâmetro com os dados (dict) que devem
@@ -60,7 +73,7 @@ class BaseDiff(BaseApi):
         if self.__url_create is None:
             return None
 
-        print(f"creating {self.key_name} {self.item_name}")
+        print(f"creating {data[self.key_name]} {self.item_name}")
         response = self.post(self.__url_create, data=data)
         self.status_ok(response)
 
@@ -296,7 +309,7 @@ class BaseDiff(BaseApi):
             data[self.key_active] = True
 
         if erros:
-            raise ValueError(erros)
+            raise ValueError(*erros)
         return data
 
     def diff_item(self, data: dict) -> None:
@@ -399,7 +412,7 @@ class BaseDiff(BaseApi):
         if not response.ok:
             if self.__handle_error is not None:
                 for error_key, message in self.__handle_error.items():
-                    if f"b'{error_key}'" == str(response.content):
+                    if error_key == response.text:
                         print(message)
                         break
                 else:

@@ -1,10 +1,12 @@
 import json
+from abc import ABC, abstractmethod
 from urllib.parse import quote
 
 from oneparams.api.base_diff import BaseDiff
 
 
-class SubModuleApi(BaseDiff):
+class SubModuleApi(BaseDiff, ABC):
+
     def __init__(self,
                  key_id: str,
                  key_name: str,
@@ -18,6 +20,11 @@ class SubModuleApi(BaseDiff):
                          url_create=url_create)
 
         self.__url_search = url_search
+
+    @property
+    @abstractmethod
+    def items(self):
+        raise NotImplementedError
 
     def search(self, name: str) -> list:
         """ Pesquisa por um item
