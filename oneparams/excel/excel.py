@@ -3,27 +3,29 @@ import sys
 from typing import Callable
 
 import pandas as pd
-
-from oneparams.utils import string_normalize
+from oneparams.config import CheckException
 from oneparams.excel.checks import CheckTypes
+from oneparams.utils import string_normalize
 
 
 class Excel:
+
     def __init__(self,
-                 book: pd.DataFrame,
+                 book: pd.ExcelFile,
                  sheet_name: str,
                  header_row: int = 1):
 
         self.column_details = []
         self.__book = book
 
-        self.erros = False
+        self.erros: bool = False
         """
         indica se ouve algum erro nas validações da planilha
         se tiver erro o método data_all não deve
         retornar dados
         """
 
+        self.excel: pd.DataFrame
         try:
             excel = pd.read_excel(book,
                                   self.sheet_name(sheet_name),
@@ -64,8 +66,10 @@ class Excel:
             header_name = string_normalize(header)
             if re.search(column_name, header_name, re.IGNORECASE):
                 return header
+
+        head = self.__header_row + 1
         raise ValueError(
-            f'ERROR! Column {column_name} not found! Remember the Header is line {self.__header_row + 1}')
+            f'ERROR! Column {column_name} not found! Header is line {head}')
 
     def add_column(self,
                    key: str,
@@ -74,7 +78,8 @@ class Excel:
                    default: any = None,
                    types: str = "string",
                    length: int = 0,
-                   custom_function: Callable = None):
+                   custom_function_before: Callable = None,
+                   custom_function_after: Callable = None):
         """
         Função responsável por adicionar as colunas que serão lidas
         da planilha \n
@@ -88,7 +93,19 @@ class Excel:
         types: tipo de dado que deve ser retirado da coluna \n
         required: define se a coluna é obrigatória na planilha \n
         length: Número máximo de caracteres que o dado pode ter,
-        padrão 0 ou seja ilimitado
+        padrão 1 ou seja ilimitado \n
+
+        custom_function: recebe a referencia de uma função que sera executada
+            apos as verificações padrão, essa função deve conter os parametros:
+            value: (valor que sera verificado),
+            key: (Chave do valor que sera verificado, para fins de log),
+            row: (Linha da planilha que esta o valor que sera verificado,
+                para fins de log),
+            default: (Valor padrão que deve ser usado caso caso ocorra algum
+                erro na verificação, para resolução de problemas).
+            Essa custom_funcition deverá retornar o valor (value) verificado
+            em caso de sucesso na verficação/tratamento, caso contratio,
+            deve retornar uma Exception
         """
         excel = self.excel
 
@@ -101,8 +118,12 @@ class Excel:
         else:
             excel.rename({column_name: key}, axis='columns', inplace=True)
 
-        self.check_column(key=key, type=types, default=default,
-                          length=length, custom_function=custom_function)
+        self.check_column(key=key,
+                          types=types,
+                          default=default,
+                          length=length,
+                          custom_function_before=custom_function_before,
+                          custom_function_after=custom_function_after)
 
         self.column_details.append({
             "key": key,
@@ -112,17 +133,22 @@ class Excel:
 
     def check_column(self,
                      key: str,
-                     type: str,
+                     types: str,
                      default: any,
                      length: int = 0,
-                     custom_function: Callable = None):
-        excel = self.excel
+                     custom_function_before: Callable = None,
+                     custom_function_after: Callable = None):
 
-        for index, data in excel.iterrows():
-            erros = self.check_value(value=data[key],
-                                     key=key, type=type, default=default,
-                                     index=index, length=length,
-                                     custom_function=custom_function)
+        for index, data in self.excel.iterrows():
+            erros = self.check_value(
+                value=data[key],
+                key=key,
+                types=types,
+                default=default,
+                index=index,
+                length=length,
+                custom_function_before=custom_function_before,
+                custom_function_after=custom_function_after)
 
             if erros and not self.erros:
                 self.erros = erros
@@ -130,37 +156,63 @@ class Excel:
     def check_value(self,
                     value: any,
                     key: str,
-                    type: str,
+                    types: str,
                     index: int,
                     default: any = None,
                     length: int = 0,
-                    custom_function: Callable = None) -> bool:
+                    custom_function_before: Callable = None,
+                    custom_function_after: Callable = None) -> bool:
+        """ Executa todas as verificações em um valor especifico,
+        retorna True um False para caso as verificações passarem ou não
+        """
         excel = self.excel
         erros = False
 
-        check_function = self.checks.get_type_function(type=type)
+        # Pega referencia fa função de verificação padrão
+        check_function = self.checks.get_type_function(types=types)
+
+        # Verificações customizadas que serão feitas antes
+        # das verificações padrões
+        if custom_function_before is not None:
+            try:
+                value = custom_function_before(value=value,
+                                               key=key,
+                                               default=default,
+                                               row=self.row(index))
+            except CheckException:
+                erros = True
+
+        # Executa a verificação padrão
         try:
-            excel.at[index, key] = check_function(
-                value, key=key, default=default, row=self.row(index))
-        except Exception:
+            value = check_function(value,
+                                   key=key,
+                                   default=default,
+                                   row=self.row(index))
+        except CheckException:
             erros = True
 
+        # Verificação de tamanho de string
         if length not in (0, None):
             try:
-                excel.at[index, key] = self.checks.check_length(
-                    value, key=key, row=self.row(index), length=length)
-            except Exception:
+                value = self.checks.check_length(value,
+                                                 key=key,
+                                                 row=self.row(index),
+                                                 length=length)
+            except CheckException:
                 erros = True
 
-        if custom_function is not None:
+        # Executa a função de verificações customizada
+        # depois das verificações padrão
+        if custom_function_after is not None:
             try:
-                excel.at[index, key] = custom_function(
-                    value=value, key=key,
-                    default=default,
-                    row=self.row(index))
-            except Exception:
+                value = custom_function_after(value=value,
+                                              key=key,
+                                              default=default,
+                                              row=self.row(index))
+            except CheckException:
                 erros = True
 
+        excel.at[index, key] = value
         return erros
 
     def clean_columns(self):
@@ -170,8 +222,8 @@ class Excel:
         """
         self.excel.drop(self.excel.columns.difference(
             map(lambda col: col["key"], self.column_details)),
-            axis=1,
-            inplace=True)
+                        axis=1,
+                        inplace=True)
 
     def row(self, index: int) -> int:
         """
@@ -180,6 +232,9 @@ class Excel:
         return index + self.__header_row + 2
 
     def add_row_column(self):
+        """ Adicionar uma columa ao datafreme chamada 'row'
+        com o número de cada linha
+        """
         excel = self.excel
         rows = []
         for i in excel.index:
@@ -193,11 +248,11 @@ class Excel:
             try:
                 excel.loc[row] = check_row(self.row(row),
                                            excel.loc[row].copy())
-            except Exception:
+            except CheckException:
                 self.erros = True
 
         if self.erros:
-            raise Exception
+            raise CheckException
 
     def data_all(self,
                  check_row: Callable = None,
@@ -206,13 +261,13 @@ class Excel:
         for row in excel.index:
             try:
                 self.data_row(row, check_row=check_row)
-            except Exception:
+            except CheckException:
                 self.erros = True
 
         if check_final is not None:
             try:
                 excel = check_final(self, excel)
-            except Exception:
+            except CheckException:
                 self.erros = True
 
         if self.erros:

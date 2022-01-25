@@ -1,17 +1,32 @@
+""" Modulo com as verificações e tratamentos de padrões
+"""
+from datetime import datetime, time
 from typing import Callable
-import pandas as pd
-import oneparams.config as config
-from datetime import time, datetime
 
-from oneparams.utils import get_bool, get_float, get_time, get_date
-from oneparams.utils import print_error, print_warning
-from oneparams.utils import get_cel, check_email
+import pandas as pd
+from oneparams import config
+from oneparams.utils import (check_email, get_bool, get_cel, get_date,
+                             get_float, get_time, print_error, print_warning)
 
 
 class CheckTypes():
+    """ Nessa Classe contem os netodos de verificações padrão \n
 
-    def get_type_function(self, type: str) -> Callable:
-        return getattr(self, f'check_{type}')
+    Todos os metodos de verificação devem possuir como parametros \n
+    value: valor a ser verificado, \n
+    key: chave do valor que sera verificado (usado para log), \n
+    row: linha da planilha em que o dado (value) esta (usado para log), \n
+    default: valor padrão a ser usado caso as verificações não passem
+    (usado apenas com RESOLVE_ERROS = True)
+
+    E irão retornar o value ao final das verificações e tratamentos,
+    caso alguma verificação não passe devera retornar uma Exception
+    """
+
+    def get_type_function(self, types: str) -> Callable:
+        """ Retorna a função referente ao tipo de verificação
+        """
+        return getattr(self, f'check_{types}')
 
     def check_string(self, values: any, key: str, default: any, row: int):
         """
@@ -28,27 +43,23 @@ class CheckTypes():
         """
         if self.check_default(values, default):
             if not pd.notnull(values):
-                print_warning("in line {}, Column {}: number used will be {}".format(
-                    row, key, default))
+                print_warning(
+                    f"In line {row}, Column {key}: value will be {default}")
             return default
 
         try:
             values = get_float(values)
         except ValueError as exp:
-            print("ERROR! In line {}, Column {}: {}".format(
-                row, key, exp))
-            raise Exception
-        finally:
-            return values
+            print_error(f"In line {row}, Column {key}: {exp}")
+            raise config.CheckException
+        return values
 
     def check_time(self, values: any, key: str, default: any, row: int):
-        # antes de fazer a verificação do tipo,
-        # passa pela verificação padrão, se a função retornar
-        # True, continua, Falso retorna os valores sem alteração
+        """ Verificações padrão do tipo TIME """
         if self.check_default(values, default):
             if not pd.notnull(values):
                 print_warning(
-                    f"In line {row}, Column {key}: Time used will be {default}")
+                    f"In line {row}, Column {key}: value will be {default}")
             return default
 
         value = values
@@ -56,15 +67,16 @@ class CheckTypes():
             index_value = get_time(value)
             value = str(time(*index_value[:3]))
         except TypeError as exp:
-            print("ERROR! In line {}, Column {}: {}".format(
-                row, key, exp))
-            raise Exception
+            print(f"ERROR! In line {row}, Column {key}: {exp}")
+            raise config.CheckException
         else:
             values = value
 
         return values
 
     def check_date(self, value: any, key: str, default: any, row: int):
+        """ Verificações padrão do tipo DATE
+        """
         if self.check_default(value, default):
             return default
 
@@ -74,21 +86,17 @@ class CheckTypes():
         except ValueError as exp:
             print_error(f"in line {row}, Column {key}: {exp}")
             if not config.RESOLVE_ERROS:
-                raise Exception
-            else:
-                value = default
+                raise config.CheckException
+            value = default
 
         return value
 
     def check_bool(self, value: any, key: str, default: any, row: int):
         """
         Verifica se o valor pode ser convertido em booleano
-        retorna os mesmo valores com as devidas alterações,
-        se der algum problema coloca True em self.erros da class Excel
+        retorna os mesmo valores com as devidas alterações
         """
-        # antes de fazer a verificação do tipo,
-        # passa pela verificação padrão, se a função retornar
-        # True, continua, Falso retorna os valores sem alteração
+
         if self.check_default(value, default):
             return default
 
@@ -96,8 +104,8 @@ class CheckTypes():
         value = get_bool(value)
         if value is None:
             print(
-                f"ERROR! in line {row}, Column {key}: not possible change value to bool")
-            raise Exception
+                f"ERROR! in line {row}, Column {key}: can't get boolean value")
+            raise config.CheckException
         return value
 
     def check_cel(self, value: any, key: str, default: any, row: int):
@@ -106,29 +114,32 @@ class CheckTypes():
         retira caracteres especiais deixando apenas números
         caso não for valido, retorna None no campo
         """
+        if self.check_default(value, default):
+            print_warning(f"in line {row}, Column {key}: empty phone")
+            return default
 
         try:
             value = get_cel(value)
         except ValueError as exp:
-            if not pd.notnull(value):
-                print_warning(
-                    f'in line {row}, Column {key}: empty phone')
-            else:
-                print_error(f"in line {row}, Column {key}: {exp}")
-                if config.RESOLVE_ERROS:
-                    raise Exception
-                else:
-                    value = default
+            print_error(f"in line {row}, Column {key}: {exp}")
+            if config.RESOLVE_ERROS:
+                raise config.CheckException
+            value = default
 
         return value
 
     def check_email(self, value: any, key: str, default: any, row: int):
+        """ Verificações padrão do tipo EMAIL
+        """
+        if self.check_default(value, default):
+            print_warning(f"in line {row}, Column {key}: empty email")
+            return default
+
         if not check_email(value):
-            print_error(f"in line {row}: Email {value} is not valid")
+            print_error(f"in line {row}, Column {key}: {value} is not valid")
             if not config.RESOLVE_ERROS:
-                raise Exception
-            else:
-                return default
+                raise config.CheckException
+            return default
 
         return value
 
@@ -137,20 +148,21 @@ class CheckTypes():
         Verifica se o tamanho do texto é menor que a
         quantidade máxima permitida (length)
         """
-        if value is None:
+        if self.check_default(value, None):
             return value
 
-        if len(str(value)) > length:
+        size = len(str(value))
+        if size > length:
             print_error(
-                f"in line {row}, Column {key}: {value} size {len(str(value))}/{length}")
+                f"in line {row}, Column {key}: {value} size {size}/{length}")
             if config.RESOLVE_ERROS:
                 value = value.strip()[:length]
             else:
-                raise Exception
+                raise config.CheckException
 
         return value
 
-    def check_default(self, value: int, default: any):
+    def check_default(self, value: any, default: any):
         """
         Verifica se o valor é igual ao valor padrão,
         se for retorna True, se não retorna False
