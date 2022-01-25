@@ -32,6 +32,8 @@ def pw_reset(email: str, acess_key: str) -> None:
             click.echo(f'User: {content["data"]["nome"]}')
             click.echo(f'Email: {content["data"]["email"]}')
             click.echo("Password: 123456")
+        else:
+            click.echo(f"ERROR! Email {email} not registered in app")
     elif response.status_code == 401:
         click.echo(
             "ERROR: 401 Unauthorized, You do not have permission to access this module."
