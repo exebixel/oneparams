@@ -3,6 +3,8 @@ import json
 import re
 import sys
 
+from requests import Response
+
 from alive_progress import alive_bar
 from oneparams.api.base import BaseApi
 from oneparams.config import config_bar
@@ -401,7 +403,7 @@ class BaseDiff(BaseApi, ABC):
             pass
         return True
 
-    def status_ok(self, response, erro_exit=True):
+    def status_ok(self, response: Response, erro_exit: bool = True) -> bool:
         """
         verifica se e requisição foi feita com sucesso (200),
         por padrão se a requisição falhou o programa é encerrado,
@@ -414,9 +416,12 @@ class BaseDiff(BaseApi, ABC):
                         print(message)
                         break
                 else:
-                    print(response.content)
+                    print(f"ERROR CODE: {response.status_code}")
+                    print(response.text)
 
             if erro_exit:
+                print(f"ERROR CODE: {response.status_code}")
+                print(response.text)
                 sys.exit(1)
             return False
         return True
