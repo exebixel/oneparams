@@ -28,53 +28,51 @@ class CheckTypes():
         """
         return getattr(self, f'check_{types}')
 
-    def check_string(self, values: any, key: str, default: any, row: int):
+    def check_string(self, value: any, key: str, default: any,
+                     row: int) -> any:
         """
         Verificações de tipo string
         """
-        if self.check_default(values, default):
+        if self.check_default(value, default):
             return default
 
-        return str(values).strip()
+        return str(value).strip()
 
-    def check_float(self, values: any, key: str, default: any, row: int):
+    def check_float(self, value: any, key: str, default: any, row: int) -> any:
         """
         Verificações de tipo float
         """
-        if self.check_default(values, default):
-            if not pd.notnull(values):
+        if self.check_default(value, default):
+            if not pd.notnull(value):
                 print_warning(
                     f"In line {row}, Column {key}: value will be {default}")
             return default
 
         try:
-            values = get_float(values)
+            value = get_float(value)
         except ValueError as exp:
             print_error(f"In line {row}, Column {key}: {exp}")
             raise config.CheckException
-        return values
+        return value
 
-    def check_time(self, values: any, key: str, default: any, row: int):
+    def check_time(self, value: any, key: str, default: any, row: int) -> any:
         """ Verificações padrão do tipo TIME """
-        if self.check_default(values, default):
-            if not pd.notnull(values):
+        if self.check_default(value, default):
+            if not pd.notnull(value):
                 print_warning(
                     f"In line {row}, Column {key}: value will be {default}")
             return default
 
-        value = values
         try:
             index_value = get_time(value)
             value = str(time(*index_value[:3]))
         except TypeError as exp:
             print(f"ERROR! In line {row}, Column {key}: {exp}")
             raise config.CheckException
-        else:
-            values = value
 
-        return values
+        return value
 
-    def check_date(self, value: any, key: str, default: any, row: int):
+    def check_date(self, value: any, key: str, default: any, row: int) -> any:
         """ Verificações padrão do tipo DATE
         """
         if self.check_default(value, default):
@@ -91,7 +89,7 @@ class CheckTypes():
 
         return value
 
-    def check_bool(self, value: any, key: str, default: any, row: int):
+    def check_bool(self, value: any, key: str, default: any, row: int) -> any:
         """
         Verifica se o valor pode ser convertido em booleano
         retorna os mesmo valores com as devidas alterações
@@ -108,7 +106,7 @@ class CheckTypes():
             raise config.CheckException
         return value
 
-    def check_cel(self, value: any, key: str, default: any, row: int):
+    def check_cel(self, value: any, key: str, default: any, row: int) -> any:
         """
         Verificações de telefone,
         retira caracteres especiais deixando apenas números
@@ -128,7 +126,7 @@ class CheckTypes():
 
         return value
 
-    def check_email(self, value: any, key: str, default: any, row: int):
+    def check_email(self, value: any, key: str, default: any, row: int) -> any:
         """ Verificações padrão do tipo EMAIL
         """
         if self.check_default(value, default):
@@ -162,7 +160,7 @@ class CheckTypes():
 
         return value
 
-    def check_default(self, value: any, default: any):
+    def check_default(self, value: any, default: any) -> bool:
         """
         Verifica se o valor é igual ao valor padrão,
         se for retorna True, se não retorna False
