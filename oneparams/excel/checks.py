@@ -1,11 +1,12 @@
 """ Modulo com as verificações e tratamentos de padrões
 """
+import re
 from datetime import datetime, time
 from typing import Callable
 
 import pandas as pd
 from oneparams import config
-from oneparams.utils import (check_email, get_bool, get_cel, get_date,
+from oneparams.utils import (check_email, get_bool, get_cel, get_cpf, get_date,
                              get_float, get_time, print_error, print_warning)
 
 
@@ -141,7 +142,20 @@ class CheckTypes():
 
         return value
 
-    def check_length(self, value: any, key: str, row: int, length: int):
+    def check_cpf(self, value: any, key: str, default: any, row: int) -> any:
+        if self.check_default(value, default):
+            return default
+
+        value = re.sub(r'\.0$', '', str(value))
+        cpf = get_cpf(value)
+        if cpf is None:
+            print_error(f"in line {row}, Column {key}: {value} is invalid CPF")
+            if not config.RESOLVE_ERROS:
+                raise config.CheckException
+            return default
+        return cpf
+
+    def check_length(self, value: any, key: str, row: int, length: int) -> any:
         """
         Verifica se o tamanho do texto é menor que a
         quantidade máxima permitida (length)

@@ -27,7 +27,7 @@ def clientes(book: pd.ExcelFile, reset: bool = False):
                   custom_function_after=check_nome_completo)
     ex.add_column(key="email", name="email", types="email", length=50)
     ex.add_column(key="celular", name="celular", types="cel")
-    ex.add_column(key="cpf", name="cpf")
+    ex.add_column(key="cpf", name="cpf", types="cpf")
     ex.add_column(key="sexo", name="sexo")
     ex.add_column(key="aniversario",
                   name="aniversario",

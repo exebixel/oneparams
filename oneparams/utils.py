@@ -168,6 +168,27 @@ def check_email(email: str) -> bool:
     return regex.search(email) is not None
 
 
+def get_cpf(numbers: str) -> str:
+    #  Obtém os números do CPF e ignora outros caracteres
+    cpf = [int(char) for char in numbers if char.isdigit()]
+
+    #  Verifica se o CPF tem 11 dígitos
+    if len(cpf) != 11:
+        return None
+
+    #  Verifica se o CPF tem todos os números iguais, ex: 111.111.111-11
+    if cpf == cpf[::-1]:
+        return None
+
+    #  Valida os dois dígitos verificadores
+    for i in range(9, 11):
+        value = sum((cpf[num] * ((i + 1) - num) for num in range(0, i)))
+        digit = ((value * 10) % 11) % 10
+        if digit != cpf[i]:
+            return None
+    return "".join(str(c) for c in cpf)
+
+
 def create_cel() -> str:
     """ Cria uma string de 11 dígitos aleatórios
     """
