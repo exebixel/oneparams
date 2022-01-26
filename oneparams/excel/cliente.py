@@ -4,12 +4,14 @@ import pandas as pd
 from alive_progress import alive_bar
 from oneparams import config
 from oneparams.api.client import ApiCliente
+from oneparams.api.colaborador import ApiColaboradores
 from oneparams.config import CheckException, config_bar
 from oneparams.excel.excel import Excel
 from oneparams.utils import print_error, wprint
 
 
 def clientes(book: pd.ExcelFile, reset: bool = False):
+    ApiColaboradores()
     one = ApiCliente()
 
     print("analyzing spreadsheet")
@@ -45,6 +47,7 @@ def clientes(book: pd.ExcelFile, reset: bool = False):
     ex.add_column(key="estadoId", name="estado")
 
     ex.clean_columns()
+    ex.add_row_column()
 
     data = ex.data_all(check_row=checks, check_final=check_all)
 
@@ -78,20 +81,14 @@ def checks(row: int, data: dict) -> dict:
     return data
 
 
-def check_nome_completo(value: any,
-                        key: str,
-                        row: int,
-                        default: any = None) -> any:
+def check_nome_completo(value: any, key: str, row: int, default: any) -> any:
     if pd.isnull(value):
-        print_error(f"in line {row}, Column {key}: Empty name")
+        print(f"ERROR! in line {row}, Column {key}: Empty name")
         raise CheckException
     return value
 
 
-def check_numero_endereco(value: any,
-                          key: str,
-                          row: int,
-                          default: any = None) -> any:
+def check_numero_endereco(value: any, key: str, row: int, default: any) -> any:
     if pd.isnull(value):
         return default
 
@@ -128,16 +125,17 @@ def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
         for i in duplic.loc[data[col].notnull()].index:
             for j in duplic.loc[data[col].notnull()].index:
                 if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
-                    message = print_erro.format(self.row(duplic.loc[i].name),
-                                                self.row(duplic.loc[j].name),
+                    message = print_erro.format(duplic.loc[i, "row"],
+                                                duplic.loc[j, "row"],
                                                 duplic.loc[i, col])
                     duplic = duplic.drop(index=i)
 
+                    if col == "celular":
+                        data.loc[i, col] = "00000000"
+                    else:
+                        data = data.drop(index=i)
+
                     if config.RESOLVE_ERROS:
-                        if col == "celular":
-                            data.loc[i, col] = "00000000"
-                        else:
-                            data = data.drop(index=i)
                         wprint(message)
                     else:
                         print(message)
@@ -145,15 +143,49 @@ def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
 
                     break
 
+    try:
+        data = check_registered(data)
+    except CheckException:
+        erros = True
+
     if erros:
         raise CheckException
 
     if config.SKIP:
-        one = ApiCliente()
-        print("skipping clients already registered")
-        for key, clis in one.items.items():
-            # Exclui items já cadastrados no sistema do DataFrame
-            data = data.drop(
-                data[data.nomeCompleto == clis["nomeCompleto"]].index)
+        data = skip_items(data)
+
+    return data
+
+
+def check_registered(data: pd.DataFrame) -> pd.DataFrame:
+    api_cols = ApiColaboradores()
+    erros = False
+
+    keys = ["email", "celular"]
+    for key in keys:
+        for cols in api_cols.items.values():
+            registered_emails = data[data[key] == cols[key]]
+            if not registered_emails.empty:
+                row = registered_emails['row'].values[0]
+                value = cols[key]
+                print_error(
+                    f"in line {row}, Column {key}: {value} already registered as collaborator"
+                )
+                data = data.drop(registered_emails.index)
+                if not config.RESOLVE_ERROS:
+                    erros = True
+
+    if erros:
+        raise CheckException
+
+    return data
+
+
+def skip_items(data: pd.DataFrame) -> pd.DataFrame:
+    one = ApiCliente()
+    print("skipping clients already registered")
+    for clis in one.items.values():
+        # Exclui items já cadastrados no sistema do DataFrame
+        data = data.drop(data[data.nomeCompleto == clis["nomeCompleto"]].index)
 
     return data
