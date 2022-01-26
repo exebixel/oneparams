@@ -8,7 +8,7 @@ import click
 import pandas as pd
 
 from oneparams import config
-from oneparams.api.login import login
+from oneparams.api.login import Login
 from oneparams.excel.card import cards
 from oneparams.excel.cliente import clientes
 from oneparams.excel.colaborador import colaborador
@@ -102,7 +102,7 @@ def add_option(options):
 def cli_login(kwargs: dict):
     """ Executa login na API
     """
-    one = login()
+    one = Login()
     one.login(nome_empresa=kwargs['empresa'],
               nome_filial=kwargs['filial'],
               email=kwargs['login'],
