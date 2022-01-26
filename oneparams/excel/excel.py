@@ -32,6 +32,7 @@ class Excel:
                                   header=header_row)
             # retirando linhas e colunas em brando do Data Frame
             excel = excel.dropna(how="all")
+            excel.columns.astype("string")
             excel = excel.loc[:, ~excel.columns.str.contains('^Unnamed')]
             excel = excel.astype(object)
             excel = excel.where(pd.notnull(excel), None)
@@ -41,6 +42,7 @@ class Excel:
             sys.exit(exp)
 
         self.__header_row = header_row
+        self.add_row_column()
 
         self.checks = CheckTypes()
 
@@ -220,10 +222,9 @@ class Excel:
         Deleta as colunas do data frame que não foram adicionadas pelo
         'add_column'
         """
-        self.excel.drop(self.excel.columns.difference(
-            map(lambda col: col["key"], self.column_details)),
-                        axis=1,
-                        inplace=True)
+        columns = list(map(lambda col: col["key"], self.column_details))
+        columns.append("row")
+        self.excel = self.excel[columns]
 
     def row(self, index: int) -> int:
         """
@@ -273,5 +274,6 @@ class Excel:
         if self.erros:
             sys.exit(1)
 
+        excel = excel.drop(columns="row")
         excel = excel.where(pd.notnull(excel), None)
         return excel.to_dict('records')
