@@ -44,7 +44,7 @@ def colaborador(book: pd.ExcelFile):
                   types="bool")
     ex.clean_columns()
 
-    data = ex.data_all(check_row=checks, check_final=check_all)
+    data = ex.data_all(check_row=checks, checks_final=[check_duplications])
     len_data = len(data)
 
     config_bar()
@@ -54,10 +54,7 @@ def colaborador(book: pd.ExcelFile):
             pbar()
 
 
-def checks_nome_completo(value: any,
-                         key: str,
-                         row: int,
-                         default: any = None) -> str:
+def checks_nome_completo(value: any, key: str, row: int, default: any) -> str:
     if value is None:
         print(f"ERROR! in line {row}, Column {key}: empty name")
         raise CheckException
@@ -76,7 +73,7 @@ def checks(row: int, data: dict) -> dict:
     return data
 
 
-def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
+def check_duplications(data: pd.DataFrame) -> pd.DataFrame:
     erros = False
     cols = {
         "nomeCompleto":
@@ -90,8 +87,8 @@ def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
             for j in duplic.loc[data[col].notnull()].index:
                 if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
                     print(
-                        print_erro.format(self.row(duplic.loc[i].name),
-                                          self.row(duplic.loc[j].name),
+                        print_erro.format(duplic.loc[i, 'row'],
+                                          duplic.loc[j, 'row'],
                                           duplic.loc[i, col]))
                     duplic = duplic.drop(index=i)
                     erros = True

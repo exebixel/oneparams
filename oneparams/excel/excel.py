@@ -257,7 +257,7 @@ class Excel:
 
     def data_all(self,
                  check_row: Callable = None,
-                 check_final: Callable = None) -> dict:
+                 checks_final: list[Callable] = None) -> dict:
         excel = self.excel
         for row in excel.index:
             try:
@@ -265,11 +265,12 @@ class Excel:
             except CheckException:
                 self.erros = True
 
-        if check_final is not None:
-            try:
-                excel = check_final(self, excel)
-            except CheckException:
-                self.erros = True
+        if checks_final is not None:
+            for check in checks_final:
+                try:
+                    excel = check(excel)
+                except CheckException:
+                    self.erros = True
 
         if self.erros:
             sys.exit(1)

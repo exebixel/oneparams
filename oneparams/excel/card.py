@@ -5,7 +5,7 @@ from oneparams.api.conta import ApiConta
 from oneparams.api.operadora import Operadora
 from oneparams.config import CheckException, config_bar
 from oneparams.excel.excel import Excel
-from oneparams.utils import card_type
+from oneparams.utils import card_type, print_warning
 
 
 def cards(book: pd.ExcelFile, reset: bool = False):
@@ -38,7 +38,8 @@ def cards(book: pd.ExcelFile, reset: bool = False):
                   custom_function_after=check_contas)
     ex.clean_columns()
 
-    data_all = ex.data_all(check_final=check_all)
+    data_all = ex.data_all(
+        checks_final=[check_duplications, resolve_debito_credito])
 
     operadora = Operadora()
     len_data = len(data_all)
@@ -89,31 +90,33 @@ def check_debito_credito(value: any, key: str, row: int, default: any) -> int:
     return value
 
 
-def check_operadora_before(value: any,
-                           key: str,
-                           row: int,
-                           default: any = None) -> any:
+def check_operadora_before(value: any, key: str, row: int,
+                           default: any) -> any:
     if pd.isnull(value):
-        print(f'WARNING! in line {row}, Column {key}: value will be {default}')
+        print_warning(f'in line {row}, Column {key}: value will be {default}')
     return value
 
 
-def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
+def check_duplications(data: pd.DataFrame) -> pd.DataFrame:
     erros = False
     duplic = data[data.duplicated(keep=False,
                                   subset=["descricao", "debito_Credito"])]
     if not duplic.empty:
         erros = True
         duplic.apply(lambda x: print(
-            f'ERROR! in line {self.row(x.name)}: Card {x["descricao"]} is duplicated'
-        ),
+            f'ERROR! in line {x["row"]}: Card {x["descricao"]} is duplicated'),
                      axis=1)
 
     if erros:
         raise CheckException
 
+    return data
+
+
+def resolve_debito_credito(data: pd.DataFrame) -> pd.DataFrame:
     credito_debito = data.loc[data["debito_Credito"] == "CD"]
-    for i, row in credito_debito.iterrows():
+    for row in credito_debito.iterrows():
+        row = row[1]
         copy = row.copy()
         row["debito_Credito"] = "D"
         copy["debito_Credito"] = "C"

@@ -49,7 +49,8 @@ def clientes(book: pd.ExcelFile, reset: bool = False):
     ex.clean_columns()
     ex.add_row_column()
 
-    data = ex.data_all(check_row=checks, check_final=check_all)
+    data = ex.data_all(check_row=checks,
+                       checks_final=[check_all, check_registered, skip_items])
 
     len_data = len(data)
     if reset:
@@ -109,7 +110,7 @@ def check_numero_endereco(value: any, key: str, row: int, default: any) -> any:
     return value
 
 
-def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
+def check_all(data: pd.DataFrame) -> pd.DataFrame:
     erros = False
     clis = {
         "nomeCompleto": "DUPLICATED! in lines {} and {}: Client {}",
@@ -143,16 +144,8 @@ def check_all(self: Excel, data: pd.DataFrame) -> pd.DataFrame:
 
                     break
 
-    try:
-        data = check_registered(data)
-    except CheckException:
-        erros = True
-
     if erros:
         raise CheckException
-
-    if config.SKIP:
-        data = skip_items(data)
 
     return data
 
@@ -182,6 +175,9 @@ def check_registered(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def skip_items(data: pd.DataFrame) -> pd.DataFrame:
+    if not config.SKIP:
+        return data
+
     one = ApiCliente()
     print("skipping clients already registered")
     for clis in one.items.values():

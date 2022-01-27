@@ -67,7 +67,7 @@ def servico(book: ExcelFile, reset=False):
                   default="P")
     ex.clean_columns()
 
-    data = ex.data_all(check_final=check_all)
+    data = ex.data_all(checks_final=[check_duplications])
 
     len_data = len(data)
     if reset:
@@ -103,7 +103,7 @@ def check_comissao(value: any, key: str, row: int, default: any) -> any:
     return value
 
 
-def check_all(self: Excel, data: DataFrame) -> DataFrame:
+def check_duplications(data: DataFrame) -> DataFrame:
     """
     self: referencia da classe excel \n
     data: data frame com todos os dados da planilha \n
@@ -123,8 +123,7 @@ def check_all(self: Excel, data: DataFrame) -> DataFrame:
             if (duplic.loc[i, "descricao"] == duplic.loc[j, "descricao"]
                     and j != i):
                 print("ERROR! in lines {} and {}: Service {} is duplicated".
-                      format(self.row(duplic.loc[i].name),
-                             self.row(duplic.loc[j].name),
+                      format(duplic.loc[i, 'row'], duplic.loc[j, 'row'],
                              duplic.loc[i, 'descricao']))
                 duplic = duplic.drop(index=i)
                 erros = True

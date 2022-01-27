@@ -28,7 +28,7 @@ class Comissao():
 
         one = ApiCommission()
 
-        data_all = ex.data_all(check_final=self.checks_comm)
+        data_all = ex.data_all(checks_final=[self.checks_comm])
 
         len_data = len(data_all)
 
@@ -48,8 +48,7 @@ class Comissao():
                 one.comissao(row)
                 pbar()
 
-    def checks_comm(self, self_excel: Excel,
-                    data: pd.DataFrame) -> pd.DataFrame:
+    def checks_comm(self, data: pd.DataFrame) -> pd.DataFrame:
         # retira linhas que não tenham colaboradores
         data = data.loc[data["colsId"].notnull()]
         # transforma o nome do serviço em id
