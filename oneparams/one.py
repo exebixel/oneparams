@@ -2,6 +2,7 @@
 """ Modulo inicial do oneparams, as
 abstranções dos parametros passados epla cli estão todas aqui
 """
+from email import header
 import sys
 
 import click
@@ -50,6 +51,13 @@ _global_options = [
                  required=False,
                  type=str,
                  help="Branch name used to parametrization"),
+    click.option('-h',
+                 '--header',
+                 'header',
+                 required=False,
+                 type=int,
+                 default=2,
+                 help="line that will be used as header (hefault = 2)"),
     click.option('-W',
                  '--no-warning',
                  'warning',
@@ -146,7 +154,7 @@ def serv(**kwargs):
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
     cli_config(warning=kwargs['warning'])
-    servico(book, reset=kwargs['reset'])
+    servico(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
 @cli.command(help="Manipulating Collaborators")
@@ -157,7 +165,7 @@ def cols(**kwargs):
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
     cli_config(warning=kwargs['warning'])
-    colaborador(book)
+    colaborador(book, header=kwargs['header'] - 1)
 
 
 @cli.command(help="Manipulating Cards")
@@ -169,7 +177,7 @@ def card(**kwargs):
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
     cli_config(warning=kwargs['warning'])
-    cards(book, reset=kwargs['reset'])
+    cards(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
 @cli.command(help="Professional Committee Manipulation")
@@ -182,7 +190,7 @@ def comm(**kwargs):
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
     cli_config(warning=kwargs['warning'], error=kwargs['error'])
-    Comissao(book, reset=kwargs['reset'])
+    Comissao(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
 @cli.command(help="Manipulating Clients")
@@ -198,7 +206,7 @@ def clis(**kwargs):
     cli_config(error=kwargs['error'],
                warning=kwargs['warning'],
                skip=kwargs['skip'])
-    clientes(book, reset=kwargs['reset'])
+    clientes(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
 @cli.command(help="Password Reset")

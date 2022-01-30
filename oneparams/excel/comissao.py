@@ -10,17 +10,23 @@ from oneparams.utils import get_names
 
 class Comissao():
 
-    def __init__(self, book: pd.ExcelFile, reset: bool = False):
+    def __init__(self,
+                 book: pd.ExcelFile,
+                 header: int = 1,
+                 reset: bool = False):
         self.erros = False
         if config.RESOLVE_ERROS:
             one = ApiCommission()
             one.cols.get_all_details()
-        self.comissao(book=book, reset=reset)
+        self.comissao(book=book, reset=reset, header=header)
 
-    def comissao(self, book: pd.ExcelFile, reset: bool = False):
+    def comissao(self,
+                 book: pd.ExcelFile,
+                 header: int = 1,
+                 reset: bool = False):
         print("analyzing spreadsheet")
 
-        ex = Excel(book, "servico")
+        ex = Excel(book, "servico", header_row=header)
         ex.add_column(key="servId", name="nome")
         ex.add_column(key="colsId", name="profissionais")
         ex.clean_columns()

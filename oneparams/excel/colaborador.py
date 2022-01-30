@@ -5,11 +5,11 @@ from oneparams.config import CheckException, config_bar
 from oneparams.excel.excel import Excel
 
 
-def colaborador(book: pd.ExcelFile):
+def colaborador(book: pd.ExcelFile, header: int = 1):
     one = ApiColaboradores()
     print("analyzing spreadsheet")
 
-    ex = Excel(book=book, sheet_name="profissiona")
+    ex = Excel(book=book, sheet_name="profissiona", header_row=header)
 
     ex.add_column(key="nomeCompleto",
                   name="nome",

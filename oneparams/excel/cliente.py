@@ -10,13 +10,13 @@ from oneparams.excel.excel import Excel
 from oneparams.utils import print_error, wprint
 
 
-def clientes(book: pd.ExcelFile, reset: bool = False):
+def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     ApiColaboradores()
     one = ApiCliente()
 
     print("analyzing spreadsheet")
 
-    ex = Excel(book=book, sheet_name="client", header_row=0)
+    ex = Excel(book=book, sheet_name="client", header_row=header)
 
     ex.add_column(key="ativoCliente",
                   name="ativoCliente",

@@ -6,7 +6,7 @@ from oneparams.config import CheckException, config_bar
 from oneparams.excel.excel import Excel
 
 
-def servico(book: ExcelFile, reset=False):
+def servico(book: ExcelFile, header: int = 1, reset: bool = False):
     """
     Book: planilha com todos os dados \n
     reset: True se todos os serviços do sistema
@@ -20,7 +20,7 @@ def servico(book: ExcelFile, reset=False):
     one = ApiServicos()
     print("analyzing spreadsheet")
 
-    ex = Excel(book, "servico")
+    ex = Excel(book, "servico", header_row=header)
 
     ex.add_column(key="flagAtivo", name="ativo", required=False, default=True)
     ex.add_column(key="descricao",
