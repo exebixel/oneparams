@@ -1,8 +1,7 @@
 #!/usr/bin/python
 """ Modulo inicial do oneparams, as
-abstranções dos parametros passados epla cli estão todas aqui
+abstrações dos parametros passados pela cli estão todas aqui
 """
-from email import header
 import sys
 
 import click
@@ -57,7 +56,7 @@ _global_options = [
                  required=False,
                  type=int,
                  default=2,
-                 help="line that will be used as header (hefault = 2)"),
+                 help="line that will be used as header (default = 2)"),
     click.option('-W',
                  '--no-warning',
                  'warning',
@@ -141,7 +140,7 @@ def cli_config(error: bool = False, warning: bool = False, skip: bool = False):
 @click.version_option(config.VERSION)
 def cli():
     """ Função padrão do click,
-    necessaria para ter os outros modulos
+    necessária para ter os outros módulos
     """
 
 
