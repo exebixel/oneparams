@@ -164,7 +164,7 @@ def check_email(email: str) -> bool:
         return False
     regex = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
                        flags=re.ASCII)
-    email = no_space(email)
+    email = no_space(str(email))
     return regex.search(email) is not None
 
 
