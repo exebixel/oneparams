@@ -68,14 +68,14 @@ class ApiCliente(BaseDiff):
         return super().add_item(data, response)
 
     def equals(self, data: dict) -> None:
-        if data["email"] is None:
+        if pd.isnull(data["email"]):
             data.pop("email")
         if pd.isnull(data["celular"]):
             data.pop("celular")
         return super().equals(data)
 
     def create(self, data: dict) -> None:
-        if pd.isnull(data["celular"]):
+        if pd.isnull(data["email"]):
             data["email"] = create_email()
         if pd.isnull(data["celular"]):
             data["celular"] = "00000000"
