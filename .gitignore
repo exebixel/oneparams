@@ -139,5 +139,4 @@ cython_debug/
 
 *.xlsx*
 *.xls*
-.vscode
 tags

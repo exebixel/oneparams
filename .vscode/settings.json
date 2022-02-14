@@ -1,0 +1,22 @@
+{
+    "cSpell.words": [
+        "Comiservs",
+        "comissao",
+        "descricao",
+        "eprint",
+        "Gservis",
+        "nums",
+        "onebeleza",
+        "Perc",
+        "profissao",
+        "Profissoes",
+        "serv",
+        "servs",
+        "srtnum",
+        "wprint"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.flake8Enabled": true,
+    "cSpell.enabled": false
+}

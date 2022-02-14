@@ -1,0 +1,86 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "One Clis",
+            "type": "python",
+            "request": "launch",
+            "program": "oneparams/one.py",
+            "args": [
+                "clis",
+                "-l",
+                "ezequielnat7@gmail.com",
+                "-e",
+                "teste piloto lite",
+                "Avec SalãoVIP - Sistema de Administração (13).xlsx",
+                "-EW",
+                "-h 1"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "One Card",
+            "type": "python",
+            "request": "launch",
+            "program": "oneparams/one.py",
+            "args": [
+                "card",
+                "-l",
+                "ezequielnat7@gmail.com",
+                "-e",
+                "teste piloto lite",
+                "Parametrizacao Sistema One Teste.xlsx"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "One Comm",
+            "type": "python",
+            "request": "launch",
+            "program": "oneparams/one.py",
+            "args": [
+                "comm",
+                "-l",
+                "ezequielnat7@gmail.com",
+                "-e",
+                "teste piloto lite",
+                "Parametrizacao Sistema One Teste.xlsx",
+                "-E"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "One Serv",
+            "type": "python",
+            "request": "launch",
+            "program": "oneparams/one.py",
+            "args": [
+                "serv",
+                "-l",
+                "ezequielnat7@gmail.com",
+                "-e",
+                "teste piloto lite",
+                "Parametrizacao Sistema One Teste.xlsx"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "One Cols",
+            "type": "python",
+            "request": "launch",
+            "program": "oneparams/one.py",
+            "args": [
+                "serv",
+                "-l",
+                "ezequielnat7@gmail.com",
+                "-e",
+                "teste piloto lite",
+                "Parametrizacao Sistema One Teste.xlsx"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
