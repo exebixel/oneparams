@@ -32,7 +32,11 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
                   length=50,
                   custom_function_after=check_descricao)
     ex.add_column(key="preco", name="valor", default=1, types="float")
-    ex.add_column(key="comissao", name="comissao", default=0, types="float")
+    ex.add_column(key="comissao",
+                  name="comissao",
+                  default=0,
+                  types="float",
+                  custom_function_after=check_comissao)
     ex.add_column(key="tempoExecucao",
                   name="execucao",
                   default="00:30:00",
