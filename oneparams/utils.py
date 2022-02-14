@@ -172,7 +172,6 @@ def check_email(email: str) -> str | None:
         return None
 
 
-
 def get_cpf(numbers: str) -> str:
     #  Obtém os números do CPF e ignora outros caracteres
     cpf = [int(char) for char in numbers if char.isdigit()]
@@ -239,6 +238,16 @@ def get_bool(value: any) -> bool:
     if (string_normalize(value) == "nao" or string_normalize(value) == "n"
             or value == "False"):
         return False
+    return None
+
+
+def get_sex(value: str) -> str:
+    value = str(value).strip().upper()
+
+    if re.search("^M", value):
+        return "M"
+    if re.search("^F", value):
+        return "F"
     return None
 
 

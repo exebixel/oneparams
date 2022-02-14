@@ -30,7 +30,7 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     ex.add_column(key="email", name="email", types="email", length=50)
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="cpf", name="cpf", types="cpf")
-    ex.add_column(key="sexo", name="sexo")
+    ex.add_column(key="sexo", name="sexo", types="sex")
     ex.add_column(key="aniversario",
                   name="aniversario",
                   types="date",
@@ -113,10 +113,10 @@ def check_numero_endereco(value: any, key: str, row: int, default: any) -> any:
 def check_all(data: pd.DataFrame) -> pd.DataFrame:
     erros = False
     clis = {
-        "nomeCompleto": "DUPLICATED! in lines {} and {}: Client {}",
-        "email": "DUPLICATED! lines {} and {}: Client's email {}",
-        "celular": "DUPLICATED! lines {} and {}: Client's phone {}",
-        "cpf": "DUPLICATED! lines {} and {}: Client's CPF {}"
+        "nomeCompleto": "DUPLICATED! in lines {} and {}: Client '{}'",
+        "email": "DUPLICATED! lines {} and {}: Client's email '{}'",
+        "celular": "DUPLICATED! lines {} and {}: Client's phone '{}'",
+        "cpf": "DUPLICATED! lines {} and {}: Client's CPF '{}'"
     }
 
     for col, print_erro in clis.items():
@@ -162,7 +162,7 @@ def check_registered(data: pd.DataFrame) -> pd.DataFrame:
                 row = registered_emails['row'].values[0]
                 value = cols[key]
                 print_error(
-                    f"in line {row}, Column {key}: {value} already registered as collaborator"
+                    f"in line {row}, Column {key}: '{value}' already registered as collaborator"
                 )
                 data = data.drop(registered_emails.index)
                 if not config.RESOLVE_ERROS:

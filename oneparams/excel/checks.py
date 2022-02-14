@@ -7,7 +7,7 @@ from typing import Callable
 import pandas as pd
 from oneparams import config
 from oneparams.utils import (check_email, get_bool, get_cel, get_cpf, get_date,
-                             get_float, get_time, print_error, print_warning)
+                             get_float, get_sex, get_time, print_error, print_warning)
 
 
 class CheckTypes():
@@ -156,6 +156,20 @@ class CheckTypes():
                 raise config.CheckException
             return default
         return cpf
+
+    def check_sex(self, value: any, key: str, default: any, row: int) -> any:
+        if self.check_default(value, default):
+            return default
+
+        value = get_sex(value)
+        if value is None:
+            print_error(f"In line {row}, Column {key}: Can't get a valid sex")
+            if config.RESOLVE_ERROS:
+                return default
+
+        return value
+
+
 
     def check_length(self, value: any, key: str, row: int, length: int) -> any:
         """
