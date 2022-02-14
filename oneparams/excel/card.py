@@ -73,7 +73,8 @@ def check_contas(value: any, key: str, row: int, default: any) -> int:
     conta = ApiConta()
     value = conta.submodule_id(value)
     if value is None:
-        print(f'ERROR! in line {row}, Column {key}: Account {value} not found')
+        print(
+            f"ERROR! in line {row}, Column {key}: Account '{value}' not found")
         raise CheckException
     return value
 
@@ -93,7 +94,8 @@ def check_debito_credito(value: any, key: str, row: int, default: any) -> int:
 def check_operadora_before(value: any, key: str, row: int,
                            default: any) -> any:
     if pd.isnull(value):
-        print_warning(f'in line {row}, Column {key}: value will be {default}')
+        print_warning(
+            f"in line {row}, Column {key}: value will be '{default}'")
     return value
 
 

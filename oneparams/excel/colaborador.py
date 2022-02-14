@@ -3,6 +3,7 @@ from alive_progress import alive_bar
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.config import CheckException, config_bar
 from oneparams.excel.excel import Excel
+from oneparams.utils import print_warning
 
 
 def colaborador(book: pd.ExcelFile, header: int = 1):
@@ -17,7 +18,10 @@ def colaborador(book: pd.ExcelFile, header: int = 1):
                   custom_function_after=checks_nome_completo)
     ex.add_column(key="email", name="email", types="email", length=50)
     ex.add_column(key="celular", name="celular", types="cel")
-    ex.add_column(key="perfilId", name="perfil", default="colaborador")
+    ex.add_column(key="perfilId",
+                  name="perfil",
+                  default="colaborador",
+                  custom_function_before=checks_perfil)
     ex.add_column(key="agendavel",
                   name="agenda",
                   required=False,
@@ -61,6 +65,13 @@ def checks_nome_completo(value: any, key: str, row: int, default: any) -> str:
     return value
 
 
+def checks_perfil(value: any, key: str, row: int, default: any) -> str:
+    if pd.isnull(value):
+        print_warning(
+            f"In line {row}, Column {key}: value will be '{default}'")
+    return value
+
+
 def checks(row: int, data: dict) -> dict:
     one = ApiColaboradores()
     try:
@@ -77,9 +88,11 @@ def check_duplications(data: pd.DataFrame) -> pd.DataFrame:
     erros = False
     cols = {
         "nomeCompleto":
-        "ERROR! in lines {} and {}: Collaborator {} is duplicated",
+        "ERROR! in lines {} and {}: Collaborator '{}' is duplicated",
         "email":
-        "ERROR! in lines {} and {}: Collaborator\'s email {} is duplicated"
+        "ERROR! in lines {} and {}: Collaborator\'s email '{}' is duplicated",
+        "celular":
+        "ERROR! in lines {} and {}: Collaborator phone '{}' is duplicated"
     }
     for col, print_erro in cols.items():
         duplic = data[data.duplicated(keep=False, subset=col)]

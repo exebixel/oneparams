@@ -261,9 +261,9 @@ class BaseDiff(BaseApi, ABC):
             if len(second_ids) == 1:
                 return second_ids[0]
 
-            raise ValueError(f"{self.item_name} {nome} is duplicated!")
+            raise ValueError(f"{self.item_name} '{nome}' is duplicated!")
 
-        raise ValueError(f"{self.item_name} {nome} not found!")
+        raise ValueError(f"{self.item_name} '{nome}' not found!")
 
     def details(self, item_id: int) -> dict:
         """

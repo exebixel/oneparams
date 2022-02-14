@@ -157,15 +157,20 @@ def create_email() -> str:
     return f'one_{rand}@onebeleza.com'
 
 
-def check_email(email: str) -> bool:
+def check_email(email: str) -> str | None:
     """ Verifica se um email é valido
     """
     if email is None:
-        return False
+        return None
     regex = re.compile(r'^[\w\.-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',
                        flags=re.ASCII)
-    email = no_space(str(email))
-    return regex.search(email) is not None
+    email = no_space(str(email)).lower()
+
+    try:
+        return regex.search(email).string
+    except AttributeError:
+        return None
+
 
 
 def get_cpf(numbers: str) -> str:
@@ -212,7 +217,7 @@ def card_type(card: str) -> str:
     if len(types) == 2:
         return "CD"
 
-    raise TypeError(f"unrecognized card type {card}")
+    raise TypeError(f"unrecognized card type '{card}'")
 
 
 def get_bool(value: any) -> bool:

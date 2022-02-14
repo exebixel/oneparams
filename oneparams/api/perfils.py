@@ -27,14 +27,14 @@ class Perfil(BaseApi):
     def submodule_id(self, nome):
         nome = deemphasize(nome)
         len_similar = []
-        for perfil in Perfil.items:
+        for perfil in self.items:
             nome_perfil = deemphasize(perfil["descricao"])
             len_similar.append(similar(nome, nome_perfil))
 
         max_similar = max(len_similar)
         if (max_similar < 0.55 or len_similar.count(max_similar) == 0):
-            raise ValueError(f'Perfil {nome} not found!!')
+            raise ValueError(f"Perfil '{nome}' not found!!")
         if len_similar.count(max_similar) > 1:
-            raise ValueError(f'Perfil {nome} is duplicated!!')
+            raise ValueError(f"Perfil '{nome}' is duplicated!!")
 
         return Perfil.items[len_similar.index(max_similar)]["perfilsId"]

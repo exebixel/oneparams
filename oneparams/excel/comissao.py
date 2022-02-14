@@ -73,7 +73,7 @@ class Comissao():
         item_id = api.serv.item_id({api.serv.key_name: data["servId"]})
         if item_id == 0:
             print(
-                f"ERROR!! in line {data['row']}: Service {data['servId']} not found"
+                f"ERROR! in line {data['row']}: Service \'{data['servId']}\' not found"
             )
             self.erros = True
         data["servId"] = item_id

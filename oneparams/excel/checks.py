@@ -134,13 +134,14 @@ class CheckTypes():
             print_warning(f"in line {row}, Column {key}: empty email")
             return default
 
-        if not check_email(value):
-            print_error(f"in line {row}, Column {key}: {value} is not valid")
+        email = check_email(value)
+        if email is None:
+            print_error(f"in line {row}, Column {key}: '{value}' is not valid")
             if not config.RESOLVE_ERROS:
                 raise config.CheckException
             return default
 
-        return value
+        return email
 
     def check_cpf(self, value: any, key: str, default: any, row: int) -> any:
         if self.check_default(value, default):
@@ -149,7 +150,8 @@ class CheckTypes():
         value = re.sub(r'\.0$', '', str(value))
         cpf = get_cpf(value)
         if cpf is None:
-            print_error(f"in line {row}, Column {key}: {value} is invalid CPF")
+            print_error(
+                f"in line {row}, Column {key}: '{value}' is invalid CPF")
             if not config.RESOLVE_ERROS:
                 raise config.CheckException
             return default
@@ -166,7 +168,7 @@ class CheckTypes():
         size = len(str(value))
         if size > length:
             print_error(
-                f"in line {row}, Column {key}: {value} size {size}/{length}")
+                f"in line {row}, Column {key}: '{value}' size {size}/{length}")
             if config.RESOLVE_ERROS:
                 value = value.strip()[:length]
             else:

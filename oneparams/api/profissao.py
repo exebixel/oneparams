@@ -26,14 +26,14 @@ class Profissao(BaseApi):
 
         nome = deemphasize(nome)
         len_similar = []
-        for profissao in Profissao.items:
+        for profissao in self.items:
             pro = deemphasize(profissao["descricao"])
             len_similar.append(similar(nome, pro))
 
         max_similar = max(len_similar)
         if (max_similar < min_similar or len_similar.count(max_similar) == 0):
-            raise ValueError(f'Profession {nome} not found!!')
+            raise ValueError(f"Profession '{nome}' not found!!")
         if len_similar.count(max_similar) > 1:
-            raise ValueError(f'Profession {nome} is duplicated!!')
+            raise ValueError(f"Profession '{nome}' is duplicated!!")
 
         return Profissao.items[len_similar.index(max_similar)]["profissoesId"]
