@@ -157,7 +157,7 @@ def create_email() -> str:
     return f'one_{rand}@onebeleza.com'
 
 
-def check_email(email: str) -> str | None:
+def check_email(email: str) -> str:
     """ Verifica se um email é valido
     """
     if email is None:
