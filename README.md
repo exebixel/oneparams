@@ -84,7 +84,7 @@ $ one serv -l emailteste@one.com -e "teste mmtools" planilha.xlsx
 
 E alterando o modulo `serv` para `cols`, `card`, `comm` ou `clis` é possível usar as outras funções do Oneparams
 
-### reset
+### Reset
 
 Para utilização do modulo `reset` é necessario ter uma chave de acesso, essa chave deve ser definida como uma variavel de ambiente
 
