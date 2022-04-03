@@ -121,7 +121,7 @@ class CheckTypes():
             value = get_cel(value)
         except ValueError as exp:
             print_error(f"in line {row}, Column {key}: {exp}")
-            if config.RESOLVE_ERROS:
+            if not config.RESOLVE_ERROS:
                 raise config.CheckException
             value = default
 

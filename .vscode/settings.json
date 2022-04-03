@@ -16,10 +16,10 @@
         "wprint"
     ],
     "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
+    "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
-    "cSpell.enabled": false,
-    "cSpell.enableFiletypes": [
-        "markdown"
-    ]
+    "cSpell.enabled": true,
+    "python.linting.prospectorEnabled": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1500
 }
