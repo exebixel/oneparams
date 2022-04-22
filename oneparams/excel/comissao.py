@@ -5,7 +5,7 @@ from oneparams.api.colaborador import ApiColaboradores
 from oneparams.api.commission import ApiCommission
 from oneparams.api.profissao import Profissao
 from oneparams.excel.excel import Excel
-from oneparams.utils import get_names
+from oneparams.utils import deemphasize, get_names
 
 
 class Comissao():
@@ -17,7 +17,15 @@ class Comissao():
         self.erros = False
         if config.RESOLVE_ERROS:
             one = ApiCommission()
+            # Coloca em memoria o detalhamento de todos os colaboradores
             one.cols.get_all_details()
+
+            # Gera uma lista com todos os colaboradores agendaveis
+            self.agendaveis = []
+            for cols_id in one.cols.items_active().keys():
+                if one.cols.details(cols_id)["agendavel"]:
+                    self.agendaveis.append(cols_id)
+
         self.comissao(book=book, reset=reset, header=header)
 
     def comissao(self,
@@ -109,11 +117,16 @@ class Comissao():
                     print(f"ERROR! in line {data['row']}: {exp}")
                     self.erros = True
                 else:
+                    if (deemphasize(i) == "todos"
+                            or deemphasize(i) == "todas"):
+                        ids.extend(self.agendaveis)
+                        continue
+
                     try:
                         ids.extend(self.cols_with_profession_name(i))
-                    except ValueError as exp:
+                    except ValueError as message:
                         print(
-                            f"ERROR! in line {data['row']}: Collaborator/{exp}"
+                            f"ERROR! in line {data['row']}: Collaborator/{message}"
                         )
                         self.erros = True
 
