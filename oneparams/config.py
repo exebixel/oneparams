@@ -12,7 +12,7 @@ VERSION = "0.3.4.3"
 def config_bar():
     """ Configuração padrão da barra de progresso
     """
-    config_handler.set_global(stats=False, enrich_print=False, spinner=None)
+    config_handler.set_global(stats=True, enrich_print=False, spinner=None)
 
 
 class CheckException(Exception):
