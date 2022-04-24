@@ -75,7 +75,7 @@ class BaseDiff(BaseApi, ABC):
         if self.__url_create is None:
             return None
 
-        print(f"creating {data[self.key_name]} {self.item_name}")
+        print(f"creating '{data[self.key_name]}' {self.item_name}")
         response = self.post(self.__url_create, data=data)
         self.status_ok(response)
 
@@ -108,7 +108,7 @@ class BaseDiff(BaseApi, ABC):
         if self.__url_update is None:
             return None
 
-        print(f"updating {data[self.key_name]} {self.item_name}")
+        print(f"updating '{data[self.key_name]}' {self.item_name}")
         response = self.put(f"{self.__url_update}/{data[self.key_id]}",
                             data=data)
         self.status_ok(response)
@@ -361,7 +361,7 @@ class BaseDiff(BaseApi, ABC):
 
         data[self.key_active] = False
 
-        print(f"inactivating {data[self.key_name]} {self.item_name}")
+        print(f"inactivating '{data[self.key_name]}' {self.item_name}")
         response = self.put(f"{self.__url_inactive}/{data[self.key_id]}",
                             data=data)
 
@@ -390,7 +390,7 @@ class BaseDiff(BaseApi, ABC):
         except KeyError as exp:
             raise KeyError(f'Id {item_id} not found!') from exp
 
-        print(f"deleting {item[self.key_name]} {self.item_name}")
+        print(f"deleting '{item[self.key_name]}' {self.item_name}")
         response = super().delete(f"{self.__url_delete}/{item_id}")
 
         if not self.status_ok(response, erro_exit=False):
