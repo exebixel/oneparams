@@ -1,8 +1,10 @@
 import re
+import sys
 
 import pandas as pd
 from alive_progress import alive_bar
 from oneparams import config
+from oneparams.api.cidade import ApiCidade
 from oneparams.api.client import ApiCliente
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.config import CheckException, config_bar
@@ -70,8 +72,10 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
 
 def checks(row: int, data: dict) -> dict:
     try:
-        api = ApiCliente()
-        data = api.name_to_id(data)
+        api = ApiCidade()
+        city = api.submodule_id(city=data["cidadeId"], state=data["estadoId"])
+        data["cidadeId"] = city["cidadesId"]
+        data["estadoId"] = city["estadosId"]
     except ValueError as exp:
         print_error(f"in line {row}: {exp}")
         data["cidadeId"] = None
@@ -125,14 +129,14 @@ def check_all(data: pd.DataFrame) -> pd.DataFrame:
         # Verfica duplicidades no DataFrame
         for i in duplic.loc[data[col].notnull()].index:
             for j in duplic.loc[data[col].notnull()].index:
-                if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
-                    message = print_erro.format(duplic.loc[i, "row"],
-                                                duplic.loc[j, "row"],
-                                                duplic.loc[i, col])
+                if (duplic.at[i, col] == duplic.at[j, col] and j != i):
+                    message = print_erro.format(duplic.at[i, "row"],
+                                                duplic.at[j, "row"],
+                                                duplic.at[i, col])
                     duplic = duplic.drop(index=i)
 
                     if col == "celular":
-                        data.loc[i, col] = "00000000"
+                        data.at[i, col] = "00000000"
                     else:
                         data = data.drop(index=i)
 
