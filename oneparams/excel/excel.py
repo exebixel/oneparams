@@ -1,8 +1,10 @@
 import re
 import sys
 from typing import Callable
+from alive_progress import alive_bar
 
 import pandas as pd
+from oneparams import config
 from oneparams.config import CheckException
 from oneparams.excel.checks import CheckTypes
 from oneparams.utils import string_normalize
@@ -13,9 +15,11 @@ class Excel:
     def __init__(self,
                  book: pd.ExcelFile,
                  sheet_name: str,
-                 header_row: int = 1):
+                 header_row: int = 1,
+                 verbose: bool = False):
 
         self.column_details = []
+        self.verbose: bool = verbose
         self.__book = book
 
         self.erros: bool = False
@@ -56,7 +60,8 @@ class Excel:
             name = string_normalize(names)
             if re.search(search, name, re.IGNORECASE):
                 return names
-        raise ValueError(f'ERROR! Sheet {search} not found!')
+        raise ValueError(
+            f'ERROR! Sheet {search} not found! Rename your sheet!')
 
     def column_name(self, column_name: str) -> str:
         """
@@ -69,9 +74,7 @@ class Excel:
             if re.search(column_name, header_name, re.IGNORECASE):
                 return header
 
-        head = self.__header_row + 1
-        raise ValueError(
-            f'ERROR! Column {column_name} not found! Header is line {head}')
+        raise ValueError(f"Column '{column_name}' not found!")
 
     def add_column(self,
                    key: str,
@@ -115,45 +118,94 @@ class Excel:
             column_name = self.column_name(name)
         except ValueError as exp:
             if required:
-                sys.exit(exp)
+                print(f"ERROR! Required {exp}")
+                self.erros = True
+            elif self.verbose and not config.NO_WARNING:
+                print(f"WARNING! {exp}")
             excel[key] = default
         else:
             excel.rename({column_name: key}, axis='columns', inplace=True)
 
-        self.check_column(key=key,
-                          types=types,
-                          default=default,
-                          length=length,
-                          custom_function_before=custom_function_before,
-                          custom_function_after=custom_function_after)
-
         self.column_details.append({
             "key": key,
-            "type": types,
-            "default": default
+            "types": types,
+            "default": default,
+            "length": length,
+            "custom_function_before": custom_function_before,
+            "custom_function_after": custom_function_after
         })
 
-    def check_column(self,
-                     key: str,
-                     types: str,
-                     default: any,
-                     length: int = 0,
-                     custom_function_before: Callable = None,
-                     custom_function_after: Callable = None):
+    def check_all(self,
+                  check_row: Callable = None,
+                  checks_final: list[Callable] = None) -> bool:
+        """
+        Função responsável por verificar todas as colunas
+        da planilha
 
-        for index, data in self.excel.iterrows():
-            erros = self.check_value(
-                value=data[key],
-                key=key,
-                types=types,
-                default=default,
-                index=index,
-                length=length,
-                custom_function_before=custom_function_before,
-                custom_function_after=custom_function_after)
+        Parâmetros:
+        check_row: função que será executada para cada linha da planilha
+        checks_final: lista de funções que serão executadas
+            considerando todos os dados da planilha
 
-            if erros and not self.erros:
-                self.erros = erros
+        Retorno:
+        False se NÃO ouve erros na verificação
+        True se ouve erros na verificação
+        """
+        if self.erros:
+            head = self.__header_row + 1
+            print(f"ERROS FOUND! REMENBER HEADER ROW = {head}")
+            sys.exit(1)
+
+        excel = self.excel
+
+        # calculando o número de tipos de verificação que serão executadas
+        total = len(checks_final) + len(excel.index) * len(self.column_details)
+        if check_row is not None:
+            total += len(excel.index)
+
+        with alive_bar(
+                total,
+                title="Checking data...",
+                bar=None,
+                spinner=False,
+                #    receipt=False,
+                enrich_print=False,
+                # stats=False,
+                elapsed=True) as pbar:
+            # Verificações por coluna
+            for column in self.column_details:
+                for index in excel.index:
+                    value = excel.at[index, column["key"]]
+                    invalid = self.check_value(value=value,
+                                               index=index,
+                                               **column)
+                    if invalid and not self.erros:
+                        self.erros = True
+                    pbar()
+
+            # Verificações por linha
+            if check_row is not None:
+                for row in excel.index:
+                    try:
+                        data = check_row(excel.at[row, "row"],
+                                         excel.loc[row].copy())
+                        for key, value in data.items():
+                            excel.at[row, key] = value
+
+                    except CheckException:
+                        self.erros = True
+                    pbar()
+
+            # Verificações totais (duplicação de dados)
+            if checks_final is not None:
+                for check in checks_final:
+                    try:
+                        excel = check(excel)
+                    except CheckException:
+                        self.erros = True
+                    pbar()
+
+        return self.erros
 
     def check_value(self,
                     value: any,
@@ -242,39 +294,8 @@ class Excel:
             rows.append(self.row(i))
         excel["row"] = rows
 
-    def data_row(self, row: int, check_row: Callable = None) -> None:
+    def data_all(self) -> dict:
         excel = self.excel
-
-        if check_row is not None:
-            try:
-                excel.loc[row] = check_row(self.row(row),
-                                           excel.loc[row].copy())
-            except CheckException:
-                self.erros = True
-
-        if self.erros:
-            raise CheckException
-
-    def data_all(self,
-                 check_row: Callable = None,
-                 checks_final: list[Callable] = None) -> dict:
-        excel = self.excel
-        for row in excel.index:
-            try:
-                self.data_row(row, check_row=check_row)
-            except CheckException:
-                self.erros = True
-
-        if checks_final is not None:
-            for check in checks_final:
-                try:
-                    excel = check(excel)
-                except CheckException:
-                    self.erros = True
-
-        if self.erros:
-            sys.exit(1)
-
         excel = excel.drop(columns="row")
         excel = excel.where(pd.notnull(excel), None)
         return excel.to_dict('records')

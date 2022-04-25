@@ -18,7 +18,7 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
 
     print("analyzing spreadsheet")
 
-    ex = Excel(book=book, sheet_name="client", header_row=header)
+    ex = Excel(book=book, sheet_name="client", header_row=header, verbose=True)
 
     ex.add_column(key="ativoCliente",
                   name="ativoCliente",
@@ -51,8 +51,13 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     ex.clean_columns()
     ex.add_row_column()
 
-    data = ex.data_all(check_row=checks,
-                       checks_final=[check_all, check_registered, skip_items])
+    invalid = ex.check_all(
+        check_row=checks,
+        checks_final=[check_all, check_registered, skip_items])
+    if invalid:
+        sys.exit(1)
+
+    data = ex.data_all()
 
     len_data = len(data)
     if reset:
