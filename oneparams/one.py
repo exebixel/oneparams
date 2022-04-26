@@ -139,8 +139,7 @@ def cli_config(error: bool = False, warning: bool = False, skip: bool = False):
 @click.group()
 @click.version_option(config.VERSION)
 def cli():
-    """ Função padrão do click,
-    necessária para ter os outros módulos
+    """ Scripts to parametrization and data conversion
     """
 
 
