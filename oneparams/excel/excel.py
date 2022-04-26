@@ -168,10 +168,10 @@ class Excel:
                 title="Checking data...",
                 bar=None,
                 spinner=False,
-                #    receipt=False,
+                receipt=False,
                 enrich_print=False,
-                # stats=False,
-                elapsed=True) as pbar:
+                stats=False,
+                elapsed=False) as pbar:
             # Verificações por coluna
             for column in self.column_details:
                 for index in excel.index:
@@ -205,6 +205,7 @@ class Excel:
                         self.erros = True
                     pbar()
 
+        self.excel = excel
         return self.erros
 
     def check_value(self,
