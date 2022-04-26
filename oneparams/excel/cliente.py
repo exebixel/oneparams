@@ -49,7 +49,6 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     ex.add_column(key="estadoId", name="estado")
 
     ex.clean_columns()
-    ex.add_row_column()
 
     invalid = ex.check_all(
         check_row=checks,
@@ -57,6 +56,7 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     if invalid:
         sys.exit(1)
 
+    print("creating clients")
     data = ex.data_all()
 
     len_data = len(data)

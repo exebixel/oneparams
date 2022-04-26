@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from alive_progress import alive_bar
 from oneparams import config
@@ -42,8 +43,11 @@ class Comissao():
 
         one = ApiCommission()
 
-        data_all = ex.data_all(checks_final=[self.checks_comm])
+        invalid = ex.check_all(checks_final=[self.checks_comm])
+        if invalid:
+            sys.exit(1)
 
+        data_all = ex.data_all()
         len_data = len(data_all)
 
         if reset:

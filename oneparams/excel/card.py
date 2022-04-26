@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from alive_progress import alive_bar
 from oneparams.api.cards import ApiCard
@@ -38,8 +39,13 @@ def cards(book: pd.ExcelFile, header: int = 1, reset: bool = False):
                   custom_function_after=check_contas)
     ex.clean_columns()
 
-    data_all = ex.data_all(
+    invalid = ex.check_all(
         checks_final=[check_duplications, resolve_debito_credito])
+    if invalid:
+        sys.exit(1)
+
+    print("creating cards")
+    data_all = ex.data_all()
 
     operadora = Operadora()
     len_data = len(data_all)
