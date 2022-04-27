@@ -55,13 +55,18 @@ class Excel:
         Função responsável por pesquisa a string do parâmetro 'search'
         nas planilhas (sheets) do 'book' especificado no __init__
         e retornar o 1º nome de planilha que encontrar na pesquisa
+
+        Caso tenha apenas 1 planilha no arquivo ela é retornada
         """
+        if len(self.__book.sheet_names) == 1:
+            return self.__book.sheet_names[0]
+
         for names in self.__book.sheet_names:
             name = string_normalize(names)
             if re.search(search, name, re.IGNORECASE):
                 return names
         raise ValueError(
-            f'ERROR! Sheet {search} not found! Rename your sheet!')
+            f"ERROR! Sheet '{search}' not found! Rename your sheet!")
 
     def column_name(self, column_name: str) -> str:
         """
