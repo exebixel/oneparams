@@ -5,17 +5,17 @@ import setuptools
 
 from oneparams.config import VERSION
 
-currentDir = os.getcwd()
-distDir = f'{currentDir}/dist'
-buildDir = f'{currentDir}/build'
+current_dir = os.getcwd()
+dist_dir = f'{current_dir}/dist'
+build_dir = f'{current_dir}/build'
 
-if os.path.isdir(distDir):
-    shutil.rmtree(distDir)
+if os.path.isdir(dist_dir):
+    shutil.rmtree(dist_dir)
 
-if os.path.isdir(buildDir):
-    shutil.rmtree(buildDir)
+if os.path.isdir(build_dir):
+    shutil.rmtree(build_dir)
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -31,9 +31,11 @@ setuptools.setup(
     author="exebixel",
     author_email="ezequielnat7@gmail.com",
     url="https://github.com/exebixel/oneparams",
-    install_requires=["requests", "pandas", "urllib3",
-                      "xlrd", "openpyxl", "click", "alive-progress"],
-    python_requires=">=3.6",
+    install_requires=[
+        "requests", "pandas>=1.4.0", "urllib3", "xlrd", "openpyxl",
+        "click>=7.0", "alive-progress>=2.4.1"
+    ],
+    python_requires=">=3.7",
     classifiers=[
         "Operating System :: OS Independent",
         "Environment :: Console",
