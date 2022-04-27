@@ -74,7 +74,7 @@ class Comissao():
 
         final_data = pd.DataFrame()
         for i in data.iterrows():
-            final_data = final_data.append(self.cols_names_to_id(i[1]))
+            final_data = pd.concat([final_data, self.cols_names_to_id(i[1])])
 
         if self.erros:
             raise config.CheckException

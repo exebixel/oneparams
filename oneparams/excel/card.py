@@ -128,7 +128,10 @@ def resolve_debito_credito(data: pd.DataFrame) -> pd.DataFrame:
         copy = row.copy()
         row["debito_Credito"] = "D"
         copy["debito_Credito"] = "C"
-        data = data.append([row, copy])
+
+        aux = pd.DataFrame([row, copy])
+        data = pd.concat([data, aux])
+
     data = data[data["debito_Credito"] != "CD"]
     data = data.sort_index()
 
