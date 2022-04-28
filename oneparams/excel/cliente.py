@@ -1,4 +1,3 @@
-import re
 import sys
 
 import pandas as pd
@@ -21,7 +20,7 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     ex = Excel(book=book, sheet_name="client", header_row=header, verbose=True)
 
     ex.add_column(key="ativoCliente",
-                  name="ativoCliente",
+                  name="ativo",
                   default=True,
                   types="bool",
                   required=False)
@@ -32,21 +31,25 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     ex.add_column(key="email", name="email", types="email", length=50)
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="cpf", name="cpf", types="cpf")
-    ex.add_column(key="sexo", name="sexo", types="sex")
+    ex.add_column(key="sexo", name="sexo", types="sex", required=False)
     ex.add_column(key="aniversario",
                   name="aniversario",
                   types="date",
                   default=None,
                   required=False)
-    ex.add_column(key="cep", name="cep", length=50)
-    ex.add_column(key="endereco", name="endereco", length=50)
-    ex.add_column(key="bairro", name="bairro", length=40)
-    ex.add_column(key="complemento", name="complemento", length=50)
+    ex.add_column(key="cep", name="cep", length=50, required=False)
+    ex.add_column(key="endereco", name="endereco", length=50, required=False)
+    ex.add_column(key="bairro", name="bairro", length=40, required=False)
+    ex.add_column(key="complemento",
+                  name="complemento",
+                  length=50,
+                  required=False)
     ex.add_column(key="numeroEndereco",
                   name="numero",
-                  custom_function_after=check_numero_endereco)
-    ex.add_column(key="cidadeId", name="cidade")
-    ex.add_column(key="estadoId", name="estado")
+                  custom_function_after=check_numero_endereco,
+                  required=False)
+    ex.add_column(key="cidadeId", name="cidade", required=False)
+    ex.add_column(key="estadoId", name="estado", required=False)
 
     ex.clean_columns()
 
