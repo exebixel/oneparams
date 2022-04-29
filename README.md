@@ -8,7 +8,7 @@ Uma CLI relativamente simples para automatizar os processos de parametrização 
 Instalação
 ----------
 
-Para instalar o OneParams é necessário ter o Python com uma versão acima da 3.6 e o Pip instalados no seu computador.
+Para instalar o OneParams é necessário ter o Python com uma versão acima da 3.7 e o Pip instalados no seu computador.
 
 ### Windows
 
