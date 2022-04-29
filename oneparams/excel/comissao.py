@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from alive_progress import alive_bar
 from oneparams import config
@@ -5,7 +6,7 @@ from oneparams.api.colaborador import ApiColaboradores
 from oneparams.api.commission import ApiCommission
 from oneparams.api.profissao import Profissao
 from oneparams.excel.excel import Excel
-from oneparams.utils import get_names
+from oneparams.utils import deemphasize, get_names
 
 
 class Comissao():
@@ -17,7 +18,15 @@ class Comissao():
         self.erros = False
         if config.RESOLVE_ERROS:
             one = ApiCommission()
+            # Coloca em memoria o detalhamento de todos os colaboradores
             one.cols.get_all_details()
+
+            # Gera uma lista com todos os colaboradores agendaveis
+            self.agendaveis = []
+            for cols_id in one.cols.items_active().keys():
+                if one.cols.details(cols_id)["agendavel"]:
+                    self.agendaveis.append(cols_id)
+
         self.comissao(book=book, reset=reset, header=header)
 
     def comissao(self,
@@ -34,8 +43,11 @@ class Comissao():
 
         one = ApiCommission()
 
-        data_all = ex.data_all(checks_final=[self.checks_comm])
+        invalid = ex.check_all(checks_final=[self.checks_comm])
+        if invalid:
+            sys.exit(1)
 
+        data_all = ex.data_all()
         len_data = len(data_all)
 
         if reset:
@@ -62,7 +74,7 @@ class Comissao():
 
         final_data = pd.DataFrame()
         for i in data.iterrows():
-            final_data = final_data.append(self.cols_names_to_id(i[1]))
+            final_data = pd.concat([final_data, self.cols_names_to_id(i[1])])
 
         if self.erros:
             raise config.CheckException
@@ -109,11 +121,16 @@ class Comissao():
                     print(f"ERROR! in line {data['row']}: {exp}")
                     self.erros = True
                 else:
+                    if (deemphasize(i) == "todos"
+                            or deemphasize(i) == "todas"):
+                        ids.extend(self.agendaveis)
+                        continue
+
                     try:
                         ids.extend(self.cols_with_profession_name(i))
-                    except ValueError as exp:
+                    except ValueError as message:
                         print(
-                            f"ERROR! in line {data['row']}: Collaborator/{exp}"
+                            f"ERROR! in line {data['row']}: Collaborator/{message}"
                         )
                         self.erros = True
 

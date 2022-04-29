@@ -73,7 +73,7 @@ class ApiCommission(BaseApi):
     def create(self, data: dict) -> None:
         service = self.serv.items[data["servId"]][self.serv.key_name]
         collaborator = self.cols.items[data["colsId"]][self.cols.key_name]
-        print(f"adding {service} service to professional {collaborator}")
+        print(f"adding '{service}' service to professional '{collaborator}'")
 
         response = self.post(
             f"/OServicosComis/AdicionarComissao/{data['colsId']}",
@@ -91,7 +91,7 @@ class ApiCommission(BaseApi):
     def delete(self, data: dict) -> None:
         service = self.serv.items[data["servId"]][self.serv.key_name]
         collaborator = self.cols.items[data["colsId"]][self.cols.key_name]
-        print(f"deleting {service} service in professional {collaborator}")
+        print(f"deleting '{service}' service in professional '{collaborator}'")
 
         response = super().delete(
             f"/Comiservs/RemoverComissao/{data['colsId']}/{data['servId']}")

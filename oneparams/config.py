@@ -6,13 +6,13 @@ from alive_progress import config_handler
 RESOLVE_ERROS = False
 NO_WARNING = False
 SKIP = False
-VERSION = "0.3.4.3"
+VERSION = "0.3.5"
 
 
 def config_bar():
     """ Configuração padrão da barra de progresso
     """
-    config_handler.set_global(stats=False, enrich_print=False, spinner=None)
+    config_handler.set_global(stats=True, enrich_print=False, spinner=None)
 
 
 class CheckException(Exception):

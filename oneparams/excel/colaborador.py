@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from alive_progress import alive_bar
 from oneparams.api.colaborador import ApiColaboradores
@@ -48,7 +49,12 @@ def colaborador(book: pd.ExcelFile, header: int = 1):
                   types="bool")
     ex.clean_columns()
 
-    data = ex.data_all(check_row=checks, checks_final=[check_duplications])
+    invalid = ex.check_all(check_row=checks, checks_final=[check_duplications])
+    if invalid:
+        sys.exit(1)
+
+    print("creating collaborators")
+    data = ex.data_all()
     len_data = len(data)
 
     config_bar()
@@ -98,11 +104,11 @@ def check_duplications(data: pd.DataFrame) -> pd.DataFrame:
         duplic = data[data.duplicated(keep=False, subset=col)]
         for i in duplic.loc[data[col].notnull()].index:
             for j in duplic.loc[data[col].notnull()].index:
-                if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
+                if (duplic.at[i, col] == duplic.at[j, col] and j != i):
                     print(
-                        print_erro.format(duplic.loc[i, 'row'],
-                                          duplic.loc[j, 'row'],
-                                          duplic.loc[i, col]))
+                        print_erro.format(duplic.at[i, 'row'],
+                                          duplic.at[j, 'row'],
+                                          duplic.at[i, col]))
                     duplic = duplic.drop(index=i)
                     erros = True
                     break

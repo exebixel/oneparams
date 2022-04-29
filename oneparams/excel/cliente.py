@@ -1,8 +1,9 @@
-import re
+import sys
 
 import pandas as pd
 from alive_progress import alive_bar
 from oneparams import config
+from oneparams.api.cidade import ApiCidade
 from oneparams.api.client import ApiCliente
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.config import CheckException, config_bar
@@ -16,10 +17,10 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
 
     print("analyzing spreadsheet")
 
-    ex = Excel(book=book, sheet_name="client", header_row=header)
+    ex = Excel(book=book, sheet_name="client", header_row=header, verbose=True)
 
     ex.add_column(key="ativoCliente",
-                  name="ativoCliente",
+                  name="ativo",
                   default=True,
                   types="bool",
                   required=False)
@@ -30,27 +31,36 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     ex.add_column(key="email", name="email", types="email", length=50)
     ex.add_column(key="celular", name="celular", types="cel")
     ex.add_column(key="cpf", name="cpf", types="cpf")
-    ex.add_column(key="sexo", name="sexo", types="sex")
+    ex.add_column(key="sexo", name="sexo", types="sex", required=False)
     ex.add_column(key="aniversario",
                   name="aniversario",
                   types="date",
                   default=None,
                   required=False)
-    ex.add_column(key="cep", name="cep", length=50)
-    ex.add_column(key="endereco", name="endereco", length=50)
-    ex.add_column(key="bairro", name="bairro", length=40)
-    ex.add_column(key="complemento", name="complemento", length=50)
+    ex.add_column(key="cep", name="cep", length=50, required=False)
+    ex.add_column(key="endereco", name="endereco", length=50, required=False)
+    ex.add_column(key="bairro", name="bairro", length=40, required=False)
+    ex.add_column(key="complemento",
+                  name="complemento",
+                  length=50,
+                  required=False)
     ex.add_column(key="numeroEndereco",
                   name="numero",
-                  custom_function_after=check_numero_endereco)
-    ex.add_column(key="cidadeId", name="cidade")
-    ex.add_column(key="estadoId", name="estado")
+                  custom_function_after=check_numero_endereco,
+                  required=False)
+    ex.add_column(key="cidadeId", name="cidade", required=False)
+    ex.add_column(key="estadoId", name="estado", required=False)
 
     ex.clean_columns()
-    ex.add_row_column()
 
-    data = ex.data_all(check_row=checks,
-                       checks_final=[check_all, check_registered, skip_items])
+    invalid = ex.check_all(
+        check_row=checks,
+        checks_final=[check_all, check_registered, skip_items])
+    if invalid:
+        sys.exit(1)
+
+    print("creating clients")
+    data = ex.data_all()
 
     len_data = len(data)
     if reset:
@@ -70,8 +80,10 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
 
 def checks(row: int, data: dict) -> dict:
     try:
-        api = ApiCliente()
-        data = api.name_to_id(data)
+        api = ApiCidade()
+        city = api.submodule_id(city=data["cidadeId"], state=data["estadoId"])
+        data["cidadeId"] = city["cidadesId"]
+        data["estadoId"] = city["estadosId"]
     except ValueError as exp:
         print_error(f"in line {row}: {exp}")
         data["cidadeId"] = None
@@ -125,14 +137,14 @@ def check_all(data: pd.DataFrame) -> pd.DataFrame:
         # Verfica duplicidades no DataFrame
         for i in duplic.loc[data[col].notnull()].index:
             for j in duplic.loc[data[col].notnull()].index:
-                if (duplic.loc[i, col] == duplic.loc[j, col] and j != i):
-                    message = print_erro.format(duplic.loc[i, "row"],
-                                                duplic.loc[j, "row"],
-                                                duplic.loc[i, col])
+                if (duplic.at[i, col] == duplic.at[j, col] and j != i):
+                    message = print_erro.format(duplic.at[i, "row"],
+                                                duplic.at[j, "row"],
+                                                duplic.at[i, col])
                     duplic = duplic.drop(index=i)
 
                     if col == "celular":
-                        data.loc[i, col] = "00000000"
+                        data.at[i, col] = "00000000"
                     else:
                         data = data.drop(index=i)
 

@@ -1,7 +1,7 @@
 requests
 urllib3
-pandas
+pandas>=1.4.0
 xlrd
 openpyxl
 click
-alive-progress
+alive-progress>=2.4.1

@@ -5,6 +5,7 @@ from oneparams.utils import deemphasize, state_to_uf
 class ApiCidade(SubModuleApi):
 
     items = {}
+    know_erros = []
 
     def __init__(self) -> None:
         super().__init__(key_id="cidadesId",
@@ -45,6 +46,11 @@ class ApiCidade(SubModuleApi):
                 "estadosId": self.items[item_id]["estadosId"]
             }
 
+        for value in self.know_erros:
+            if (value["city"] == city and value["state"] == state):
+                raise ValueError(
+                    f"{self.item_name} '{city}/{state}' not found!")
+
         # pesquisa na api
         self.search(city)
         item_id = self.item_id({self.key_name: city, "siglaEstado": state})
@@ -54,4 +60,5 @@ class ApiCidade(SubModuleApi):
                 "estadosId": self.items[item_id]["estadosId"]
             }
 
-        raise ValueError(f"{self.item_name} {city} not found!")
+        self.know_erros.append({"city": city, "state": state})
+        raise ValueError(f"{self.item_name} '{city}/{state}' not found!")

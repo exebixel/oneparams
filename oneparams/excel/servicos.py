@@ -1,3 +1,4 @@
+import sys
 from pandas import DataFrame, ExcelFile
 from alive_progress import alive_bar
 from oneparams.api.gservs import Gservis
@@ -71,7 +72,12 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
                   default="P")
     ex.clean_columns()
 
-    data = ex.data_all(checks_final=[check_duplications])
+    invalid = ex.check_all(checks_final=[check_duplications])
+    if invalid:
+        sys.exit(1)
+
+    print("creating services")
+    data = ex.data_all()
 
     len_data = len(data)
     if reset:
@@ -124,11 +130,11 @@ def check_duplications(data: DataFrame) -> DataFrame:
     duplic = data[data.duplicated(keep=False, subset=["descricao"])]
     for i in duplic.index:
         for j in duplic.index:
-            if (duplic.loc[i, "descricao"] == duplic.loc[j, "descricao"]
+            if (duplic.at[i, "descricao"] == duplic.at[j, "descricao"]
                     and j != i):
-                print("ERROR! in lines {} and {}: Service {} is duplicated".
-                      format(duplic.loc[i, 'row'], duplic.loc[j, 'row'],
-                             duplic.loc[i, 'descricao']))
+                print("ERROR! in lines {} and {}: Service '{}' is duplicated".
+                      format(duplic.at[i, 'row'], duplic.at[j, 'row'],
+                             duplic.at[i, 'descricao']))
                 duplic = duplic.drop(index=i)
                 erros = True
                 break

@@ -331,4 +331,4 @@ def state_to_uf(state_name: str) -> str:
                 or string_normalize(uf_state) == string_normalize(state_name)):
             return uf_state
 
-    raise ValueError(f"State {state_name} not found!")
+    raise ValueError(f"State '{state_name}' not found!")
