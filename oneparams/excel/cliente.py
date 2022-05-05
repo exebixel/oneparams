@@ -7,7 +7,7 @@ from oneparams import config
 from oneparams.api.cidade import ApiCidade
 from oneparams.api.client import ApiCliente
 from oneparams.api.colaborador import ApiColaboradores
-from oneparams.config import CheckException, config_bar
+from oneparams.config import CheckException, config_bar_api
 from oneparams.excel.excel import Excel
 from oneparams.utils import print_error, wprint
 
@@ -67,7 +67,7 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
     if reset:
         len_data += len(one.items)
 
-    config_bar()
+    config_bar_api()
     with alive_bar(len_data) as pbar:
         if reset:
             for i in list(one.items):

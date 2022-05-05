@@ -54,7 +54,7 @@ class Comissao():
             one.get_all()
             len_data += one.len()
 
-        config.config_bar()
+        config.config_bar_api()
         with alive_bar(len_data) as pbar:
             if reset:
                 for cols in list(one.items):

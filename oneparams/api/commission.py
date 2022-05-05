@@ -4,7 +4,7 @@ from alive_progress import alive_bar
 from oneparams.api.base import BaseApi
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.api.servicos import ApiServicos
-from oneparams.config import config_bar
+from oneparams.config import config_bar_api
 
 
 class ApiCommission(BaseApi):
@@ -22,7 +22,7 @@ class ApiCommission(BaseApi):
                 to_get.append(cols_id)
 
         # Gerar a estrutura local com todas as comissões
-        config_bar()
+        config_bar_api()
         with alive_bar(len(to_get), title="Getting Commission Data") as pbar:
             for cols_id in to_get:
                 ApiCommission.items[cols_id] = self.get_servs_in_cols(cols_id)

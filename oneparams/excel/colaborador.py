@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 from alive_progress import alive_bar
 from oneparams.api.colaborador import ApiColaboradores
-from oneparams.config import CheckException, config_bar
+from oneparams.config import CheckException, config_bar_api
 from oneparams.excel.excel import Excel
 from oneparams.utils import print_warning
 
@@ -57,7 +57,7 @@ def colaborador(book: pd.ExcelFile, header: int = 1):
     data = ex.data_all()
     len_data = len(data)
 
-    config_bar()
+    config_bar_api()
     with alive_bar(len_data) as pbar:
         for row in data:
             one.diff_item(row)

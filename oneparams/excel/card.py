@@ -4,7 +4,7 @@ from alive_progress import alive_bar
 from oneparams.api.cards import ApiCard
 from oneparams.api.conta import ApiConta
 from oneparams.api.operadora import Operadora
-from oneparams.config import CheckException, config_bar
+from oneparams.config import CheckException, config_bar_api
 from oneparams.excel.excel import Excel
 from oneparams.utils import card_type, print_warning
 
@@ -53,7 +53,7 @@ def cards(book: pd.ExcelFile, header: int = 1, reset: bool = False):
         len_data += len(one.items)
         len_data += len(operadora.items)
 
-    config_bar()
+    config_bar_api()
     with alive_bar(len_data) as pbar:
         if reset:
             for i in list(one.items):

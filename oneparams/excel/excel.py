@@ -163,20 +163,12 @@ class Excel:
 
         excel = self.excel
 
-        # calculando o número de tipos de verificação que serão executadas
-        total = len(checks_final) + len(excel.index) * len(self.column_details)
-        if check_row is not None:
-            total += len(excel.index)
+        # configuração padrão da barra de progresso
+        config.config_bar_excel()
 
-        with alive_bar(
-                total,
-                title="Checking data...",
-                bar=None,
-                spinner=False,
-                receipt=False,
-                enrich_print=False,
-                stats=False,
-                elapsed=False) as pbar:
+        # verificando todas as colunas
+        with alive_bar(len(excel.index) * len(self.column_details),
+                       title="Checking for columns...") as pbar:
             # Verificações por coluna
             for column in self.column_details:
                 for index in excel.index:
@@ -188,7 +180,8 @@ class Excel:
                         self.erros = True
                     pbar()
 
-            # Verificações por linha
+        # Verificações por linha
+        with alive_bar(len(excel.index), title="Checking for rows...") as pbar:
             if check_row is not None:
                 for row in excel.index:
                     try:
@@ -201,14 +194,14 @@ class Excel:
                         self.erros = True
                     pbar()
 
-            # Verificações totais (duplicação de dados)
-            if checks_final is not None:
-                for check in checks_final:
-                    try:
-                        excel = check(excel)
-                    except CheckException:
-                        self.erros = True
-                    pbar()
+        # Verificações totais (duplicação de dados)
+        if checks_final is not None:
+            for check in checks_final:
+                try:
+                    excel = check(excel)
+                except CheckException:
+                    self.erros = True
+                pbar()
 
         self.excel = excel
         return self.erros

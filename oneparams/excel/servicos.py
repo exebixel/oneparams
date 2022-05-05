@@ -3,7 +3,7 @@ from pandas import DataFrame, ExcelFile
 from alive_progress import alive_bar
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import ApiServicos
-from oneparams.config import CheckException, config_bar
+from oneparams.config import CheckException, config_bar_api
 from oneparams.excel.excel import Excel
 
 
@@ -83,7 +83,7 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
     if reset:
         len_data += len(one.items)
 
-    config_bar()
+    config_bar_api()
     with alive_bar(len_data) as pbar:
         if reset:
             for i in list(one.items):
