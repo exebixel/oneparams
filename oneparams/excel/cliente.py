@@ -7,9 +7,9 @@ from oneparams import config
 from oneparams.api.cidade import ApiCidade
 from oneparams.api.client import ApiCliente
 from oneparams.api.colaborador import ApiColaboradores
-from oneparams.config import CheckException, config_bar_api
+from oneparams.config import CheckException, config_bar_api, config_bar_excel
 from oneparams.excel.excel import Excel
-from oneparams.utils import print_error, wprint
+from oneparams.utils import print_error
 
 
 def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
@@ -128,39 +128,60 @@ def check_all(data: pd.DataFrame) -> pd.DataFrame:
     clis = {
         "nomeCompleto": "DUPLICATED! in lines {} and {}: Client '{}'",
         "email": "DUPLICATED! lines {} and {}: Client's email '{}'",
+        "cpf": "DUPLICATED! lines {} and {}: Client's CPF '{}'",
         "celular": "DUPLICATED! lines {} and {}: Client's phone '{}'",
-        "cpf": "DUPLICATED! lines {} and {}: Client's CPF '{}'"
     }
 
-    for col, print_erro in clis.items():
-        duplic = data[data.duplicated(keep=False, subset=col)]
+    duplicated = {}
+    total = 0
 
+    config_bar_excel()
+    with alive_bar(len(clis), title="Calculating duplications...") as pbar:
+        for col in clis:
+            # Lista duplicidades todos os registros duplicados
+            # sem manter nenhum
+            duplicated[col] = data[data.duplicated(keep=False,
+                                                   subset=col)][[col, "row"]]
+
+            # Exclui items nulos
+            duplicated[col] = duplicated[col].dropna(subset=[col])
+            if not duplicated[col].empty:
+                # altera o tipo dos dados (necessário para fazer o sort)
+                duplicated[col] = duplicated[col].astype(str)
+                # ordena a lista
+                duplicated[col] = duplicated[col].sort_values(by=[col, "row"])
+                total += len(duplicated[col].index)
+            else:
+                duplicated.pop(col)
+            pbar()
+
+    with alive_bar(total, title="Showing duplications...") as pbar:
         # Verfica duplicidades no DataFrame
-        for i in duplic.loc[data[col].notnull()].index:
-            for j in duplic.loc[data[col].notnull()].index:
-                if (duplic.at[i, col] == duplic.at[j, col] and j != i):
-                    message = print_erro.format(duplic.at[i, "row"],
-                                                duplic.at[j, "row"],
-                                                duplic.at[i, col])
-                    duplic = duplic.drop(index=i)
+        for col, duplicate in duplicated.items():
+            index = iter(duplicate.index)
+            next(index)
+            for i in duplicate.index:
+                n = next(index, None)
+                if (n is not None
+                        and duplicate.at[i, col] == duplicate.at[n, col]):
+                    if not config.RESOLVE_ERROS or not config.NO_WARNING:
+                        print(clis[col].format(duplicate.at[i, "row"],
+                                               duplicate.at[n, "row"],
+                                               duplicate.at[i, col]))
 
-                    if col == "celular":
-                        data.at[i, col] = "00000000"
-                    else:
-                        data = data.drop(index=i)
+                    if i in data.index:
+                        if col == "celular" and config.RESOLVE_ERROS:
+                            data.loc[i, "celular"] = "00000000"
+                        elif config.RESOLVE_ERROS:
+                            data.drop(i, inplace=True)
+                        else:
+                            erros = True
+                pbar()
 
-                    if config.RESOLVE_ERROS:
-                        wprint(message)
-                    else:
-                        print(message)
-                        erros = True
+    if not erros:
+        return data
 
-                    break
-
-    if erros:
-        raise CheckException
-
-    return data
+    raise CheckException
 
 
 def check_registered(data: pd.DataFrame) -> pd.DataFrame:
