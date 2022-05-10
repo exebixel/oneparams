@@ -155,7 +155,7 @@ def check_all(data: pd.DataFrame) -> pd.DataFrame:
                 duplicated.pop(col)
             pbar()
 
-    with alive_bar(total, title="Showing duplications...") as pbar:
+    with alive_bar(total, title="Resolving duplications...") as pbar:
         # Verfica duplicidades no DataFrame
         for col, duplicate in duplicated.items():
             index = iter(duplicate.index)

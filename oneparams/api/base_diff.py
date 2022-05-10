@@ -335,7 +335,7 @@ class BaseDiff(BaseApi, ABC):
             self.update(data)
 
         else:
-            print(f"skiping {data[self.key_name]} {self.item_name}")
+            print(f"skiping '{data[self.key_name]}' {self.item_name}")
 
     def submodule_id(self, name: str) -> int:
         item_id = self.item_id({self.key_name: name})
