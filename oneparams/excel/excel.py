@@ -36,7 +36,7 @@ class Excel:
                                   header=header_row)
             # retirando linhas e colunas em brando do Data Frame
             excel = excel.dropna(how="all")
-            excel.columns.astype("string")
+            excel.columns = excel.columns.astype("string")
             excel = excel.loc[:, ~excel.columns.str.contains('^Unnamed')]
             excel = excel.astype(object)
             excel = excel.where(pd.notnull(excel), None)
