@@ -189,18 +189,21 @@ def check_registered(data: pd.DataFrame) -> pd.DataFrame:
     erros = False
 
     keys = ["email", "celular"]
-    for key in keys:
-        for cols in api_cols.items.values():
-            registered_emails = data[data[key] == cols[key]]
-            if not registered_emails.empty:
-                row = registered_emails['row'].values[0]
-                value = cols[key]
-                print_error(
-                    f"in line {row}, Column {key}: '{value}' already registered as collaborator"
-                )
-                data = data.drop(registered_emails.index)
-                if not config.RESOLVE_ERROS:
-                    erros = True
+    with alive_bar(len(api_cols.items) * len(keys),
+                   title="Checking registered clients...") as pbar:
+        for key in keys:
+            for cols in api_cols.items.values():
+                registered_emails = data[data[key] == cols[key]]
+                if not registered_emails.empty:
+                    row = registered_emails['row'].values[0]
+                    value = cols[key]
+                    print_error(
+                        f"in line {row}, Column {key}: '{value}' already registered as collaborator"
+                    )
+                    data = data.drop(registered_emails.index)
+                    if not config.RESOLVE_ERROS:
+                        erros = True
+                pbar()
 
     if erros:
         raise CheckException
@@ -213,9 +216,12 @@ def skip_items(data: pd.DataFrame) -> pd.DataFrame:
         return data
 
     one = ApiCliente()
-    print("skipping clients already registered")
-    for clis in one.items.values():
-        # Exclui items já cadastrados no sistema do DataFrame
-        data = data.drop(data[data.nomeCompleto == clis["nomeCompleto"]].index)
+    with alive_bar(len(one.items), receipt=True,
+                   title="Skiping registered clients...") as pbar:
+        for clis in one.items.values():
+            # Exclui items já cadastrados no sistema do DataFrame
+            data = data.drop(
+                data[data.nomeCompleto == clis["nomeCompleto"]].index)
+            pbar()
 
     return data
