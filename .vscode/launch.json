@@ -15,9 +15,9 @@
                 "ezequielnat7@gmail.com",
                 "-e",
                 "teste piloto lite",
-                "Avec SalãoVIP - Sistema de Administração (13).xlsx",
+                "clientes.xlsx",
                 "-EW",
-                "-h 1"
+                "-h 2"
             ],
             "console": "integratedTerminal"
         },

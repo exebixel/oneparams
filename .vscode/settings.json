@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "Comiservs",
+        "serv",
         "comissao",
         "descricao",
         "eprint",
@@ -16,10 +17,13 @@
         "wprint"
     ],
     "python.linting.enabled": true,
-    "python.linting.pylintEnabled": false,
+    "python.linting.pylintEnabled": true,
     "python.linting.flake8Enabled": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.prospectorEnabled": false,
     "cSpell.enabled": true,
-    "python.linting.prospectorEnabled": true,
     "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 1500
+    "files.autoSaveDelay": 1500,
+    "cSpell.logLevel": "Warning",
+    "cSpell.diagnosticLevel": "Hint",
 }
