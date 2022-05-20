@@ -108,6 +108,9 @@ def check_descricao(value: any, key: str, row: int, default: any) -> any:
 
 
 def check_comissao(value: any, key: str, row: int, default: any) -> any:
+    if not isinstance(value, float):
+        raise CheckException
+
     if value <= 1:
         value = value * 100
     return value
