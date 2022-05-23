@@ -1,13 +1,14 @@
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.conta import ApiConta
+from oneparams.api.forma_pagamento import ApiFormaPagamento
 from oneparams.api.operadora import Operadora
 from oneparams.utils import deemphasize
 
 
 class ApiCard(BaseDiff):
-    items = {}
-    list_details = {}
-    first_get = False
+    items: dict = {}
+    list_details: dict = {}
+    first_get: bool = False
 
     def __init__(self):
         super().__init__(key_id="cartoesId",
@@ -21,7 +22,8 @@ class ApiCard(BaseDiff):
                          url_delete="/Cartoes",
                          submodules={
                              "contasId": ApiConta(),
-                             "operadoraCartaoId": Operadora()
+                             "operadoraCartaoId": Operadora(),
+                             "formaDePagamentoId": ApiFormaPagamento()
                          },
                          handle_errors={
                              "API.CARTOES.DELETE.REFERENCE":
@@ -45,7 +47,8 @@ class ApiCard(BaseDiff):
         data = {
             self.key_id: item_id,
             self.key_name: data[self.key_name],
-            "debito_Credito": data["debito_Credito"]
+            "debito_Credito": data["debito_Credito"],
+            "formaDePagamentoId": data["formaDePagamentoId"]
         }
         self.items[item_id] = data
         return item_id
