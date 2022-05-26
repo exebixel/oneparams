@@ -224,7 +224,7 @@ class BaseDiff(BaseApi, ABC):
                 return key
         return 0
 
-    def search_item_by_name(self, nome: dict, inactive: bool = False) -> int:
+    def search_item_by_name(self, nome: str, inactive: bool = False) -> int:
         """
         Pesquisa por um nome (self.key_name) e retorna o Id (self.key_id),
         a pesquisa é feita ignorando o case das letras e os acentos,
@@ -343,7 +343,7 @@ class BaseDiff(BaseApi, ABC):
             item_id = self.create({self.key_name: name})
             if item_id is not None:
                 return item_id
-            raise ValueError(f'{self.item_name} {name} not found!')
+            raise ValueError(f"{self.item_name} '{name}' not found!")
         return item_id
 
     def inactive(self, item_id: int) -> bool:

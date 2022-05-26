@@ -14,7 +14,7 @@ def cards(book: pd.ExcelFile, header: int = 1, reset: bool = False):
     one = ApiCard()
     print("analyzing spreadsheet")
 
-    ex = Excel(book=book, sheet_name="cart", header_row=header)
+    ex = Excel(book=book, sheet_name="pagamento", header_row=header)
 
     ex.add_column(key="descricao",
                   name="nome",

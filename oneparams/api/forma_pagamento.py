@@ -6,11 +6,11 @@ class ApiFormaPagamento(BaseDiff):
     items: dict = {
         2: {
             "formaDePagamentoId": 2,
-            "descricao": "Cartão de Débito"
+            "descricao": "Cartão de Crédito"
         },
         3: {
             "formaDePagamentoId": 3,
-            "descricao": "Cartão de Crédito"
+            "descricao": "Cartão de Débito"
         },
         4: {
             "formaDePagamentoId": 4,
