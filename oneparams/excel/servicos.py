@@ -107,9 +107,11 @@ def check_descricao(value: any, key: str, row: int, default: any) -> any:
     return value
 
 
-def check_comissao(value: any, key: str, row: int, default: any) -> any:
-    if not isinstance(value, float):
-        raise CheckException
+def check_comissao(value: any, key: str, row: int, default: any) -> float:
+    try:
+        value = float(value)
+    except ValueError as exp:
+        raise CheckException from exp
 
     if value <= 1:
         value = value * 100

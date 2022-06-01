@@ -67,10 +67,9 @@ def get_float(srtnum: str) -> float:
         if "," in nums[0]:
             nums[0] = re.sub(r",", ".", nums[0])
         try:
-            nums = float(nums[0])
+            return float(nums[0])
         except ValueError as exp:
             raise ValueError("No possible convert number") from exp
-        return nums
 
     if len(nums) == 0:
         raise ValueError("Number not found")
