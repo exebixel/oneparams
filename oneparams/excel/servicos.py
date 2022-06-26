@@ -70,6 +70,11 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
                   name="tipo custo",
                   required=False,
                   default="P")
+    ex.add_column(key="flagMobilidade",
+                  name="mobilidade",
+                  required=False,
+                  default=True,
+                  types="bool")
     ex.clean_columns()
 
     invalid = ex.check_all(checks_final=[check_duplications])
