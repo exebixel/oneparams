@@ -3,7 +3,7 @@ import shutil
 
 import setuptools
 
-from oneparams.config import VERSION
+from oneparams import __version__
 
 current_dir = os.getcwd()
 dist_dir = f'{current_dir}/dist'
@@ -24,7 +24,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['one = oneparams.one:cli'],
     },
-    version=VERSION,
+    version=__version__,
     description="One System Parametrizer",
     long_description=long_description,
     long_description_content_type="text/markdown",

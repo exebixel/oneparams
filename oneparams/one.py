@@ -6,6 +6,7 @@ import sys
 
 import click
 import pandas as pd
+from oneparams import __version__
 
 from oneparams import config
 from oneparams.api.login import Login
@@ -137,7 +138,7 @@ def cli_config(error: bool = False, warning: bool = False, skip: bool = False):
 
 
 @click.group()
-@click.version_option(config.VERSION)
+@click.version_option(__version__)
 def cli():
     """ Scripts to parametrization and data conversion
     """

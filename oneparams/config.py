@@ -5,7 +5,6 @@ from alive_progress import config_handler
 RESOLVE_ERROS = False
 NO_WARNING = False
 SKIP = False
-VERSION = "0.3.5.4"
 
 
 def config_bar_api():
