@@ -83,9 +83,9 @@ class CheckTypes():
             date = get_date(value)
             value = datetime.strftime(date, "%Y-%m-%dT00:00:00")
         except ValueError as exp:
-            print_error(f"in line {row}, Column {key}: {exp}")
+            print_error(f"in line {row}, Column {key}: '{value}' is not valid")
             if not config.RESOLVE_ERROS:
-                raise config.CheckException
+                raise config.CheckException from exp
             value = default
 
         return value
@@ -161,13 +161,13 @@ class CheckTypes():
         if self.check_default(value, default):
             return default
 
-        value = get_sex(value)
-        if value is None:
-            print_error(f"In line {row}, Column {key}: Can't get a valid sex")
+        sex = get_sex(value)
+        if sex is None:
+            print_error(f"In line {row}, Column {key}: '{value}' is not valid")
             if config.RESOLVE_ERROS:
                 return default
 
-        return value
+        return sex
 
 
 

@@ -108,14 +108,14 @@ def check_numero_endereco(value: any, key: str, row: int, default: any) -> any:
 
     value = re.sub(r'\.0$', '', str(value))
     if not value.isdecimal():
-        print_error(f"in line {row}, column {key}: is not a number")
+        print_error(f"in line {row}, column {key}: '{value}' is not a number")
         if not config.RESOLVE_ERROS:
             raise CheckException
         return default
 
     if len(value) > 4:
         print_error(
-            f"in line {row}, Column {key}: {value} size {len(value)}/4")
+            f"in line {row}, Column {key}: '{value}' size {len(value)}/4")
         if not config.RESOLVE_ERROS:
             raise CheckException
         return default
