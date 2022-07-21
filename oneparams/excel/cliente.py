@@ -9,7 +9,7 @@ from oneparams.api.client import ApiCliente
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.config import CheckException, config_bar_api, config_bar_excel
 from oneparams.excel.excel import Excel
-from oneparams.utils import print_error
+from oneparams.utils import print_error, similar
 
 
 def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
@@ -147,7 +147,7 @@ def check_all(data: pd.DataFrame) -> pd.DataFrame:
             duplicated[col] = duplicated[col].dropna(subset=[col])
             if not duplicated[col].empty:
                 # altera o tipo dos dados (necessário para fazer o sort)
-                duplicated[col] = duplicated[col].astype(str)
+                duplicated[col][col] = duplicated[col][col].astype(str)
                 # ordena a lista
                 duplicated[col] = duplicated[col].sort_values(by=[col, "row"])
                 total += len(duplicated[col].index)
@@ -167,7 +167,15 @@ def check_all(data: pd.DataFrame) -> pd.DataFrame:
                     if not config.RESOLVE_ERROS or not config.NO_WARNING:
                         print(clis[col].format(duplicate.at[i, "row"],
                                                duplicate.at[n, "row"],
-                                               duplicate.at[i, col]))
+                                               duplicate.at[i, col]),
+                              end="")
+                        if col == "celular":
+                            print(" - names are {:.2f}% similar".format(
+                                similar(data.at[i, "nomeCompleto"].lower(),
+                                        data.at[n, "nomeCompleto"].lower()) *
+                                100),
+                                  end="")
+                        print("")
 
                     if i in data.index:
                         if col == "celular" and config.RESOLVE_ERROS:
@@ -216,7 +224,8 @@ def skip_items(data: pd.DataFrame) -> pd.DataFrame:
         return data
 
     one = ApiCliente()
-    with alive_bar(len(one.items), receipt=True,
+    with alive_bar(len(one.items),
+                   receipt=True,
                    title="Skiping registered clients...") as pbar:
         for clis in one.items.values():
             # Exclui items já cadastrados no sistema do DataFrame
