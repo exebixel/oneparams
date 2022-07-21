@@ -113,13 +113,6 @@ def check_numero_endereco(value: any, key: str, row: int, default: any) -> any:
             raise CheckException
         return default
 
-    if len(value) > 4:
-        print_error(
-            f"in line {row}, Column {key}: '{value}' size {len(value)}/4")
-        if not config.RESOLVE_ERROS:
-            raise CheckException
-        return default
-
     return value
 
 
