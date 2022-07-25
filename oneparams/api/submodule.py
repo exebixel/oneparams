@@ -12,14 +12,18 @@ class SubModuleApi(BaseDiff, ABC):
                  key_name: str,
                  item_name: str,
                  url_search: str,
-                 url_create: str = None) -> None:
+                 key_search_term: str = "searchTerm",
+                 url_create: str = None,
+                 url_delete: str = None) -> None:
 
         super().__init__(key_id=key_id,
                          key_name=key_name,
                          item_name=item_name,
-                         url_create=url_create)
+                         url_create=url_create,
+                         url_delete=url_delete)
 
         self.__url_search = url_search
+        self.__key_search_term = key_search_term
 
     @property
     @abstractmethod
@@ -33,38 +37,35 @@ class SubModuleApi(BaseDiff, ABC):
 
         Faz uma requisição para a api usando a rota
         definida em self.url_create e adiciona o retorno em
-        self.items, alem de retornar os dados em uma lista
+        self.items, além de retornar os dados em uma lista
         """
         name = quote(name)
-        response = self.get(f"{self.__url_search}?{self.key_name}={name}")
+        response = self.get(
+            f"{self.__url_search}?{self.__key_search_term}={name}")
         self.status_ok(response)
 
         content = json.loads(response.content)
         for i in content:
-            self.add_item(i, i)
+            self.items[i[self.key_id]] = i
         return content
-
-    def add_item(self, data: dict, response: dict) -> int:
-        item_id = response[self.key_id]
-        self.items[item_id] = data
 
     def submodule_id(self, name: str) -> int:
         """ Tenta retornar um id referente ao argamunto passado
 
         Argumentos: name = nome que sera pesquisado
 
-        Tenta pesqusar nos items já salvos para retornar o id,
+        Tenta pesquisar nos items já salvos para retornar o id,
         caso não consiga faz uma pesquisa na api,
         caso não encontre nada, tenta criar o item,
         caso não consiga retorna exception com item não encontrado
         """
-        item_id = self.item_id(name)
+        item_id = self.item_id({self.key_name: name})
         if item_id != 0:
             return item_id
 
         # pesquisa na api
         self.search(name)
-        item_id = self.item_id(name)
+        item_id = self.item_id({self.key_name: name})
         if item_id != 0:
             return item_id
 

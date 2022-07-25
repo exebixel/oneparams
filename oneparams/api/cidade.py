@@ -4,14 +4,15 @@ from oneparams.utils import deemphasize, state_to_uf
 
 class ApiCidade(SubModuleApi):
 
-    items = {}
-    know_erros = []
+    items: dict = {}
+    know_erros: list = []
 
     def __init__(self) -> None:
         super().__init__(key_id="cidadesId",
                          key_name="descricao",
                          item_name="cidade",
-                         url_search="/OCidadesEstados/PesquisaCidade")
+                         url_search="/OCidadesEstados/PesquisaCidade",
+                         key_search_term="descricao")
 
     def item_id(self, data: dict) -> int:
         name = deemphasize(data[self.key_name])
