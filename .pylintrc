@@ -84,7 +84,8 @@ disable=raw-checker-failed,
         missing-docstring,
         not-callable,
         too-many-arguments,
-        too-many-instance-attributes 
+        too-many-instance-attributes,
+        consider-using-f-string
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
