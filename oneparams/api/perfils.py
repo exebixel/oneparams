@@ -6,8 +6,8 @@ from oneparams.utils import deemphasize, similar
 
 
 class Perfil(BaseApi):
-    items = []
-    first_get = False
+    items: list = []
+    first_get: bool = False
 
     def __init__(self):
         if not Perfil.first_get:

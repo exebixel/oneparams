@@ -7,9 +7,9 @@ class ApiServicos(BaseDiff):
     Gerenciamento de serviços,
     cria, atualiza, deleta e inativa serviços
     """
-    items = {}
-    list_details = {}
-    first_get = False
+    items: dict = {}
+    list_details: dict = {}
+    first_get: bool = False
 
     def __init__(self):
         super().__init__(

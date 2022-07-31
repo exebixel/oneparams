@@ -8,7 +8,7 @@ from oneparams.config import config_bar_api
 
 
 class ApiCommission(BaseApi):
-    items = {}
+    items: dict = {}
 
     def __init__(self):
         self.cols = ApiColaboradores()
@@ -34,8 +34,8 @@ class ApiCommission(BaseApi):
         é bom executar antes a função self.get_all
         """
         length = 0
-        for key in self.items.keys():
-            length += len(self.items[key])
+        for item in ApiCommission.items.values():
+            length += len(item)
         return length
 
     def get_servs_in_cols(self, cols_id: int) -> dict:

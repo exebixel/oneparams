@@ -27,7 +27,7 @@ class SubModuleApi(BaseDiff, ABC):
 
     @property
     @abstractmethod
-    def items(self):
+    def items(self) -> dict:
         raise NotImplementedError
 
     def search(self, name: str) -> list:

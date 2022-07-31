@@ -9,8 +9,8 @@ class ApiFornecedor(BaseDiff):
     classe de gerenciamento de fornecedores da one,
     sua principal função é criar e pesquisar fornecedores
     """
-    items = {}
-    first_get = False
+    items: dict = {}
+    first_get: bool = False
 
     def __init__(self):
         super().__init__(

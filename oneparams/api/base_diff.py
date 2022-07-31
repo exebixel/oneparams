@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
 import json
 import re
 import sys
-
+from abc import ABC, abstractmethod
+from typing import Optional
 from requests import Response
 
 from alive_progress import alive_bar
@@ -65,7 +65,7 @@ class BaseDiff(BaseApi, ABC):
     def list_details(self):
         raise NotImplementedError("list_details has not implemented")
 
-    def create(self, data: dict) -> int:
+    def create(self, data: dict) -> Optional[int]:
         """
         Recebe um parâmetro com os dados (dict) que devem
         ser adicionados ao sistema,
@@ -101,7 +101,7 @@ class BaseDiff(BaseApi, ABC):
         self.items[item_id] = data
         return item_id
 
-    def update(self, data: dict):
+    def update(self, data: dict) -> Optional[bool]:
         """
         Atualiza os dados de um item já cadastrado no sistema
         """
@@ -144,7 +144,7 @@ class BaseDiff(BaseApi, ABC):
 
         return json.loads(response.content)
 
-    def get_all_details(self, inactive: bool = False) -> None:
+    def get_all_details(self, inactive: bool = False) -> bool:
         """Puxa da api os detalhamentos de todos os items
 
         Essa função não retorna nada, apenas preenche a variavel

@@ -2,8 +2,8 @@ from oneparams.api.base_diff import BaseDiff
 
 
 class ApiConta(BaseDiff):
-    items = {}
-    first_get = False
+    items: dict = {}
+    first_get: bool = False
 
     def __init__(self):
         super().__init__(

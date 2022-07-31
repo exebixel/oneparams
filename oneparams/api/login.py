@@ -1,5 +1,6 @@
 import json
 import sys
+from typing import Optional
 from urllib.parse import quote
 
 from oneparams.api.base import BaseApi
@@ -12,8 +13,10 @@ class Login(BaseApi):
               email: str,
               senha: str,
               nome_filial: str = None,
-              empresa_id: bool = 0) -> bool:
-        empresa = self.empresa(nome_empresa, nome_filial, empresa_id)
+              empresa_id: int = 0) -> bool:
+        empresa = self.empresa(empresa=nome_empresa,
+                               filial=nome_filial,
+                               empresa_id=empresa_id)
         dados = {
             "empresaId": empresa["id"],
             "filialId": empresa["filial_id"],
@@ -31,8 +34,10 @@ class Login(BaseApi):
             access_token = content["data"]["access_token"]
             print("successful login")
             super().update_token(access_token)
+            return True
+        return False
 
-    def empresa_id(self, name: str, empresa_id: bool = 0) -> dict:
+    def empresa_id(self, name: str, empresa_id: int = 0) -> dict:
         name = quote(name)
         response = self.get(
             f"/OMobilidades/PesquisarEmpresaPorNome?nomeEmpresa={name}")
@@ -91,11 +96,15 @@ class Login(BaseApi):
 
         return content[0]["filiaisID"]
 
-    def empresa(self, empresa: str, filial: str, empresa_id: int = 0) -> dict:
-        empresa: dict = self.empresa_id(empresa, empresa_id)
-        if empresa["filial"]:
+    def empresa(self,
+                empresa: str,
+                filial: Optional[str],
+                empresa_id: int = 0) -> dict:
+        empresa_dict = self.empresa_id(empresa, empresa_id)
+        if empresa_dict["filial"]:
             if filial is None:
                 sys.exit(
                     "ERROR! Missing Branch! specify a branch and try again ")
-            empresa["filial_id"] = self.filial_id(empresa["id"], filial)
-        return empresa
+            empresa_dict["filial_id"] = self.filial_id(empresa_dict["id"],
+                                                       filial)
+        return empresa_dict

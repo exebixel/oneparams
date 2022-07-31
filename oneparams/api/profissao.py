@@ -5,8 +5,8 @@ from oneparams.utils import deemphasize, similar
 
 
 class Profissao(BaseApi):
-    items = []
-    first_get = False
+    items: list = []
+    first_get: bool = False
 
     def __init__(self):
         if not Profissao.first_get:

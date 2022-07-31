@@ -1,3 +1,4 @@
+from typing import Optional
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.perfils import Perfil
 from oneparams.api.profissao import Profissao
@@ -5,8 +6,8 @@ from oneparams.utils import create_email, deemphasize
 
 
 class ApiColaboradores(BaseDiff):
-    items = {}
-    list_details = {}
+    items: dict = {}
+    list_details: dict = {}
     first_get = False
 
     def __init__(self):
@@ -60,14 +61,14 @@ class ApiColaboradores(BaseDiff):
             data.pop("celular")
         return super().equals(data)
 
-    def create(self, data: dict) -> int:
+    def create(self, data: dict) -> Optional[int]:
         if data["email"] is None:
             data["email"] = create_email()
         if data["celular"] is None:
             data["celular"] = "00000000"
-        super().create(data)
+        return super().create(data)
 
-    def update(self, data: dict):
+    def update(self, data: dict) -> Optional[bool]:
         if "email" not in data.keys():
             data["email"] = self.details(data[self.key_id])["email"]
         if "celular" not in data.keys():

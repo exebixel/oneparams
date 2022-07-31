@@ -1,10 +1,11 @@
+from typing import Optional
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.fornecedor import ApiFornecedor
 
 
 class Operadora(BaseDiff):
-    items = {}
-    first_get = False
+    items: dict = {}
+    first_get: bool = False
 
     def __init__(self):
         super().__init__(key_id="operadoraCartoesId",
@@ -35,7 +36,7 @@ class Operadora(BaseDiff):
         }
         return super().add_item(data, response)
 
-    def create(self, data: dict) -> int:
+    def create(self, data: dict) -> Optional[int]:
         if "fornecedorId" not in data:
             data["fornecedorId"] = data[self.key_name]
             data = self.name_to_id(data)
