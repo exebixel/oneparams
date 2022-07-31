@@ -1,5 +1,5 @@
 import sys
-import pandas as pd
+from pandas import ExcelFile, DataFrame, concat
 from alive_progress import alive_bar
 from oneparams import config
 from oneparams.api.colaborador import ApiColaboradores
@@ -12,7 +12,7 @@ from oneparams.utils import deemphasize, get_names
 class Comissao():
 
     def __init__(self,
-                 book: pd.ExcelFile,
+                 book: ExcelFile,
                  header: int = 1,
                  reset: bool = False):
         self.erros = False
@@ -30,7 +30,7 @@ class Comissao():
         self.comissao(book=book, reset=reset, header=header)
 
     def comissao(self,
-                 book: pd.ExcelFile,
+                 book: ExcelFile,
                  header: int = 1,
                  reset: bool = False):
         print("analyzing spreadsheet")
@@ -66,15 +66,15 @@ class Comissao():
                 one.comissao(row)
                 pbar()
 
-    def checks_comm(self, data: pd.DataFrame) -> pd.DataFrame:
+    def checks_comm(self, data: DataFrame) -> DataFrame:
         # retira linhas que não tenham colaboradores
         data = data.loc[data["colsId"].notnull()]
         # transforma o nome do serviço em id
         data = data.apply(self.get_serv_id, axis=1)
 
-        final_data = pd.DataFrame()
+        final_data = DataFrame()
         for i in data.iterrows():
-            final_data = pd.concat([final_data, self.cols_names_to_id(i[1])])
+            final_data = concat([final_data, self.cols_names_to_id(i[1])])
 
         if self.erros:
             raise config.CheckException
@@ -107,7 +107,7 @@ class Comissao():
                 ids.append(key)
         return ids
 
-    def cols_names_to_id(self, data: pd.DataFrame) -> pd.DataFrame:
+    def cols_names_to_id(self, data: DataFrame) -> DataFrame:
         cols = get_names(data["colsId"])
 
         api = ApiCommission()
@@ -135,7 +135,7 @@ class Comissao():
                         self.erros = True
 
         if not self.erros:
-            return pd.DataFrame({
+            return DataFrame({
                 "servId": data["servId"],
                 "colsId": ids,
                 "row": data["row"]

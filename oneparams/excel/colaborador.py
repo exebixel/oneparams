@@ -1,5 +1,7 @@
 import sys
-import pandas as pd
+from typing import Any
+
+from pandas import ExcelFile, DataFrame, isnull
 from alive_progress import alive_bar
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.config import CheckException, config_bar_api
@@ -7,7 +9,7 @@ from oneparams.excel.excel import Excel
 from oneparams.utils import print_warning
 
 
-def colaborador(book: pd.ExcelFile, header: int = 1):
+def colaborador(book: ExcelFile, header: int = 1):
     one = ApiColaboradores()
     print("analyzing spreadsheet")
 
@@ -64,15 +66,15 @@ def colaborador(book: pd.ExcelFile, header: int = 1):
             pbar()
 
 
-def checks_nome_completo(value: any, key: str, row: int, default: any) -> str:
+def checks_nome_completo(value: Any, key: str, row: int, default: Any) -> str:
     if value is None:
         print(f"ERROR! in line {row}, Column {key}: empty name")
         raise CheckException
     return value
 
 
-def checks_perfil(value: any, key: str, row: int, default: any) -> str:
-    if pd.isnull(value):
+def checks_perfil(value: Any, key: str, row: int, default: Any) -> str:
+    if isnull(value):
         print_warning(
             f"In line {row}, Column {key}: value will be '{default}'")
     return value
@@ -90,7 +92,7 @@ def checks(row: int, data: dict) -> dict:
     return data
 
 
-def check_duplications(data: pd.DataFrame) -> pd.DataFrame:
+def check_duplications(data: DataFrame) -> DataFrame:
     erros = False
     cols = {
         "nomeCompleto":
@@ -107,8 +109,8 @@ def check_duplications(data: pd.DataFrame) -> pd.DataFrame:
                 if (duplic.at[i, col] == duplic.at[j, col] and j != i):
                     print(
                         print_erro.format(duplic.at[i, 'row'],
-                                          duplic.at[j, 'row'],
-                                          duplic.at[i, col]))
+                                          duplic.at[j, 'row'], duplic.at[i,
+                                                                         col]))
                     duplic = duplic.drop(index=i)
                     erros = True
                     break

@@ -1,6 +1,6 @@
 import re
 import sys
-from typing import Callable
+from typing import Callable, Any
 from alive_progress import alive_bar
 
 import pandas as pd
@@ -18,7 +18,7 @@ class Excel:
                  header_row: int = 1,
                  verbose: bool = False):
 
-        self.column_details = []
+        self.column_details: list = []
         self.verbose: bool = verbose
         self.__book = book
 
@@ -85,7 +85,7 @@ class Excel:
                    key: str,
                    name: str,
                    required: bool = True,
-                   default: any = None,
+                   default: Any = None,
                    types: str = "string",
                    length: int = 0,
                    custom_function_before: Callable = None,
@@ -207,11 +207,11 @@ class Excel:
         return self.erros
 
     def check_value(self,
-                    value: any,
+                    value: Any,
                     key: str,
                     types: str,
                     index: int,
-                    default: any = None,
+                    default: Any = None,
                     length: int = 0,
                     custom_function_before: Callable = None,
                     custom_function_after: Callable = None) -> bool:

@@ -1,5 +1,7 @@
 import sys
-import pandas as pd
+from typing import Any
+
+from pandas import ExcelFile, DataFrame, isnull
 from alive_progress import alive_bar
 from oneparams.api.cards import ApiCard
 from oneparams.api.conta import ApiConta
@@ -10,7 +12,7 @@ from oneparams.excel.excel import Excel
 from oneparams.utils import card_type, print_warning
 
 
-def cards(book: pd.ExcelFile, header: int = 1, reset: bool = False):
+def cards(book: ExcelFile, header: int = 1, reset: bool = False):
     one = ApiCard()
     print("analyzing spreadsheet")
 
@@ -68,14 +70,14 @@ def cards(book: pd.ExcelFile, header: int = 1, reset: bool = False):
             pbar()
 
 
-def check_descricao(value: any, key: str, row: int, default: any) -> str:
+def check_descricao(value: Any, key: str, row: int, default: Any) -> str:
     if value is None:
         print(f"ERROR! in line {row}, Column {key}: empty name")
         raise CheckException
     return value
 
 
-def check_contas(value: any, key: str, row: int, default: any) -> int:
+def check_contas(value: Any, key: str, row: int, default: Any) -> int:
     conta = ApiConta()
     value = conta.submodule_id(value)
     if value is None:
@@ -85,7 +87,7 @@ def check_contas(value: any, key: str, row: int, default: any) -> int:
     return value
 
 
-def check_debito_credito(value: any, key: str, row: int, default: any) -> int:
+def check_debito_credito(value: Any, key: str, row: int, default: Any) -> int:
     try:
         value = card_type(value)
     except TypeError as exp:
@@ -97,16 +99,16 @@ def check_debito_credito(value: any, key: str, row: int, default: any) -> int:
     return value
 
 
-def check_operadora_before(value: any, key: str, row: int,
-                           default: any) -> any:
-    if pd.isnull(value):
+def check_operadora_before(value: Any, key: str, row: int,
+                           default: Any) -> Any:
+    if isnull(value):
         print_warning(
             f"in line {row}, Column {key}: value will be '{default}'")
     return value
 
 
 def check_forma_pagamento(row: int, data: dict) -> dict:
-    if pd.isnull(data["formaDePagamentoId"]):
+    if isnull(data["formaDePagamentoId"]):
         print(f"ERROR! in line {row}, Column 'formaPagamentoId': empty")
         raise CheckException
 
@@ -128,7 +130,7 @@ def check_forma_pagamento(row: int, data: dict) -> dict:
     return data
 
 
-def check_duplications(data: pd.DataFrame) -> pd.DataFrame:
+def check_duplications(data: DataFrame) -> DataFrame:
     erros = False
     duplic = data[data.duplicated(keep=False,
                                   subset=["descricao", "debito_Credito"])]

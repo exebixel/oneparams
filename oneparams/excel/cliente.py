@@ -1,5 +1,6 @@
-import sys
 import re
+import sys
+from typing import Any
 
 import pandas as pd
 from alive_progress import alive_bar
@@ -95,14 +96,14 @@ def checks(row: int, data: dict) -> dict:
     return data
 
 
-def check_nome_completo(value: any, key: str, row: int, default: any) -> any:
+def check_nome_completo(value: Any, key: str, row: int, default: Any) -> Any:
     if pd.isnull(value):
         print(f"ERROR! in line {row}, Column {key}: Empty name")
         raise CheckException
     return value
 
 
-def check_numero_endereco(value: any, key: str, row: int, default: any) -> any:
+def check_numero_endereco(value: Any, key: str, row: int, default: Any) -> Any:
     if pd.isnull(value):
         return default
 

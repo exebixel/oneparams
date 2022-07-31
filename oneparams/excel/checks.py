@@ -2,12 +2,13 @@
 """
 import re
 from datetime import datetime, time
-from typing import Callable
+from typing import Callable, Any
 
 import pandas as pd
 from oneparams import config
 from oneparams.utils import (check_email, get_bool, get_cel, get_cpf, get_date,
-                             get_float, get_sex, get_time, print_error, print_warning)
+                             get_float, get_sex, get_time, print_error,
+                             print_warning)
 
 
 class CheckTypes():
@@ -29,8 +30,8 @@ class CheckTypes():
         """
         return getattr(self, f'check_{types}')
 
-    def check_string(self, value: any, key: str, default: any,
-                     row: int) -> any:
+    def check_string(self, value: Any, key: str, default: Any,
+                     row: int) -> Any:
         """
         Verificações de tipo string
         """
@@ -39,7 +40,7 @@ class CheckTypes():
 
         return str(value).strip()
 
-    def check_float(self, value: any, key: str, default: any, row: int) -> any:
+    def check_float(self, value: Any, key: str, default: Any, row: int) -> Any:
         """
         Verificações de tipo float
         """
@@ -56,7 +57,7 @@ class CheckTypes():
             raise config.CheckException
         return value
 
-    def check_time(self, value: any, key: str, default: any, row: int) -> any:
+    def check_time(self, value: Any, key: str, default: Any, row: int) -> Any:
         """ Verificações padrão do tipo TIME """
         if self.check_default(value, default):
             if not pd.notnull(value):
@@ -73,7 +74,7 @@ class CheckTypes():
 
         return value
 
-    def check_date(self, value: any, key: str, default: any, row: int) -> any:
+    def check_date(self, value: Any, key: str, default: Any, row: int) -> Any:
         """ Verificações padrão do tipo DATE
         """
         if self.check_default(value, default):
@@ -90,7 +91,7 @@ class CheckTypes():
 
         return value
 
-    def check_bool(self, value: any, key: str, default: any, row: int) -> any:
+    def check_bool(self, value: Any, key: str, default: Any, row: int) -> Any:
         """
         Verifica se o valor pode ser convertido em booleano
         retorna os mesmo valores com as devidas alterações
@@ -107,7 +108,7 @@ class CheckTypes():
             raise config.CheckException
         return value
 
-    def check_cel(self, value: any, key: str, default: any, row: int) -> any:
+    def check_cel(self, value: Any, key: str, default: Any, row: int) -> Any:
         """
         Verificações de telefone,
         retira caracteres especiais deixando apenas números
@@ -127,7 +128,7 @@ class CheckTypes():
 
         return value
 
-    def check_email(self, value: any, key: str, default: any, row: int) -> any:
+    def check_email(self, value: Any, key: str, default: Any, row: int) -> Any:
         """ Verificações padrão do tipo EMAIL
         """
         if self.check_default(value, default):
@@ -143,7 +144,7 @@ class CheckTypes():
 
         return email
 
-    def check_cpf(self, value: any, key: str, default: any, row: int) -> any:
+    def check_cpf(self, value: Any, key: str, default: Any, row: int) -> Any:
         if self.check_default(value, default):
             return default
 
@@ -157,7 +158,7 @@ class CheckTypes():
             return default
         return cpf
 
-    def check_sex(self, value: any, key: str, default: any, row: int) -> any:
+    def check_sex(self, value: Any, key: str, default: Any, row: int) -> Any:
         if self.check_default(value, default):
             return default
 
@@ -169,9 +170,7 @@ class CheckTypes():
 
         return sex
 
-
-
-    def check_length(self, value: any, key: str, row: int, length: int) -> any:
+    def check_length(self, value: Any, key: str, row: int, length: int) -> Any:
         """
         Verifica se o tamanho do texto é menor que a
         quantidade máxima permitida (length)
@@ -190,7 +189,7 @@ class CheckTypes():
 
         return value
 
-    def check_default(self, value: any, default: any) -> bool:
+    def check_default(self, value: Any, default: Any) -> bool:
         """
         Verifica se o valor é igual ao valor padrão,
         se for retorna True, se não retorna False

@@ -1,6 +1,8 @@
 import sys
-from pandas import DataFrame, ExcelFile
+from typing import Any
+
 from alive_progress import alive_bar
+from pandas import DataFrame, ExcelFile
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import ApiServicos
 from oneparams.config import CheckException, config_bar_api
@@ -105,14 +107,14 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
         grupo.clear()
 
 
-def check_descricao(value: any, key: str, row: int, default: any) -> any:
+def check_descricao(value: Any, key: str, row: int, default: Any) -> Any:
     if value is None:
         print(f"ERROR! in line {row}, Column {key}, empty value")
         raise CheckException
     return value
 
 
-def check_comissao(value: any, key: str, row: int, default: any) -> float:
+def check_comissao(value: Any, key: str, row: int, default: Any) -> float:
     try:
         value = float(value)
     except ValueError as exp:
