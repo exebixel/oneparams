@@ -5,7 +5,7 @@ abstrações dos parametros passados pela cli estão todas aqui
 import sys
 
 import click
-import pandas as pd
+from pandas import ExcelFile
 from oneparams import __version__
 
 from oneparams import config
@@ -118,11 +118,11 @@ def cli_login(kwargs: dict):
               empresa_id=kwargs['empresa_id'])
 
 
-def cli_file(worksheet: str) -> pd.ExcelFile:
+def cli_file(worksheet: str) -> ExcelFile:
     """ Verifica se o arquivo é valido
     """
     try:
-        return pd.ExcelFile(worksheet)
+        return ExcelFile(worksheet)
     except FileNotFoundError as exp:
         sys.exit(exp)
     except ValueError as exp:

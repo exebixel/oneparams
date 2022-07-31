@@ -2,6 +2,7 @@ import random
 import re
 import string
 import unicodedata
+from typing import Any, Optional
 from datetime import datetime
 from difflib import SequenceMatcher
 
@@ -156,7 +157,7 @@ def create_email() -> str:
     return f'one_{rand}@onebeleza.com'
 
 
-def check_email(email: str) -> str:
+def check_email(email: str) -> Optional[str]:
     """ Verifica se um email é valido
     """
     if email is None:
@@ -171,7 +172,7 @@ def check_email(email: str) -> str:
         return None
 
 
-def get_cpf(numbers: str) -> str:
+def get_cpf(numbers: str) -> Optional[str]:
     #  Obtém os números do CPF e ignora outros caracteres
     cpf = [int(char) for char in numbers if char.isdigit()]
 
@@ -218,7 +219,7 @@ def card_type(card: str) -> str:
     raise TypeError(f"unrecognized card type '{card}'")
 
 
-def get_bool(value: any) -> bool:
+def get_bool(value: Any) -> Optional[bool]:
     """
     Recebe uma parâmetro (value) contendo "sim" ou "nao",
     e retorna True ou False
@@ -240,7 +241,7 @@ def get_bool(value: any) -> bool:
     return None
 
 
-def get_sex(value: str) -> str:
+def get_sex(value: str) -> Optional[str]:
     value = str(value).strip().upper()
 
     if re.search("^M", value):
