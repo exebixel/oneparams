@@ -1,6 +1,6 @@
 import re
 import sys
-from typing import Callable, Any
+from typing import Callable, Any, Union
 from alive_progress import alive_bar
 
 import pandas as pd
@@ -68,22 +68,30 @@ class Excel:
         raise ValueError(
             f"ERROR! Sheet '{search}' not found! Rename your sheet!")
 
-    def column_name(self, column_name: str) -> str:
+    def column_name(self, column_name: Union[str, list[str]]) -> str:
         """
         Resquias e retorna o nome da coluna da planilha,
         se não encontrar, retorna ValueError
         """
         excel = self.excel
+        if isinstance(column_name, str):
+            column_name = [column_name]
+
         for header in excel.keys():
             header_name = string_normalize(header)
-            if re.search(column_name, header_name, re.IGNORECASE):
+            count = 0
+            for name in column_name:
+                if re.search(name, header_name, re.IGNORECASE):
+                    count += 1
+            if count == len(column_name):
                 return header
 
-        raise ValueError(f"Column '{column_name}' not found!")
+        column_formated = " ".join(column_name)
+        raise ValueError(f"Column '{column_formated}' not found!")
 
     def add_column(self,
                    key: str,
-                   name: str,
+                   name: Union[str, list[str]],
                    required: bool = True,
                    default: Any = None,
                    types: str = "string",
