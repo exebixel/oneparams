@@ -26,7 +26,7 @@ def cards(book: ExcelFile, header: int = 1, reset: bool = False):
     ex.add_column(key="formaDePagamentoId", name="forma de pagamento")
     ex.add_column(key="comissao", name="comissao", default=0, types="float")
     ex.add_column(key="comissaoNegociadaOperadora",
-                  name="cobrada",
+                  name=["taxa", "cobrada", "operadora"],
                   default=0,
                   types="float")
     ex.add_column(key="operadoraCartaoId",
