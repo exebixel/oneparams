@@ -1,7 +1,7 @@
 import sys
 from typing import Any
 
-from pandas import ExcelFile, DataFrame, isnull
+from pandas import ExcelFile, isnull
 from alive_progress import alive_bar
 from oneparams.api.cards import ApiCard
 from oneparams.api.conta import ApiConta
@@ -42,7 +42,7 @@ def cards(book: ExcelFile, header: int = 1, reset: bool = False):
     ex.clean_columns()
 
     invalid = ex.check_all(check_row=check_forma_pagamento,
-                           checks_final=[check_duplications])
+                           check_duplicated_keys=["descricao"])
     if invalid:
         sys.exit(1)
 
@@ -126,21 +126,5 @@ def check_forma_pagamento(row: int, data: dict) -> dict:
         data["debito_Credito"] = "D"
     else:
         data["debito_Credito"] = "O"
-
-    return data
-
-
-def check_duplications(data: DataFrame) -> DataFrame:
-    erros = False
-    duplic = data[data.duplicated(keep=False,
-                                  subset=["descricao", "debito_Credito"])]
-    if not duplic.empty:
-        erros = True
-        duplic.apply(lambda x: print(
-            f'ERROR! in line {x["row"]}: Card {x["descricao"]} is duplicated'),
-                     axis=1)
-
-    if erros:
-        raise CheckException
 
     return data

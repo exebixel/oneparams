@@ -1,7 +1,7 @@
 import sys
 from typing import Any
 
-from pandas import ExcelFile, DataFrame, isnull
+from pandas import ExcelFile, isnull
 from alive_progress import alive_bar
 from oneparams.api.colaborador import ApiColaboradores
 from oneparams.config import CheckException, config_bar_api
@@ -51,7 +51,9 @@ def colaborador(book: ExcelFile, header: int = 1):
                   types="bool")
     ex.clean_columns()
 
-    invalid = ex.check_all(check_row=checks, checks_final=[check_duplications])
+    invalid = ex.check_all(
+        check_row=checks_row,
+        check_duplicated_keys=["nomeCompleto", "email", "celular"])
     if invalid:
         sys.exit(1)
 
@@ -80,7 +82,7 @@ def checks_perfil(value: Any, key: str, row: int, default: Any) -> str:
     return value
 
 
-def checks(row: int, data: dict) -> dict:
+def checks_row(row: int, data: dict) -> dict:
     one = ApiColaboradores()
     try:
         data = one.name_to_id(data)
@@ -88,33 +90,5 @@ def checks(row: int, data: dict) -> dict:
         for i in exp.args:
             print(f'ERROR! in line {row}: {i}')
         raise CheckException from exp
-
-    return data
-
-
-def check_duplications(data: DataFrame) -> DataFrame:
-    erros = False
-    cols = {
-        "nomeCompleto":
-        "ERROR! in lines {} and {}: Collaborator '{}' is duplicated",
-        "email":
-        "ERROR! in lines {} and {}: Collaborator\'s email '{}' is duplicated",
-        "celular":
-        "ERROR! in lines {} and {}: Collaborator phone '{}' is duplicated"
-    }
-    for col, print_erro in cols.items():
-        duplic = data[data.duplicated(keep=False, subset=col)]
-        for i in duplic.loc[data[col].notnull()].index:
-            for j in duplic.loc[data[col].notnull()].index:
-                if (duplic.at[i, col] == duplic.at[j, col] and j != i):
-                    print(
-                        print_erro.format(duplic.at[i, 'row'],
-                                          duplic.at[j, 'row'], duplic.at[i,
-                                                                         col]))
-                    duplic = duplic.drop(index=i)
-                    erros = True
-                    break
-    if erros:
-        raise CheckException
 
     return data

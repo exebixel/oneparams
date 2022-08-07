@@ -1,4 +1,3 @@
-import re
 import sys
 from typing import Any
 
@@ -48,7 +47,7 @@ def clientes(book: pd.ExcelFile, header: int = 0, reset: bool = False):
                   required=False)
     ex.add_column(key="numeroEndereco",
                   name="numero",
-                  custom_function_after=check_numero_endereco,
+                  types="int",
                   required=False)
     ex.add_column(key="cidadeId", name="cidade", required=False)
     ex.add_column(key="estadoId", name="estado", required=False)
@@ -100,20 +99,6 @@ def check_nome_completo(value: Any, key: str, row: int, default: Any) -> Any:
     if pd.isnull(value):
         print(f"ERROR! in line {row}, Column {key}: Empty name")
         raise CheckException
-    return value
-
-
-def check_numero_endereco(value: Any, key: str, row: int, default: Any) -> Any:
-    if pd.isnull(value):
-        return default
-
-    value = re.sub(r'\.0$', '', str(value))
-    if not value.isdecimal():
-        print_error(f"in line {row}, column {key}: '{value}' is not a number")
-        if not config.RESOLVE_ERROS:
-            raise CheckException
-        return default
-
     return value
 
 

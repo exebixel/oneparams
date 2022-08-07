@@ -2,7 +2,7 @@ import sys
 from typing import Any
 
 from alive_progress import alive_bar
-from pandas import DataFrame, ExcelFile
+from pandas import ExcelFile
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import ApiServicos
 from oneparams.config import CheckException, config_bar_api
@@ -79,7 +79,7 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
                   types="bool")
     ex.clean_columns()
 
-    invalid = ex.check_all(checks_final=[check_duplications])
+    invalid = ex.check_all(check_duplicated_keys=["descricao"])
     if invalid:
         sys.exit(1)
 
@@ -123,34 +123,3 @@ def check_comissao(value: Any, key: str, row: int, default: Any) -> float:
     if value <= 1:
         value = value * 100
     return value
-
-
-def check_duplications(data: DataFrame) -> DataFrame:
-    """
-    self: referencia da classe excel \n
-    data: data frame com todos os dados da planilha \n
-
-    Verificações 'globais', que necessitam de todos os
-    dados da planilha, principalmente duplicações
-
-    return data \n
-    raise Exception: caso tenha algum erro durante as
-    verificações \n
-
-    """
-    erros = False
-    duplic = data[data.duplicated(keep=False, subset=["descricao"])]
-    for i in duplic.index:
-        for j in duplic.index:
-            if (duplic.at[i, "descricao"] == duplic.at[j, "descricao"]
-                    and j != i):
-                print("ERROR! in lines {} and {}: Service '{}' is duplicated".
-                      format(duplic.at[i, 'row'], duplic.at[j, 'row'],
-                             duplic.at[i, 'descricao']))
-                duplic = duplic.drop(index=i)
-                erros = True
-                break
-    if erros:
-        raise CheckException
-
-    return data
