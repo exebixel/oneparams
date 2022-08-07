@@ -59,7 +59,7 @@ def get_float(srtnum: str) -> float:
     """ Retorna o número de uma string
 
     Caso a string tenha mais de um número,
-    sejá separado por espaço ou algum outro caraptere,
+    seja separado por espaço ou algum outro caraptere,
     retorna ValueError
     """
     srtnum = str(srtnum).strip()
@@ -75,6 +75,22 @@ def get_float(srtnum: str) -> float:
     if len(nums) == 0:
         raise ValueError("Number not found")
     raise ValueError("Number is duplicated")
+
+
+def get_int(word: str) -> int:
+    """ Retorna o número inteiro de uma string
+    """
+    word = str(word).strip()
+    nums = re.findall(r"[0-9]+", word)
+    if len(nums) == 1:
+        try:
+            return int(nums[0])
+        except ValueError as exp:
+            raise ValueError(f"Cant convert number from '{word}'") from exp
+
+    if len(nums) == 0:
+        raise ValueError(f"Number not found in '{word}'")
+    raise ValueError(f"Number is duplicated in '{word}'")
 
 
 def get_time(strtime: str) -> list:
@@ -166,10 +182,9 @@ def check_email(email: str) -> Optional[str]:
                        flags=re.ASCII)
     email = no_space(str(email)).lower()
 
-    try:
-        return regex.search(email).string
-    except AttributeError:
-        return None
+    if regex.match(email):
+        return email
+    return None
 
 
 def get_cpf(numbers: str) -> Optional[str]:

@@ -2,13 +2,13 @@
 """
 import re
 from datetime import datetime, time
-from typing import Callable, Any
+from typing import Any, Callable
 
-import pandas as pd
+from pandas import DataFrame, notnull, isnull
 from oneparams import config
 from oneparams.utils import (check_email, get_bool, get_cel, get_cpf, get_date,
-                             get_float, get_sex, get_time, print_error,
-                             print_warning)
+                             get_float, get_int, get_sex, get_time,
+                             print_error, print_warning)
 
 
 class CheckTypes():
@@ -45,7 +45,7 @@ class CheckTypes():
         Verificações de tipo float
         """
         if self.check_default(value, default):
-            if not pd.notnull(value):
+            if not notnull(value):
                 print_warning(
                     f"In line {row}, Column {key}: value will be {default}")
             return default
@@ -57,10 +57,27 @@ class CheckTypes():
             raise config.CheckException
         return value
 
+    def check_int(self, value: Any, key: str, default: Any, row: int) -> Any:
+        """
+        Verificações padrão do tipo INT
+        """
+        if self.check_default(value, default):
+            return default
+
+        try:
+            value = get_int(value)
+        except ValueError as exp:
+            print_error(f"in line {row}, Column {key}: '{value}' is not valid")
+            if not config.RESOLVE_ERROS:
+                raise config.CheckException from exp
+            value = default
+
+        return value
+
     def check_time(self, value: Any, key: str, default: Any, row: int) -> Any:
         """ Verificações padrão do tipo TIME """
         if self.check_default(value, default):
-            if not pd.notnull(value):
+            if not notnull(value):
                 print_warning(
                     f"In line {row}, Column {key}: value will be {default}")
             return default
@@ -194,7 +211,7 @@ class CheckTypes():
         Verifica se o valor é igual ao valor padrão,
         se for retorna True, se não retorna False
         """
-        if pd.isnull(value):
+        if isnull(value):
             return True
         if value == default:
             return True
