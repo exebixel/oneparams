@@ -5,7 +5,9 @@ from datetime import datetime, time
 from typing import Any, Callable
 
 from pandas import DataFrame, notnull, isnull
+from alive_progress import alive_bar
 from oneparams import config
+from oneparams.config import CheckException, config_bar_excel
 from oneparams.utils import (check_email, get_bool, get_cel, get_cpf, get_date,
                              get_float, get_int, get_sex, get_time,
                              print_error, print_warning)
@@ -216,3 +218,61 @@ class CheckTypes():
         if value == default:
             return True
         return False
+
+    def check_duplications(self, data: DataFrame,
+                           keys: list[str]) -> DataFrame:
+        """
+        Verifica se há duplicatas no dataframe
+        """
+        erros = False
+
+        duplicated = {}
+        total = 0
+
+        config_bar_excel()
+        with alive_bar(len(keys), title="Calculating duplications...") as pbar:
+            for col in keys:
+                # Lista duplicidades todos os registros duplicados
+                # sem manter nenhum
+                duplicated[col] = data[data.duplicated(
+                    keep=False, subset=col)][[col, "row"]]
+
+                # Exclui items nulos
+                duplicated[col] = duplicated[col].dropna(subset=[col])
+                if not duplicated[col].empty:
+                    # altera o tipo dos dados (necessário para fazer o sort)
+                    duplicated[col][col] = duplicated[col][col].astype(str)
+                    # ordena a lista
+                    duplicated[col] = duplicated[col].sort_values(
+                        by=[col, "row"])
+                    total += len(duplicated[col].index)
+                else:
+                    duplicated.pop(col)
+                pbar()
+
+        with alive_bar(total, title="Resolving duplications...") as pbar:
+            # Verfica duplicidades no DataFrame
+            for col, duplicate in duplicated.items():
+                index = iter(duplicate.index)
+                next(index)
+                for i in duplicate.index:
+                    n = next(index, None)
+                    if (n is not None
+                            and duplicate.at[i, col] == duplicate.at[n, col]):
+                        if not config.RESOLVE_ERROS or not config.NO_WARNING:
+                            line1 = duplicate.at[i, "row"]
+                            line2 = duplicate.at[n, "row"]
+                            value = duplicate.at[i, col]
+                            p = "DUPLICATED! lines {} and {}, Column {}: value '{}'"
+                            print(p.format(line1, line2, col, value))
+
+                        if i in data.index and config.RESOLVE_ERROS:
+                            data.drop(i, inplace=True)
+                        else:
+                            erros = True
+                    pbar()
+
+        if not erros:
+            return data
+
+        raise CheckException

@@ -150,6 +150,7 @@ class Excel:
 
     def check_all(self,
                   check_row: Callable = None,
+                  check_duplicated_keys: list[str] = None,
                   checks_final: list[Callable] = None) -> bool:
         """
         Função responsável por verificar todas as colunas
@@ -203,6 +204,13 @@ class Excel:
                     pbar()
 
         # Verificações totais (duplicação de dados)
+        if check_duplicated_keys is not None:
+            try:
+                excel = self.checks.check_duplications(
+                    data=excel, keys=check_duplicated_keys)
+            except CheckException:
+                self.erros = True
+
         if checks_final is not None:
             for check in checks_final:
                 try:
