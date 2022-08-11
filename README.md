@@ -43,7 +43,7 @@ Como Usar
 
 O OneParams precisa do módulos (o que ele vai fazer) o nome da empresa, email e senha se ela for diferente da senha padrão e claro da planilha de parametrização que sera lida
 
-O OneParams tem 6 módulos:
+O OneParams tem 7 módulos:
 
  - `serv`  para manipular serviços;
 
@@ -55,6 +55,8 @@ O OneParams tem 6 módulos:
 
  - `clis`  para manipular os clientes
 
+ - `prod` para manipular os produtos (beta)
+
  - `reset` para resetar senhas de emails
 
 
@@ -65,10 +67,10 @@ Cada módulo (exceto `reset`) precisa:
  -  e claro da planilha de parametrização
 
 Também existem alguns parâmetros opcionais como:
- - `--reset` ou `-R` que serve para deletar todos os cadastros do modulo (não disponível para ` cols`)
+ - `--reset` ou `-R` que serve para deletar todos os cadastros do modulo (não disponível para `cols`)
  - `--no-warning` ou `-W` onde você pode retirar os avisos (warnings) do OneParams
- - `--no-erros` ou `-E` que implementa uma forma mais simples que resolução automática de erros (disponível apenas para o `clis` e `comm`)
- - `--skip` ou `-S` que caso o nome do cadastro da planilha já exista no banco de dados do cliente, esse cadastro é "pulado" (disponível apenas para o `clis`)
+ - `--no-erros` ou `-E` que implementa uma forma mais simples que resolução automática de erros (disponível apenas para o `clis`, `comm` e `prod`)
+ - `--skip` ou `-S` que caso o nome do cadastro da planilha já exista no banco de dados do cliente, esse cadastro é "pulado" (disponível apenas para o `clis` e `prod`)
 
 ### Exemplos
 
@@ -82,7 +84,7 @@ Se quiser apenas cadastrar os serviços da planilha basta tirar o `-R`, assim:
 $ one serv -l emailteste@one.com -e "nome da empresa" planilha.xlsx
 ```
 
-E alterando o modulo `serv` para `cols`, `card`, `comm` ou `clis` é possível usar as outras funções do OneParams
+E alterando o modulo `serv` para `cols`, `card`, `comm`, `clis` ou `prod` é possível usar as outras funções do OneParams
 
 
 Documentação
