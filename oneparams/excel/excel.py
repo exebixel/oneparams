@@ -1,6 +1,6 @@
 import re
 import sys
-from typing import Callable, Any, Union
+from typing import Callable, Any, Literal, Union
 from alive_progress import alive_bar
 
 import pandas as pd
@@ -94,7 +94,9 @@ class Excel:
                    name: Union[str, list[str]],
                    required: bool = True,
                    default: Any = None,
-                   types: str = "string",
+                   types: Literal["string", "int", "float", "bool", "date",
+                                  "time", "email", "cel", "cpf",
+                                  "sex"] = "string",
                    length: int = 0,
                    custom_function_before: Callable = None,
                    custom_function_after: Callable = None):

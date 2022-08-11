@@ -81,6 +81,7 @@ def get_int(word: str) -> int:
     """ Retorna o número inteiro de uma string
     """
     word = str(word).strip()
+    word = re.sub(r'\.0$', '', str(word))
     nums = re.findall(r"[0-9]+", word)
     if len(nums) == 1:
         try:

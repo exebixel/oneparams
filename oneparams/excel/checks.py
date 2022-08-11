@@ -56,7 +56,10 @@ class CheckTypes():
             value = get_float(value)
         except ValueError as exp:
             print_error(f"In line {row}, Column {key}: {exp}")
-            raise config.CheckException
+            if not config.RESOLVE_ERROS:
+                raise config.CheckException from exp
+            value = default
+
         return value
 
     def check_int(self, value: Any, key: str, default: Any, row: int) -> Any:
@@ -69,7 +72,7 @@ class CheckTypes():
         try:
             value = get_int(value)
         except ValueError as exp:
-            print_error(f"in line {row}, Column {key}: '{value}' is not valid")
+            print_error(f"in line {row}, Column {key}: {exp}")
             if not config.RESOLVE_ERROS:
                 raise config.CheckException from exp
             value = default
