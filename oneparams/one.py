@@ -6,14 +6,14 @@ import sys
 
 import click
 from pandas import ExcelFile
-from oneparams import __version__
 
-from oneparams import config
+from oneparams import __version__, config
 from oneparams.api.login import Login
 from oneparams.excel.card import cards
 from oneparams.excel.cliente import clientes
 from oneparams.excel.colaborador import colaborador
 from oneparams.excel.comissao import Comissao
+from oneparams.excel.produto import produtos
 from oneparams.excel.servicos import servico
 from oneparams.reset import pw_reset
 
@@ -44,7 +44,7 @@ _global_options = [
                  required=False,
                  type=int,
                  default=0,
-                 help="Company id (if have some companies with same name)"),
+                 help="Company id (if have companies with same name)"),
     click.option('-f',
                  '--filial',
                  'filial',
@@ -57,7 +57,7 @@ _global_options = [
                  required=False,
                  type=int,
                  default=2,
-                 help="line that will be used as header (default = 2)"),
+                 help="Line that will be used as header (default = 2)"),
     click.option('-W',
                  '--no-warning',
                  'warning',
@@ -206,6 +206,22 @@ def clis(**kwargs):
                warning=kwargs['warning'],
                skip=kwargs['skip'])
     clientes(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
+
+
+@cli.command(help="Manipulating Products (beta)")
+@add_option(_global_options)
+@add_option(_reset_options)
+@add_option(_error_options)
+@add_option(_skip_options)
+def prod(**kwargs):
+    """ Chama as funções do modulo de Produtos
+    """
+    cli_login(kwargs)
+    book = cli_file(kwargs['worksheet'])
+    cli_config(warning=kwargs['warning'],
+               error=kwargs['error'],
+               skip=kwargs['skip'])
+    produtos(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
 @cli.command(help="Password Reset")
