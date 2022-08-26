@@ -27,9 +27,14 @@ def produtos(book: ExcelFile, header: int = 1, reset: bool = False):
                   length=50,
                   default="Padrão",
                   custom_function_before=check_fabricante_before)
+    ex.add_column(key="gruposId",
+                  name="grupo",
+                  length=100,
+                  default="Padrão",
+                  custom_function_before=check_linha_before)
     ex.add_column(key="linhasId",
                   name="linha",
-                  length=50,
+                  length=100,
                   default="Padrão",
                   custom_function_before=check_linha_before)
     ex.add_column(key="estoqueMinimo", name="estoque", default=0, types="int")

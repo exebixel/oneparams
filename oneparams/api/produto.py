@@ -1,5 +1,6 @@
 from oneparams.api.base_diff import BaseDiff
 from oneparams.api.linha_produto import ApiLinhaProduto
+from oneparams.api.grupo_produto import ApiGrupoProduto
 from oneparams.api.fabricante import ApiFabricante
 
 
@@ -26,6 +27,7 @@ class ApiProdutos(BaseDiff):
                          submodules={
                              "linhasId": ApiLinhaProduto(),
                              "fabricantesId": ApiFabricante(),
+                             "gruposId": ApiGrupoProduto()
                          },
                          handle_errors={
                              "API.OPRODUTOS.DELETE.REFERENCE":
