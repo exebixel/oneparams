@@ -79,11 +79,12 @@ def check_descricao(value: Any, key: str, row: int, default: Any) -> str:
 
 def check_contas(value: Any, key: str, row: int, default: Any) -> int:
     conta = ApiConta()
-    value = conta.submodule_id(value)
-    if value is None:
+    try:
+        value = conta.submodule_id(value)
+    except ValueError as exp:
         print(
             f"ERROR! in line {row}, Column {key}: Account '{value}' not found")
-        raise CheckException
+        raise CheckException from exp
     return value
 
 
