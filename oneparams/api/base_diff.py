@@ -7,7 +7,7 @@ from requests import Response
 
 from alive_progress import alive_bar
 from oneparams.api.base import BaseApi
-from oneparams.config import config_bar_api
+from oneparams.config import config_bar_excel
 from oneparams.utils import deemphasize
 
 
@@ -165,7 +165,7 @@ class BaseDiff(BaseApi, ABC):
         else:
             all_ids = self.items_active()
 
-        config_bar_api()
+        config_bar_excel()
         with alive_bar(len(all_ids),
                        title=f"Getting {self.item_name} details") as pbar:
             for item_id in all_ids:
