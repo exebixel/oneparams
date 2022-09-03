@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "One Prod",
+            "type": "python",
+            "request": "launch",
+            "program": "oneparams/one.py",
+            "args": [
+                "prod",
+                "-l",
+                "ezequielnat7@gmail.com",
+                "-e",
+                "teste piloto lite",
+                "Planilha_Produto_Padrão.xlsx",
+                // "-WE",
+            ],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "One Clis",
             "type": "python",
             "request": "launch",
@@ -16,8 +32,8 @@
                 "-e",
                 "teste piloto lite",
                 "clientes.xlsx",
-                "-EW",
-                "-h 2"
+                "-WE",
+                "-h 1"
             ],
             "console": "integratedTerminal"
         },
@@ -47,8 +63,8 @@
                 "ezequielnat7@gmail.com",
                 "-e",
                 "teste piloto lite",
-                "Parametrizacao Sistema One Teste.xlsx",
-                "-E"
+                "Mood Beauty.xlsx",
+                "-ER"
             ],
             "console": "integratedTerminal"
         },
