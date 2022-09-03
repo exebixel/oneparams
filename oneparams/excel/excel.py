@@ -313,6 +313,9 @@ class Excel:
 
     def data_all(self) -> dict:
         excel = self.excel
+        if excel.empty:
+            return {}
+
         excel = excel.drop(columns="row")
         excel = excel.where(pd.notnull(excel), None)
         return excel.to_dict('records')
