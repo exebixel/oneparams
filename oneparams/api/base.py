@@ -1,5 +1,6 @@
 import json
 import sys
+from urllib3.exceptions import InsecureRequestWarning
 
 import requests
 
@@ -13,6 +14,13 @@ class BaseApi:
 
     header = {'Content-Type': 'application/json'}
     api_url = "https://oneapilite.azurewebsites.net/api"
+
+    # api_url = "https://oneapilite-preprod.azurewebsites.net/api"
+    # api_url = "https://localhost:5001/api"
+
+    def __init_subclass__(cls):
+        requests.packages.urllib3.disable_warnings(
+            category=InsecureRequestWarning)
 
     def update_token(self, token: str) -> None:
         """
@@ -30,6 +38,8 @@ class BaseApi:
         try:
             return requests.post(f"{self.api_url}{url}",
                                  headers=self.header,
+                                 verify=False,
+                                 timeout=20,
                                  data=json.dumps(data))
         except requests.exceptions.ConnectionError:
             sys.exit("\nConnection error!!\nCheck your internet connection")
@@ -39,7 +49,10 @@ class BaseApi:
         Get request, URL base já inclusa
         """
         try:
-            return requests.get(f"{self.api_url}{url}", headers=self.header)
+            return requests.get(f"{self.api_url}{url}",
+                                headers=self.header,
+                                timeout=20,
+                                verify=False)
         except requests.exceptions.ConnectionError:
             sys.exit("\nConnection error!!\nCheck your internet connection")
 
@@ -48,7 +61,10 @@ class BaseApi:
         Delete request, URL base já inclusa
         """
         try:
-            return requests.delete(f"{self.api_url}{url}", headers=self.header)
+            return requests.delete(f"{self.api_url}{url}",
+                                   headers=self.header,
+                                   timeout=20,
+                                   verify=False)
         except requests.exceptions.ConnectionError:
             sys.exit("\nConnection error!!\nCheck your internet connection")
 
@@ -59,6 +75,8 @@ class BaseApi:
         try:
             return requests.put(f"{self.api_url}{url}",
                                 headers=self.header,
+                                verify=False,
+                                timeout=20,
                                 data=json.dumps(data))
         except requests.exceptions.ConnectionError:
             sys.exit("\nConnection error!!\nCheck your internet connection")
@@ -70,22 +88,20 @@ class BaseApi:
         try:
             return requests.patch(f"{self.api_url}{url}",
                                   headers=self.header,
+                                  verify=False,
+                                  timeout=20,
                                   data=json.dumps(data))
         except requests.exceptions.ConnectionError:
             sys.exit("\nConnection error!!\nCheck your internet connection")
 
-    def status_ok(self,
-                  response: requests.Response,
-                  erro_exit: bool = True) -> bool:
+    def status_ok(self, response: requests.Response) -> bool:
         """
         verifica se e requisição foi feita com sucesso (200),
         por padrão se a requisição falhou o programa é encerrado,
         é possível alterar isso com erro_exit=False
         """
         if not response.ok:
-            print(f'Erro code: {response.status_code}')
             print(response.text)
-            if erro_exit:
-                sys.exit(1)
+            sys.exit(1)
             return False
         return True

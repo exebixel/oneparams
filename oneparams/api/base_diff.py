@@ -1,10 +1,9 @@
 import json
 from pprint import pprint
 import re
-import string
 import sys
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Optional
 from requests import Response
 
 from alive_progress import alive_bar
@@ -86,8 +85,7 @@ class BaseDiff(BaseApi, ABC):
             return None
 
         response = self.post(self.__url_create, data=data)
-        if not self.status_ok(response):
-            pprint(data)
+        if not self.status_ok(response, data):
             response.raise_for_status()
 
         print(f"created '{data[self.key_name]}' {self.item_name}")
@@ -132,8 +130,7 @@ class BaseDiff(BaseApi, ABC):
 
         response = self.put(f"{self.__url_update}/{data[self.key_id]}",
                             data=data)
-        if not self.status_ok(response):
-            pprint(data)
+        if not self.status_ok(response, data):
             response.raise_for_status()
 
         print(f"updated '{data[self.key_name]}' {self.item_name}")
@@ -171,7 +168,8 @@ class BaseDiff(BaseApi, ABC):
 
         print(f"researching {self.item_name}")
         response = self.get(self.__url_get_all)
-        response.raise_for_status()
+        if not self.status_ok(response):
+            response.raise_for_status()
         for i in json.loads(response.content):
             item = {}
             item[self.key_id] = i[self.key_id]
@@ -391,6 +389,7 @@ class BaseDiff(BaseApi, ABC):
 
         else:
             print(f"skiped '{data[self.key_name]}' {self.item_name}")
+            return None
 
     def submodule_id(self, name: str) -> int:
         item_id = self.item_id({self.key_name: name})
@@ -419,8 +418,7 @@ class BaseDiff(BaseApi, ABC):
         response = self.put(f"{self.__url_inactive}/{data[self.key_id]}",
                             data=data)
 
-        if not self.status_ok(response):
-            pprint(data)
+        if not self.status_ok(response, data):
             response.raise_for_status()
 
         print(f"inactivated '{data[self.key_name]}' {self.item_name}")
@@ -483,23 +481,23 @@ class BaseDiff(BaseApi, ABC):
                 name = None
                 item_id = None
                 if data is not None:
-                    name = data[self.key_name]
-                    item_id = data[self.key_id]
+                    if self.key_name in data:
+                        name = data[self.key_name]
+                    if self.key_id in data:
+                        item_id = data[self.key_id]
 
                 for error_key, message in self.__handle_error.items():
                     if error_key == response.text:
-                        parse = [
-                            tup[1] for tup in string.Formatter().parse(message)
-                            if tup[1] is not None
-                        ]
-                        if "name" in parse:
-                            message = message.format(name=name)
-                        if "id" in parse:
-                            message = message.format(id=item_id)
+                        # parse = [
+                        #     tup[1] for tup in string.Formatter().parse(message)
+                        #     if tup[1] is not None
+                        # ]
+                        message = message.format(name=name, id=item_id)
                         print(message)
                         return False
 
             pprint(response.text)
             pprint(data)
-            response.raise_for_status()
+            return False
+
         return True
