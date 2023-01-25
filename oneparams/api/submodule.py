@@ -2,6 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from urllib.parse import quote
 
+from oneparams.utils import deemphasize
 from oneparams.api.base_diff import BaseDiff
 
 
@@ -12,6 +13,7 @@ class SubModuleApi(BaseDiff, ABC):
                  key_name: str,
                  item_name: str,
                  url_search: str,
+                 keys_search: list,
                  key_search_term: str = "searchTerm",
                  url_create: str = None,
                  url_delete: str = None) -> None:
@@ -19,6 +21,7 @@ class SubModuleApi(BaseDiff, ABC):
         super().__init__(key_id=key_id,
                          key_name=key_name,
                          item_name=item_name,
+                         keys_search=keys_search,
                          url_create=url_create,
                          url_delete=url_delete)
 
@@ -42,11 +45,22 @@ class SubModuleApi(BaseDiff, ABC):
         name = quote(name)
         response = self.get(
             f"{self.__url_search}?{self.__key_search_term}={name}")
-        self.status_ok(response)
+        if not self.status_ok(response):
+            response.raise_for_status()
 
         content = json.loads(response.content)
         for i in content:
             self.items[i[self.key_id]] = i
+            for key in self.keys_search:
+                if key not in self.name_list:
+                    self.name_list[key] = {}
+
+                value = deemphasize(i[key])
+                if value in self.name_list[key]:
+                    self.name_list[key][value].append(i[self.key_id])
+                else:
+                    self.name_list[key][value] = [i[self.key_id]]
+
         return content
 
     def submodule_id(self, name: str) -> int:

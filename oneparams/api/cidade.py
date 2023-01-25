@@ -6,29 +6,31 @@ class ApiCidade(SubModuleApi):
 
     items: dict = {}
     know_erros: list = []
+    name_list: dict = {}
 
     def __init__(self) -> None:
         super().__init__(key_id="cidadesId",
                          key_name="descricao",
                          item_name="cidade",
+                         keys_search=["descricao"],
                          url_search="/OCidadesEstados/PesquisaCidade",
                          key_search_term="descricao")
 
     def item_id(self, data: dict) -> int:
-        name = deemphasize(data[self.key_name])
         try:
             uf_state = state_to_uf(data["siglaEstado"])
         except ValueError:
             return 0
 
-        try:
-            for key, item in self.items.items():
-                item_normalized = deemphasize(item[self.key_name])
-                if (item_normalized == name
-                        and uf_state == item["siglaEstado"]):
-                    return key
-        except KeyError:
-            return 0
+        for key in self.keys_search:
+            name = deemphasize(data[key])
+            try:
+                for item_id in self.name_list[key][name]:
+                    uf_state_item = self.items[item_id]["siglaEstado"]
+                    if uf_state_item == uf_state:
+                        return item_id
+            except KeyError:
+                pass
         return 0
 
     def submodule_id(self, city: str, state: str) -> dict:
