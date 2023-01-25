@@ -12,11 +12,13 @@ class ApiProdutos(BaseDiff):
     items: dict = {}
     list_details: dict = {}
     first_get: bool = False
+    name_list: dict = {}
 
     def __init__(self):
         super().__init__(key_id="produtosId",
                          key_name="descricao",
                          item_name="product",
+                         keys_search=["descricao"],
                          url_create="/OProdutos/CreateProdutosOneParams",
                          url_update="/OProdutos/UpdateProdutosOneParams",
                          url_get_all="/OProdutos/ListaDetalhesProdutos",
@@ -26,12 +28,12 @@ class ApiProdutos(BaseDiff):
                          key_active="ativo",
                          submodules={
                              "linhasId": ApiLinhaProduto(),
-                             "fabricantesId": ApiFabricante(),
-                             "gruposId": ApiGrupoProduto()
+                             "gruposId": ApiGrupoProduto(),
+                             "fabricantesId": ApiFabricante()
                          },
                          handle_errors={
                              "API.OPRODUTOS.DELETE.REFERENCE":
-                             "Cant delete product..."
+                             "Cant delete product {id} - '{name}'..."
                          })
 
         if not ApiProdutos.first_get:
@@ -39,14 +41,9 @@ class ApiProdutos(BaseDiff):
             ApiProdutos.first_get = True
 
     def get_all(self):
-        items = super().get_all()
         ApiProdutos.items = {}
-        for i in items:
-            self.items[i[self.key_id]] = {
-                self.key_id: i[self.key_id],
-                self.key_name: i[self.key_name],
-                self.key_active: i[self.key_active]
-            }
+        ApiProdutos.name_list = {}
+        return super().get_all()
 
     def add_item(self, data: dict, response: dict) -> int:
         data = {
