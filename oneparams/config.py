@@ -6,6 +6,8 @@ RESOLVE_ERROS = False
 NO_WARNING = False
 SKIP = False
 
+MAX_THREADS = 4
+
 
 def config_bar_api():
     """ Configuração padrão da barra de progresso para API

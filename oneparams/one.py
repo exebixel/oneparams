@@ -64,7 +64,14 @@ _global_options = [
                  required=False,
                  is_flag=True,
                  default=False,
-                 help="Suppress warnings")
+                 help="Suppress warnings"),
+    click.option('-t',
+                 '--threads',
+                 'threads',
+                 required=False,
+                 type=int,
+                 default=4,
+                 help="Max threads (default = 4)")
 ]
 _reset_options = [
     click.option('-R',
@@ -129,12 +136,16 @@ def cli_file(worksheet: str) -> ExcelFile:
         sys.exit(exp)
 
 
-def cli_config(error: bool = False, warning: bool = False, skip: bool = False):
+def cli_config(error: bool = False,
+               warning: bool = False,
+               skip: bool = False,
+               max_threads: int = 4):
     """ Setta as variaveis de configuração
     """
     config.RESOLVE_ERROS = error
     config.NO_WARNING = warning
     config.SKIP = skip
+    config.MAX_THREADS = max_threads
 
 
 @click.group()
@@ -152,7 +163,7 @@ def serv(**kwargs):
     """
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
-    cli_config(warning=kwargs['warning'])
+    cli_config(warning=kwargs['warning'], max_threads=kwargs['threads'])
     servico(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
@@ -163,7 +174,7 @@ def cols(**kwargs):
     """
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
-    cli_config(warning=kwargs['warning'])
+    cli_config(warning=kwargs['warning'], max_threads=kwargs['threads'])
     colaborador(book, header=kwargs['header'] - 1)
 
 
@@ -175,7 +186,7 @@ def card(**kwargs):
     """
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
-    cli_config(warning=kwargs['warning'])
+    cli_config(warning=kwargs['warning'], max_threads=kwargs['threads'])
     cards(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
@@ -188,7 +199,9 @@ def comm(**kwargs):
     """
     cli_login(kwargs)
     book = cli_file(kwargs['worksheet'])
-    cli_config(warning=kwargs['warning'], error=kwargs['error'])
+    cli_config(warning=kwargs['warning'],
+               error=kwargs['error'],
+               max_threads=kwargs['threads'])
     Comissao(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
@@ -204,7 +217,8 @@ def clis(**kwargs):
     book = cli_file(kwargs['worksheet'])
     cli_config(error=kwargs['error'],
                warning=kwargs['warning'],
-               skip=kwargs['skip'])
+               skip=kwargs['skip'],
+               max_threads=kwargs['threads'])
     clientes(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
@@ -220,7 +234,8 @@ def prod(**kwargs):
     book = cli_file(kwargs['worksheet'])
     cli_config(warning=kwargs['warning'],
                error=kwargs['error'],
-               skip=kwargs['skip'])
+               skip=kwargs['skip'],
+               max_threads=kwargs['threads'])
     produtos(book, reset=kwargs['reset'], header=kwargs['header'] - 1)
 
 
