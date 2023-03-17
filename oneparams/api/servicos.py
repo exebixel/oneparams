@@ -10,12 +10,14 @@ class ApiServicos(BaseDiff):
     items: dict = {}
     list_details: dict = {}
     first_get: bool = False
+    name_list: dict = {}
 
     def __init__(self):
         super().__init__(
             key_id="servicosId",
             key_name="descricao",
             item_name="service",
+            keys_search=["descricao"],
             url_create="/Servicos/CreateServicosLight",
             url_update="/OServicosComis/UpdateServicosLight",
             url_get_all="/OGservsServicos/ListaDetalhesServicosLight",
@@ -26,7 +28,8 @@ class ApiServicos(BaseDiff):
             key_active="flagAtivo",
             submodules={"gservId": Gservis()},
             handle_errors={
-                "API.SERVICOS.DELETE.REFERENCE": "Cant delete service..."
+                "API.SERVICOS.DELETE.REFERENCE":
+                "Cant delete '{name}' service..."
             })
 
         if not ApiServicos.first_get:
@@ -34,21 +37,14 @@ class ApiServicos(BaseDiff):
             ApiServicos.first_get = True
 
     def get_all(self):
-        items = super().get_all()
         ApiServicos.items = {}
-        for i in items:
-            self.items[i[self.key_id]] = {
-                self.key_id: i[self.key_id],
-                self.key_name: i[self.key_name],
-                self.key_active: i[self.key_active]
-            }
+        ApiServicos.name_list = {}
+        return super().get_all()
 
     def add_item(self, data: dict, response: dict) -> int:
-        item_id = response[self.key_id]
+        response["data"] = response[self.key_id]
         data = {
-            self.key_id: item_id,
             self.key_name: data[self.key_name],
             self.key_active: data[self.key_active]
         }
-        ApiServicos.items[item_id] = data
-        return item_id
+        return super().add_item(data, response)
