@@ -1,8 +1,13 @@
 import sys
+from concurrent.futures import wait
 from typing import Any
 
 from alive_progress import alive_bar
 from pandas import ExcelFile
+from pebble import ThreadPool
+from requests.exceptions import HTTPError
+
+from oneparams import config
 from oneparams.api.gservs import Gservis
 from oneparams.api.servicos import ApiServicos
 from oneparams.config import CheckException, config_bar_api
@@ -65,7 +70,7 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
                   default=True,
                   types="bool")
     ex.add_column(key="valPercComissao",
-                  name="tipo comissao",
+                  name=["tipo", "comissao"],
                   required=False,
                   default="P")
     ex.add_column(key="valPercCustos",
@@ -83,27 +88,67 @@ def servico(book: ExcelFile, header: int = 1, reset: bool = False):
     if invalid:
         sys.exit(1)
 
-    print("creating services")
     data = ex.data_all()
 
+    print("calculating items")
     len_data = len(data)
+    groups = []
+    gserv = Gservis()
+    for item in data:
+        if (item["gservId"] not in groups
+                and gserv.item_id({gserv.key_name: item["gservId"]}) == 0):
+            groups.append(item["gservId"])
+    len_data += len(groups)
+
     if reset:
         len_data += len(one.items)
 
+    print("starting process")
     config_bar_api()
     with alive_bar(len_data) as pbar:
-        if reset:
-            for i in list(one.items):
-                one.delete(i)
-                pbar()
+        with ThreadPool(max_workers=config.MAX_THREADS) as pool:
 
-        for row in data:
-            one.diff_item(row)
-            pbar()
+            def result_item(future):
+                try:
+                    future.result()
+                    pbar()
+                except (HTTPError, Exception) as exp:
+                    print(f"ERROR: {exp}")
+                    pool.stop()
+                    sys.exit(1)
+
+            queues = []
+
+            if reset:
+                for item in list(one.items):
+                    future = pool.submit(one.delete, item)
+                    future.add_done_callback(result_item)
+                    queues.append(future)
+                results = wait(queues, return_when="FIRST_EXCEPTION")
+                if results.not_done:
+                    pool.stop()
+                    sys.exit(1)
+
+            queues = []
+            for item in groups:
+                future = pool.submit(gserv.submodule_id, item)
+                future.add_done_callback(result_item)
+                queues.append(future)
+            results = wait(queues, return_when="FIRST_EXCEPTION")
+            if results.not_done:
+                pool.stop()
+                sys.exit(1)
+
+            for item in data:
+                future_create = pool.submit(one.diff_item, item)
+                future_create.add_done_callback(result_item)
+            results = wait(queues, return_when="FIRST_EXCEPTION")
+            if results.not_done:
+                pool.stop()
+                sys.exit(1)
 
     with alive_bar() as pbar:
         grupo = Gservis()
-        grupo.get_all()
         grupo.clear()
 
 
