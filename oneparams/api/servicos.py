@@ -43,8 +43,4 @@ class ApiServicos(BaseDiff):
 
     def add_item(self, data: dict, response: dict) -> int:
         response["data"] = response[self.key_id]
-        data = {
-            self.key_name: data[self.key_name],
-            self.key_active: data[self.key_active]
-        }
         return super().add_item(data, response)

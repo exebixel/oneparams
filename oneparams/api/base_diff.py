@@ -108,15 +108,20 @@ class BaseDiff(BaseApi, ABC):
         dos dados
         """
         item_id = response["data"]
-        data[self.key_id] = item_id
-        self.items[item_id] = data
+        data_item = {}
+
+        data_item[self.key_id] = item_id
+        if self.key_active is not None:
+            data_item[self.key_active] = data[self.key_active]
 
         for key in self.keys_search:
             value = deemphasize(data[key])
+            data_item[key] = value
             if value in self.name_list[key]:
                 self.name_list[key][value].append(item_id)
             else:
                 self.name_list[key][value] = [item_id]
+        self.items[item_id] = data_item
         return item_id
 
     def update(self, data: dict) -> Optional[int]:
@@ -272,10 +277,6 @@ class BaseDiff(BaseApi, ABC):
             except KeyError:
                 continue
         return 0
-        # key, item in self.items.items():
-        #     item_normalized = deemphasize(item[self.key_name])
-        #     if item_normalized == name:
-        #         return key
 
     def search_item_by_name(self, nome: str, inactive: bool = False) -> int:
         """

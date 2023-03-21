@@ -44,10 +44,3 @@ class ApiProdutos(BaseDiff):
         ApiProdutos.items = {}
         ApiProdutos.name_list = {}
         return super().get_all()
-
-    def add_item(self, data: dict, response: dict) -> int:
-        data = {
-            self.key_name: data[self.key_name],
-            self.key_active: data[self.key_active]
-        }
-        return super().add_item(data, response)
